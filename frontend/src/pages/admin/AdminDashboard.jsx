@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PageContainer from "../../components/layout/PageContainer";
 import useAuth from "../../hooks/useAuth";
 import Badge from "../../components/common/Badge";
+import Icon from "../../components/common/Icon";
 import { getEmployees } from "../../api/adminApi";
 import { formatRole, formatStatus } from "../../utils/enumUtils";
 
@@ -72,7 +73,6 @@ export default function AdminDashboard() {
                 });
                 setRecentEmployees(recents);
             } catch {
-                // Fallback default state
                 setStats({
                     totalEmployees: 0,
                     activeEmployees: 0,
@@ -99,8 +99,8 @@ export default function AdminDashboard() {
             {/* Hero Welcome Banner */}
             <div
                 style={{
-                    backgroundColor: "#131b2e",
-                    border: "1px solid #31394d",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "12px",
                     padding: "24px 32px",
                     marginBottom: "32px",
@@ -109,28 +109,29 @@ export default function AdminDashboard() {
                     justifyContent: "space-between",
                     flexWrap: "wrap",
                     gap: "16px",
+                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                 }}
             >
                 <div>
-                    <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#ffffff", marginBottom: "6px" }}>
-                        Welcome back, <span style={{ color: "#f97316" }}>{displayName}</span> 👋
+                    <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f172a", marginBottom: "6px" }}>
+                        Welcome back, <span style={{ color: "#2563eb" }}>{displayName}</span>
                     </h2>
-                    <p style={{ color: "#a0a5b2", fontSize: "15px" }}>
+                    <p style={{ color: "#64748b", fontSize: "14px" }}>
                         Centralized administration and enterprise workforce overview.
                     </p>
                 </div>
                 <div
                     style={{
-                        backgroundColor: "#1a2235",
-                        border: "1px solid #31394d",
-                        padding: "10px 18px",
+                        backgroundColor: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        padding: "8px 16px",
                         borderRadius: "8px",
-                        fontSize: "14px",
-                        color: "#a0a5b2",
+                        fontSize: "13px",
+                        color: "#64748b",
                     }}
                 >
-                    <strong style={{ color: "#ffffff" }}>Role:</strong> Administrator |{" "}
-                    <strong style={{ color: "#ffffff" }}>Code:</strong> {user?.employeeCode || "ADM001"}
+                    <strong style={{ color: "#0f172a" }}>Role:</strong> Administrator |{" "}
+                    <strong style={{ color: "#0f172a" }}>Code:</strong> {user?.employeeCode || "ADM001"}
                 </div>
             </div>
 
@@ -140,7 +141,9 @@ export default function AdminDashboard() {
                 <div className="ems-stat-card">
                     <div className="ems-stat-card-header">
                         <span className="ems-stat-card-title">Total Employees</span>
-                        <div className="ems-stat-card-icon employees">👥</div>
+                        <div className="ems-stat-card-icon employees">
+                            <Icon name="users" size={20} />
+                        </div>
                     </div>
                     <div className="ems-stat-card-value">
                         {loading ? "..." : stats.totalEmployees}
@@ -152,7 +155,9 @@ export default function AdminDashboard() {
                 <div className="ems-stat-card">
                     <div className="ems-stat-card-header">
                         <span className="ems-stat-card-title">Active Employees</span>
-                        <div className="ems-stat-card-icon managers">🟢</div>
+                        <div className="ems-stat-card-icon managers">
+                            <Icon name="user-check" size={20} />
+                        </div>
                     </div>
                     <div className="ems-stat-card-value">
                         {loading ? "..." : stats.activeEmployees}
@@ -164,7 +169,9 @@ export default function AdminDashboard() {
                 <div className="ems-stat-card">
                     <div className="ems-stat-card-header">
                         <span className="ems-stat-card-title">Inactive Employees</span>
-                        <div className="ems-stat-card-icon inactive">⚠️</div>
+                        <div className="ems-stat-card-icon inactive">
+                            <Icon name="user-x" size={20} />
+                        </div>
                     </div>
                     <div className="ems-stat-card-value">
                         {loading ? "..." : stats.inactiveEmployees}
@@ -176,7 +183,9 @@ export default function AdminDashboard() {
                 <div className="ems-stat-card">
                     <div className="ems-stat-card-header">
                         <span className="ems-stat-card-title">Reporting Managers</span>
-                        <div className="ems-stat-card-icon deleted">👔</div>
+                        <div className="ems-stat-card-icon deleted">
+                            <Icon name="briefcase" size={20} />
+                        </div>
                     </div>
                     <div className="ems-stat-card-value">
                         {loading ? "..." : stats.reportingManagers}
@@ -197,13 +206,14 @@ export default function AdminDashboard() {
                 {/* Quick Actions */}
                 <div
                     style={{
-                        backgroundColor: "#131b2e",
-                        border: "1px solid #31394d",
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #e2e8f0",
                         borderRadius: "12px",
                         padding: "24px",
+                        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                     }}
                 >
-                    <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#ffffff", marginBottom: "16px" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a", marginBottom: "16px" }}>
                         Quick Actions
                     </h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -214,19 +224,22 @@ export default function AdminDashboard() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "space-between",
-                                padding: "14px 18px",
-                                backgroundColor: "#1a2235",
-                                border: "1px solid #31394d",
+                                padding: "12px 16px",
+                                backgroundColor: "#f8fafc",
+                                border: "1px solid #e2e8f0",
                                 borderRadius: "8px",
-                                color: "#ffffff",
+                                color: "#0f172a",
                                 fontSize: "14px",
                                 fontWeight: "500",
                                 cursor: "pointer",
-                                textAlign: "left",
+                                transition: "all 0.15s ease",
                             }}
                         >
-                            <span>➕ Add New Employee</span>
-                            <span style={{ color: "#f97316" }}>→</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <Icon name="plus" size={16} color="#2563eb" />
+                                <span>Add New Employee</span>
+                            </div>
+                            <Icon name="arrow-right" size={16} color="#94a3b8" />
                         </button>
 
                         <button
@@ -236,19 +249,22 @@ export default function AdminDashboard() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "space-between",
-                                padding: "14px 18px",
-                                backgroundColor: "#1a2235",
-                                border: "1px solid #31394d",
+                                padding: "12px 16px",
+                                backgroundColor: "#f8fafc",
+                                border: "1px solid #e2e8f0",
                                 borderRadius: "8px",
-                                color: "#ffffff",
+                                color: "#0f172a",
                                 fontSize: "14px",
                                 fontWeight: "500",
                                 cursor: "pointer",
-                                textAlign: "left",
+                                transition: "all 0.15s ease",
                             }}
                         >
-                            <span>👥 View All Employees</span>
-                            <span style={{ color: "#f97316" }}>→</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <Icon name="users" size={16} color="#2563eb" />
+                                <span>View All Employees</span>
+                            </div>
+                            <Icon name="arrow-right" size={16} color="#94a3b8" />
                         </button>
 
                         <button
@@ -258,19 +274,22 @@ export default function AdminDashboard() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "space-between",
-                                padding: "14px 18px",
-                                backgroundColor: "#1a2235",
-                                border: "1px solid #31394d",
+                                padding: "12px 16px",
+                                backgroundColor: "#f8fafc",
+                                border: "1px solid #e2e8f0",
                                 borderRadius: "8px",
-                                color: "#ffffff",
+                                color: "#0f172a",
                                 fontSize: "14px",
                                 fontWeight: "500",
                                 cursor: "pointer",
-                                textAlign: "left",
+                                transition: "all 0.15s ease",
                             }}
                         >
-                            <span>🏢 View Organization Hierarchy</span>
-                            <span style={{ color: "#f97316" }}>→</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <Icon name="building" size={16} color="#2563eb" />
+                                <span>View Organization Hierarchy</span>
+                            </div>
+                            <Icon name="arrow-right" size={16} color="#94a3b8" />
                         </button>
                     </div>
                 </div>
@@ -278,34 +297,35 @@ export default function AdminDashboard() {
                 {/* Organization Summary Card */}
                 <div
                     style={{
-                        backgroundColor: "#131b2e",
-                        border: "1px solid #31394d",
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #e2e8f0",
                         borderRadius: "12px",
                         padding: "24px",
+                        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                     }}
                 >
-                    <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#ffffff", marginBottom: "16px" }}>
-                        Organization Hierarchy Summary
+                    <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a", marginBottom: "8px" }}>
+                        Organization Structure
                     </h3>
-                    <p style={{ color: "#a0a5b2", fontSize: "14px", marginBottom: "20px" }}>
-                        Enterprise structure powered by Reporting Manager assignments and role-based policies.
+                    <p style={{ color: "#64748b", fontSize: "13px", marginBottom: "20px" }}>
+                        Role-based employee relationships and manager assignments.
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                         <div
                             style={{
                                 padding: "12px 16px",
-                                backgroundColor: "#1a2235",
+                                backgroundColor: "#f8fafc",
                                 borderRadius: "8px",
-                                borderLeft: "4px solid #f97316",
+                                borderLeft: "4px solid #4338ca",
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
                             }}
                         >
                             <div>
-                                <div style={{ fontSize: "14px", fontWeight: "600", color: "#ffffff" }}>Administrators</div>
-                                <div style={{ fontSize: "12px", color: "#a0a5b2" }}>Full system management & employee creation</div>
+                                <div style={{ fontSize: "14px", fontWeight: "600", color: "#0f172a" }}>Administrators</div>
+                                <div style={{ fontSize: "12px", color: "#64748b" }}>System-wide privileges & access control</div>
                             </div>
                             <Badge type="role" value="Admin" />
                         </div>
@@ -313,17 +333,17 @@ export default function AdminDashboard() {
                         <div
                             style={{
                                 padding: "12px 16px",
-                                backgroundColor: "#1a2235",
+                                backgroundColor: "#f8fafc",
                                 borderRadius: "8px",
-                                borderLeft: "4px solid #3b82f6",
+                                borderLeft: "4px solid #0284c7",
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
                             }}
                         >
                             <div>
-                                <div style={{ fontSize: "14px", fontWeight: "600", color: "#ffffff" }}>Reporting Managers</div>
-                                <div style={{ fontSize: "12px", color: "#a0a5b2" }}>Direct report team management</div>
+                                <div style={{ fontSize: "14px", fontWeight: "600", color: "#0f172a" }}>Reporting Managers</div>
+                                <div style={{ fontSize: "12px", color: "#64748b" }}>Direct report team management</div>
                             </div>
                             <Badge type="role" value="Manager" />
                         </div>
@@ -334,14 +354,15 @@ export default function AdminDashboard() {
             {/* Recent Employees Table Section */}
             <div
                 style={{
-                    backgroundColor: "#131b2e",
-                    border: "1px solid #31394d",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "12px",
                     padding: "24px",
+                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                 }}
             >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                    <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#ffffff" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a" }}>
                         Recent Employees
                     </h3>
                     <button
@@ -350,30 +371,34 @@ export default function AdminDashboard() {
                         style={{
                             background: "none",
                             border: "none",
-                            color: "#f97316",
+                            color: "#2563eb",
                             fontSize: "14px",
                             fontWeight: "600",
                             cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
                         }}
                     >
-                        View All →
+                        <span>View All</span>
+                        <Icon name="arrow-right" size={14} />
                     </button>
                 </div>
 
                 {loading ? (
-                    <div style={{ padding: "20px", color: "#a0a5b2", textAlign: "center" }}>Loading employees...</div>
+                    <div style={{ padding: "20px", color: "#64748b", textAlign: "center" }}>Loading employees...</div>
                 ) : recentEmployees.length === 0 ? (
-                    <div style={{ padding: "20px", color: "#a0a5b2", textAlign: "center" }}>No employees found.</div>
+                    <div style={{ padding: "20px", color: "#64748b", textAlign: "center" }}>No employees found.</div>
                 ) : (
                     <div style={{ overflowX: "auto" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
                             <thead>
-                                <tr style={{ borderBottom: "1px solid #31394d", color: "#a0a5b2" }}>
-                                    <th style={{ padding: "12px 16px" }}>Code</th>
-                                    <th style={{ padding: "12px 16px" }}>Name</th>
-                                    <th style={{ padding: "12px 16px" }}>Email</th>
-                                    <th style={{ padding: "12px 16px" }}>Role</th>
-                                    <th style={{ padding: "12px 16px" }}>Status</th>
+                                <tr style={{ borderBottom: "1px solid #e2e8f0", color: "#64748b", backgroundColor: "#f8fafc" }}>
+                                    <th style={{ padding: "12px 16px", fontWeight: "600" }}>Code</th>
+                                    <th style={{ padding: "12px 16px", fontWeight: "600" }}>Name</th>
+                                    <th style={{ padding: "12px 16px", fontWeight: "600" }}>Email</th>
+                                    <th style={{ padding: "12px 16px", fontWeight: "600" }}>Role</th>
+                                    <th style={{ padding: "12px 16px", fontWeight: "600" }}>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -383,14 +408,14 @@ export default function AdminDashboard() {
                                     const email = emp.email || emp.Email;
 
                                     return (
-                                        <tr key={code} style={{ borderBottom: "1px solid #1a2235" }}>
-                                            <td style={{ padding: "14px 16px", fontWeight: "600", color: "#f97316" }}>
+                                        <tr key={code} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                            <td style={{ padding: "14px 16px", fontWeight: "600", color: "#2563eb" }}>
                                                 {code}
                                             </td>
-                                            <td style={{ padding: "14px 16px", color: "#ffffff" }}>
+                                            <td style={{ padding: "14px 16px", color: "#0f172a", fontWeight: "500" }}>
                                                 {name}
                                             </td>
-                                            <td style={{ padding: "14px 16px", color: "#a0a5b2" }}>
+                                            <td style={{ padding: "14px 16px", color: "#64748b" }}>
                                                 {email}
                                             </td>
                                             <td style={{ padding: "14px 16px" }}>

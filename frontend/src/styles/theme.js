@@ -1,50 +1,55 @@
 /**
  * WorkForce OS Theme Foundation
- * Centralized design tokens matching the dark navy & brand orange aesthetic.
+ * Centralized design tokens for a bright, clean, professional enterprise SaaS theme.
  */
 
 export const colors = {
-    // WorkForce OS Dark Palette
-    bgLayout: "#060e20",         // Deep navy canvas background
-    bgSurface: "#131b2e",        // Card container background
-    bgSurfaceHigh: "#1a2235",    // Input/Hover container background
-    bgHeader: "#0b1326",         // Sticky Header background
-    bgSidebar: "#0b1326",        // Sidebar background
-    bgSidebarHover: "#1a2235",   // Sidebar hover background
-    bgSidebarActive: "#20283a",  // Sidebar active background
+    // Professional Enterprise Light Palette
+    bgLayout: "#f8fafc",         // Crisp slate-50 canvas background
+    bgSurface: "#ffffff",        // Card container background
+    bgSurfaceHigh: "#f1f5f9",    // Subtly highlighted container/input background
+    bgHeader: "#ffffff",         // White header background
+    bgSidebar: "#0f172a",        // Deep slate navy sidebar background
+    bgSidebarHover: "#1e293b",   // Sidebar hover background
+    bgSidebarActive: "#2563eb",  // Sidebar active blue pill background
     
-    borderLight: "#31394d",      // Container border color
-    borderSidebar: "#1a2235",    // Sidebar divider border
+    borderLight: "#e2e8f0",      // Subtle card border
+    borderSidebar: "#1e293b",    // Sidebar border
 
-    textPrimary: "#ffffff",      // Primary white text
-    textSecondary: "#a0a5b2",    // Secondary muted text
-    textSidebar: "#a0a5b2",      // Sidebar link text
+    textPrimary: "#0f172a",      // Primary dark slate text
+    textSecondary: "#475569",    // Secondary slate body text
+    textMuted: "#94a3b8",        // Muted gray label text
+    textSidebar: "#94a3b8",      // Sidebar link text
     textSidebarActive: "#ffffff",// Sidebar active text
     
-    brandOrange: "#f97316",      // Primary brand accent
-    brandOrangeHover: "#ea580c",
-    brandBlue: "#0055ff",        // Secondary tertiary blue accent
-    brandGreen: "#10b981",       // Success badge green
-    brandRed: "#ef4444",         // Danger/Deleted red accent
-    brandYellow: "#f59e0b",      // Warning/Inactive yellow accent
+    brandPrimary: "#2563eb",     // Royal blue primary brand color
+    brandPrimaryHover: "#1d4ed8",// Primary hover blue
+    brandIndigo: "#4f46e5",      // Indigo secondary accent
+    
+    statusActiveBg: "#dcfce7",
+    statusActiveText: "#15803d",
+    statusInactiveBg: "#fef3c7",
+    statusInactiveText: "#b45309",
+    statusDeletedBg: "#fee2e2",
+    statusDeletedText: "#b91c1c",
 };
 
 export const spacing = {
     headerHeight: "64px",
-    sidebarWidth: "250px",
+    sidebarWidth: "256px",
     containerMaxWidth: "1280px",
     paddingXs: "4px",
     paddingSm: "8px",
     paddingMd: "16px",
     paddingLg: "24px",
     paddingXl: "32px",
-    borderRadiusSm: "4px",
-    borderRadiusMd: "8px",
-    borderRadiusLg: "12px",
+    borderRadiusSm: "6px",
+    borderRadiusMd: "10px",
+    borderRadiusLg: "16px",
 };
 
 export const typography = {
-    fontFamily: '"Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     fontSizeXs: "12px",
     fontSizeSm: "14px",
     fontSizeMd: "16px",

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import Icon from "../../components/common/Icon";
+import PasswordInput from "../../components/common/PasswordInput";
 import { AUTH_STATUS } from "../../utils/authStatus";
 import "../auth/LoginPage.css";
 
@@ -67,7 +69,7 @@ export default function LandingPage() {
                 vec2 uv = v_texCoord;
                 float t = u_time * 0.2;
                 
-                vec3 color = vec3(0.02, 0.05, 0.12); 
+                vec3 color = vec3(0.06, 0.09, 0.16); 
                 
                 vec2 p1 = vec2(0.5 + 0.3 * cos(t), 0.5 + 0.3 * sin(t * 0.8));
                 vec2 p2 = vec2(0.2 + 0.2 * sin(t * 1.2), 0.8 + 0.1 * cos(t));
@@ -77,12 +79,12 @@ export default function LandingPage() {
                 float d2 = length(uv - p2);
                 float d3 = length(uv - p3);
                 
-                color += vec3(0.05, 0.1, 0.25) * (1.0 - smoothstep(0.0, 0.8, d1));
-                color += vec3(0.1, 0.05, 0.2) * (1.0 - smoothstep(0.0, 0.7, d2));
-                color += vec3(0.0, 0.05, 0.15) * (1.0 - smoothstep(0.0, 0.9, d3));
+                color += vec3(0.08, 0.18, 0.35) * (1.0 - smoothstep(0.0, 0.8, d1));
+                color += vec3(0.05, 0.12, 0.28) * (1.0 - smoothstep(0.0, 0.7, d2));
+                color += vec3(0.02, 0.08, 0.22) * (1.0 - smoothstep(0.0, 0.9, d3));
                 
                 float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
-                color += noise * 0.01;
+                color += noise * 0.008;
                 
                 float vignette = 1.5 - length(uv - 0.5) * 1.2;
                 color *= clamp(vignette, 0.0, 1.0);
@@ -190,6 +192,13 @@ export default function LandingPage() {
         }
     };
 
+    const features = [
+        { label: "Secure Authentication", icon: "shield" },
+        { label: "Employee Management", icon: "users" },
+        { label: "Organization Structure", icon: "building" },
+        { label: "Role-Based Control", icon: "key" },
+    ];
+
     return (
         <div className="ems-login-body">
             {/* Animated WebGL Background Shader */}
@@ -198,7 +207,7 @@ export default function LandingPage() {
             {/* Top Navigation */}
             <nav className="ems-login-nav">
                 <div className="ems-login-brand">
-                    WorkForce OS
+                    WorkForce <span>OS</span>
                 </div>
                 <button
                     type="button"
@@ -221,7 +230,7 @@ export default function LandingPage() {
                             Enterprise Employee Management Platform
                         </h1>
                         <p className="ems-login-hero-subtitle animate-fade-in-up delay-100">
-                            Secure employee management, role-based access, organization hierarchy, and centralized administration.
+                            Centralized workforce administration, role-based security, organizational structure, and audit capabilities.
                         </p>
 
                         {/* Feature Chips */}
@@ -230,29 +239,28 @@ export default function LandingPage() {
                                 display: "flex",
                                 flexWrap: "wrap",
                                 gap: "10px",
-                                marginTop: "8px",
+                                marginTop: "12px",
                             }}
                             className="animate-fade-in-up delay-100"
                         >
-                            {[
-                                "🛡️ Secure Authentication",
-                                "👥 Employee Management",
-                                "🏢 Organization Hierarchy",
-                                "🔐 Role-Based Access",
-                            ].map((chip, idx) => (
+                            {features.map((item, idx) => (
                                 <span
                                     key={idx}
                                     style={{
-                                        backgroundColor: "#131b2e",
-                                        border: "1px solid #31394d",
+                                        backgroundColor: "rgba(255, 255, 255, 0.08)",
+                                        border: "1px solid rgba(255, 255, 255, 0.15)",
                                         color: "#ffffff",
                                         padding: "8px 16px",
                                         borderRadius: "20px",
                                         fontSize: "13px",
                                         fontWeight: "500",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "8px",
                                     }}
                                 >
-                                    {chip}
+                                    <Icon name={item.icon} size={15} color="#3b82f6" />
+                                    <span>{item.label}</span>
                                 </span>
                             ))}
                         </div>
@@ -260,11 +268,25 @@ export default function LandingPage() {
 
                     {/* Right Column: Embedded Login Card */}
                     <div id="login-card" className="ems-login-card animate-fade-in-up delay-200">
-                        <div style={{ textAlign: "center", marginBottom: "8px" }}>
-                            <div style={{ fontSize: "32px", marginBottom: "4px" }}>🏢</div>
-                            <h2 className="ems-login-card-title">Welcome Back</h2>
-                            <p style={{ color: "#a0a5b2", fontSize: "14px", marginTop: "4px" }}>
-                                Sign in to your enterprise account
+                        <div style={{ textAlign: "center", marginBottom: "16px" }}>
+                            <div
+                                style={{
+                                    width: "48px",
+                                    height: "48px",
+                                    borderRadius: "12px",
+                                    backgroundColor: "#eff6ff",
+                                    color: "#2563eb",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    margin: "0 auto 12px auto",
+                                }}
+                            >
+                                <Icon name="building" size={24} />
+                            </div>
+                            <h2 className="ems-login-card-title">Sign In</h2>
+                            <p style={{ color: "#64748b", fontSize: "14px", marginTop: "4px" }}>
+                                Access your enterprise workforce account
                             </p>
                         </div>
 
@@ -286,7 +308,6 @@ export default function LandingPage() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     disabled={loading}
-                                    placeholder="name@company.com"
                                     required
                                     className={`ems-login-input ${fieldErrors.email ? "error" : ""}`}
                                 />
@@ -301,14 +322,12 @@ export default function LandingPage() {
                                 <label className="ems-login-label" htmlFor="password">
                                     Password
                                 </label>
-                                <input
+                                <PasswordInput
                                     id="password"
                                     name="password"
-                                    type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={loading}
-                                    placeholder="••••••••"
                                     required
                                     className={`ems-login-input ${fieldErrors.password ? "error" : ""}`}
                                 />
@@ -323,12 +342,13 @@ export default function LandingPage() {
                                 type="submit"
                                 disabled={loading}
                                 className="ems-login-submit-btn"
+                                style={{ backgroundColor: "#2563eb" }}
                             >
                                 {loading ? "Signing in..." : "Sign In"}
                             </button>
 
                             <div className="ems-login-footer-link">
-                                <span className="ems-login-link">
+                                <span className="ems-login-link" style={{ color: "#64748b" }}>
                                     Need help signing in? Contact IT Administrator.
                                 </span>
                             </div>

@@ -1,4 +1,5 @@
 import UserMenu from "./UserMenu";
+import Icon from "../common/Icon";
 
 /**
  * Header Component
@@ -15,10 +16,10 @@ export default function Header({ onToggleSidebar }) {
                     aria-label="Toggle navigation menu"
                     title="Toggle Sidebar"
                 >
-                    ☰
+                    <Icon name="menu" size={18} />
                 </button>
                 <span className="ems-header-title">
-                    WorkForce <span>OS</span> | Enterprise Management
+                    WorkForce <span>OS</span>
                 </span>
             </div>
 

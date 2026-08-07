@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* WorkForce OS Enterprise Layout Shell */
+/* WorkForce OS Enterprise Layout Shell - Bright Professional Theme */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -8,11 +8,12 @@
 }
 
 body {
-    font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #060e20;
-    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
     line-height: 1.5;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* App Shell Container */
@@ -20,14 +21,14 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #060e20;
+    background-color: #f8fafc;
 }
 
 /* Header Bar */
 .ems-header {
     height: 64px;
-    background-color: #0b1326;
-    border-bottom: 1px solid #1a2235;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,6 +36,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 40;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
 .ems-header-brand {
@@ -44,33 +46,32 @@ body {
 }
 
 .ems-menu-toggle {
-    background: #1a2235;
-    border: 1px solid #31394d;
-    border-radius: 6px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 16px;
-    color: #ffffff;
+    color: #475569;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .ems-menu-toggle:hover {
-    background-color: #31394d;
-    border-color: #f97316;
+    background-color: #e2e8f0;
+    color: #0f172a;
 }
 
 .ems-header-title {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.3px;
+    color: #0f172a;
+    letter-spacing: -0.4px;
 }
 
 .ems-header-title span {
-    color: #f97316;
+    color: #2563eb;
 }
 
 .ems-header-spacer {
@@ -91,11 +92,11 @@ body {
     overflow-x: hidden;
 }
 
-/* Sidebar Component */
+/* Sidebar Component - Bright Enterprise Theme */
 .ems-sidebar {
-    width: 250px;
-    background-color: #0b1326;
-    border-right: 1px solid #1a2235;
+    width: 256px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -103,11 +104,11 @@ body {
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 30;
     min-height: calc(100vh - 64px);
+    box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.02);
 }
 
-/* Sidebar collapsed state for desktop toggle */
 .ems-sidebar.closed {
-    margin-left: -250px;
+    margin-left: -256px;
 }
 
 .ems-sidebar-top {
@@ -125,31 +126,32 @@ body {
 .ems-sidebar-link {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
+    gap: 12px;
+    padding: 11px 16px;
     border-radius: 8px;
-    color: #a0a5b2;
+    color: #64748b;
     text-decoration: none;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
 .ems-sidebar-link:hover {
-    background-color: #1a2235;
-    color: #ffffff;
+    background-color: #f1f5f9;
+    color: #0f172a;
 }
 
 .ems-sidebar-link.active {
-    background-color: #1a2235;
-    color: #f97316;
+    background-color: #eff6ff;
+    color: #2563eb;
     font-weight: 600;
-    border-left: 3px solid #f97316;
+    border-left: 3px solid #2563eb;
 }
 
 /* Sidebar Bottom (Logout Section) */
 .ems-sidebar-bottom {
     padding: 20px 14px;
-    border-top: 1px solid #1a2235;
+    border-top: 1px solid #f1f5f9;
 }
 
 .ems-sidebar-logout-btn {
@@ -158,12 +160,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background-color: rgba(220, 38, 38, 0.12);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    color: #ef4444;
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
     font-weight: 600;
     font-size: 14px;
-    padding: 12px;
+    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -188,18 +190,19 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: #131b2e;
-    border: 1px solid #31394d;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 8px 14px;
+    padding: 6px 14px;
     cursor: pointer;
     font-size: 14px;
-    color: #ffffff;
-    transition: border-color 0.2s ease;
+    color: #0f172a;
+    transition: all 0.15s ease;
 }
 
 .ems-user-menu-button:hover {
-    border-color: #f97316;
+    border-color: #cbd5e1;
+    background-color: #f1f5f9;
 }
 
 .ems-user-menu-dropdown {
@@ -207,42 +210,45 @@ body {
     right: 0;
     top: 100%;
     margin-top: 8px;
-    width: 200px;
-    background-color: #131b2e;
-    border: 1px solid #31394d;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    width: 220px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
     padding: 8px 0;
     z-index: 50;
 }
 
 .ems-user-menu-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     text-align: left;
-    padding: 10px 18px;
+    padding: 10px 16px;
     background: transparent;
     border: none;
-    color: #a0a5b2;
+    color: #475569;
     font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     text-decoration: none;
     transition: all 0.15s ease;
 }
 
 .ems-user-menu-item:hover {
-    background-color: #1a2235;
-    color: #ffffff;
+    background-color: #f1f5f9;
+    color: #0f172a;
 }
 
 .ems-user-menu-item.logout {
-    color: #ef4444;
-    border-top: 1px solid #1a2235;
+    color: #dc2626;
+    border-top: 1px solid #f1f5f9;
 }
 
 .ems-user-menu-item.logout:hover {
-    background-color: rgba(220, 38, 38, 0.15);
-    color: #f87171;
+    background-color: #fef2f2;
+    color: #b91c1c;
 }
 
 /* Breadcrumbs */
@@ -250,27 +256,27 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
-    color: #a0a5b2;
+    font-size: 13px;
+    color: #64748b;
     margin-bottom: 24px;
 }
 
 .ems-breadcrumb-item {
-    color: #a0a5b2;
+    color: #64748b;
     text-decoration: none;
     transition: color 0.15s ease;
 }
 
 .ems-breadcrumb-item:hover {
-    color: #ffffff;
+    color: #0f172a;
 }
 
 .ems-breadcrumb-separator {
-    color: #31394d;
+    color: #cbd5e1;
 }
 
 .ems-breadcrumb-item.active {
-    color: #f97316;
+    color: #2563eb;
     font-weight: 600;
 }
 
@@ -305,20 +311,21 @@ body {
 
 /* Stat Card */
 .ems-stat-card {
-    background-color: #131b2e;
-    border: 1px solid #31394d;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .ems-stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
-    border-color: #f97316;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
 }
 
 .ems-stat-card-header {
@@ -328,50 +335,70 @@ body {
 }
 
 .ems-stat-card-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: #a0a5b2;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .ems-stat-card-icon {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
 }
 
 .ems-stat-card-icon.employees {
-    background-color: rgba(37, 99, 235, 0.15);
-    color: #3b82f6;
+    background-color: #eff6ff;
+    color: #2563eb;
 }
 
 .ems-stat-card-icon.managers {
-    background-color: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    background-color: #f0fdf4;
+    color: #16a34a;
 }
 
 .ems-stat-card-icon.inactive {
-    background-color: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
+    background-color: #fffbeb;
+    color: #d97706;
 }
 
 .ems-stat-card-icon.deleted {
-    background-color: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background-color: #fef2f2;
+    color: #dc2626;
 }
 
 .ems-stat-card-value {
     font-size: 32px;
     font-weight: 700;
-    color: #ffffff;
+    color: #0f172a;
+    letter-spacing: -0.5px;
 }
 
 .ems-stat-card-desc {
     font-size: 13px;
-    color: #a0a5b2;
+    color: #64748b;
+}
+
+/* Global Form Input Styles */
+.ems-login-input {
+    width: 100%;
+    padding: 10px 14px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #0f172a;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ems-login-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 /* Structural Responsiveness (Tablet/Mobile) */
@@ -398,7 +425,7 @@ body {
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(6, 14, 32, 0.7);
+        background-color: rgba(15, 23, 42, 0.5);
         backdrop-filter: blur(4px);
         z-index: 20;
     }

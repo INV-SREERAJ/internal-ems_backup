@@ -17,8 +17,20 @@ export async function updateProfile(data) {
     return response.data;
 }
 
-// Change user password
+// Change user password (Payload sends OldPassword, NewPassword, ConfirmPassword for ASP.NET DTO validation)
 export async function changePassword(data) {
-    const response = await axiosInstance.post("/profile/change-password", data);
+    const oldPass = data.currentPassword || data.oldPassword || "";
+    const newPass = data.newPassword || "";
+    const confirmPass = data.confirmPassword || "";
+
+    const payload = {
+        oldPassword: oldPass,
+        OldPassword: oldPass,
+        newPassword: newPass,
+        NewPassword: newPass,
+        confirmPassword: confirmPass,
+        ConfirmPassword: confirmPass,
+    };
+    const response = await axiosInstance.post("/profile/change-password", payload);
     return response.data;
 }

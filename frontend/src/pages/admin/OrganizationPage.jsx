@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import Badge from "../../components/common/Badge";
+import Icon from "../../components/common/Icon";
 import { getEmployees } from "../../api/adminApi";
 import { formatRole, formatStatus } from "../../utils/enumUtils";
 
@@ -58,18 +59,18 @@ export default function OrganizationPage() {
     return (
         <PageContainer title="Organization Hierarchy" breadcrumbs={breadcrumbs}>
             <div style={{ marginBottom: "24px" }}>
-                <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#ffffff" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f172a" }}>
                     Reporting Structure & Teams
                 </h2>
-                <p style={{ color: "#a0a5b2", fontSize: "14px" }}>
+                <p style={{ color: "#64748b", fontSize: "14px" }}>
                     Visual representation of reporting managers and direct reports across the enterprise.
                 </p>
             </div>
 
             {loading ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#a0a5b2" }}>Loading organization hierarchy...</div>
+                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Loading organization hierarchy...</div>
             ) : managers.length === 0 ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#a0a5b2" }}>No reporting structures found.</div>
+                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>No reporting structures found.</div>
             ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                     {managers.map((mgr) => {
@@ -82,10 +83,11 @@ export default function OrganizationPage() {
                             <div
                                 key={mgrCode}
                                 style={{
-                                    backgroundColor: "#131b2e",
-                                    border: "1px solid #31394d",
+                                    backgroundColor: "#ffffff",
+                                    border: "1px solid #e2e8f0",
                                     borderRadius: "12px",
                                     padding: "24px",
+                                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                                 }}
                             >
                                 {/* Manager Node */}
@@ -95,7 +97,7 @@ export default function OrganizationPage() {
                                         alignItems: "center",
                                         justifyContent: "space-between",
                                         paddingBottom: "16px",
-                                        borderBottom: "1px solid #1a2235",
+                                        borderBottom: "1px solid #f1f5f9",
                                         marginBottom: "16px",
                                     }}
                                 >
@@ -104,24 +106,22 @@ export default function OrganizationPage() {
                                             style={{
                                                 width: "42px",
                                                 height: "42px",
-                                                borderRadius: "50%",
-                                                backgroundColor: "#f97316",
-                                                color: "#ffffff",
+                                                borderRadius: "10px",
+                                                backgroundColor: "#eff6ff",
+                                                color: "#2563eb",
                                                 display: "flex",
                                                 alignItems: "center",
                                                 justifyContent: "center",
-                                                fontWeight: "700",
-                                                fontSize: "16px",
                                             }}
                                         >
-                                            👔
+                                            <Icon name="briefcase" size={20} />
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: "16px", fontWeight: "600", color: "#ffffff" }}>
+                                            <div style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a" }}>
                                                 {mgrName}
                                             </div>
-                                            <div style={{ fontSize: "13px", color: "#a0a5b2" }}>
-                                                Code: <span style={{ color: "#f97316" }}>{mgrCode}</span> | Email: {mgr.email || mgr.Email}
+                                            <div style={{ fontSize: "13px", color: "#64748b" }}>
+                                                Code: <span style={{ color: "#2563eb", fontWeight: "600" }}>{mgrCode}</span> | Email: {mgr.email || mgr.Email}
                                             </div>
                                         </div>
                                     </div>
@@ -130,12 +130,12 @@ export default function OrganizationPage() {
 
                                 {/* Direct Reports Section */}
                                 <div>
-                                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#a0a5b2", marginBottom: "12px" }}>
-                                        DIRECT REPORTS ({directReports.length})
+                                    <div style={{ fontSize: "12px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px" }}>
+                                        Direct Reports ({directReports.length})
                                     </div>
 
                                     {directReports.length === 0 ? (
-                                        <div style={{ fontSize: "13px", color: "#64748b", italic: "true", padding: "8px 0" }}>
+                                        <div style={{ fontSize: "13px", color: "#94a3b8", fontStyle: "italic", padding: "8px 0" }}>
                                             No direct reports assigned to this manager yet.
                                         </div>
                                     ) : (
@@ -150,8 +150,8 @@ export default function OrganizationPage() {
                                                     <div
                                                         key={repCode}
                                                         style={{
-                                                            backgroundColor: "#1a2235",
-                                                            border: "1px solid #31394d",
+                                                            backgroundColor: "#f8fafc",
+                                                            border: "1px solid #e2e8f0",
                                                             borderRadius: "8px",
                                                             padding: "14px",
                                                             display: "flex",
@@ -160,13 +160,13 @@ export default function OrganizationPage() {
                                                         }}
                                                     >
                                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                            <span style={{ fontSize: "14px", fontWeight: "600", color: "#ffffff" }}>{repName}</span>
+                                                            <span style={{ fontSize: "14px", fontWeight: "600", color: "#0f172a" }}>{repName}</span>
                                                             <Badge type="role" value={repRole} />
                                                         </div>
-                                                        <div style={{ fontSize: "12px", color: "#a0a5b2" }}>
-                                                            Code: <span style={{ color: "#f97316" }}>{repCode}</span>
+                                                        <div style={{ fontSize: "12px", color: "#64748b" }}>
+                                                            Code: <span style={{ color: "#2563eb", fontWeight: "600" }}>{repCode}</span>
                                                         </div>
-                                                        <div style={{ fontSize: "12px", color: "#a0a5b2" }}>
+                                                        <div style={{ fontSize: "12px", color: "#64748b" }}>
                                                             Email: {report.email || report.Email}
                                                         </div>
                                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>

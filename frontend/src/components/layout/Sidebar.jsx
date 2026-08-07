@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import Icon from "../common/Icon";
 
 /**
  * Sidebar Component
- * Renders role-specific navigation for Admin vs Employee users.
+ * Renders role-specific navigation for Admin vs Employee users using clean SVG icons.
  */
 export default function Sidebar({ isOpen, onClose }) {
     const { user, logout } = useAuth();
@@ -12,17 +13,17 @@ export default function Sidebar({ isOpen, onClose }) {
     const isAdmin = user?.role === "Admin";
 
     const adminNavItems = [
-        { label: "Dashboard", path: "/admin/dashboard", icon: "📊" },
-        { label: "Employees", path: "/admin/employees", icon: "👥" },
-        { label: "Organization", path: "/admin/organization", icon: "🏢" },
-        { label: "My Profile", path: "/admin/profile", icon: "👤" },
-        { label: "Settings", path: "/admin/settings", icon: "⚙️" },
+        { label: "Dashboard", path: "/admin/dashboard", icon: "layout" },
+        { label: "Employees", path: "/admin/employees", icon: "users" },
+        { label: "Organization", path: "/admin/organization", icon: "building" },
+        { label: "My Profile", path: "/admin/profile", icon: "user" },
+        { label: "Settings", path: "/admin/settings", icon: "settings" },
     ];
 
     const employeeNavItems = [
-        { label: "Dashboard", path: "/employee/dashboard", icon: "📊" },
-        { label: "My Profile", path: "/employee/profile", icon: "👤" },
-        { label: "Organization", path: "/employee/organization", icon: "🏢" },
+        { label: "Dashboard", path: "/employee/dashboard", icon: "layout" },
+        { label: "My Profile", path: "/employee/profile", icon: "user" },
+        { label: "Organization", path: "/employee/organization", icon: "building" },
     ];
 
     const navItems = isAdmin ? adminNavItems : employeeNavItems;
@@ -56,8 +57,8 @@ export default function Sidebar({ isOpen, onClose }) {
                                     `ems-sidebar-link ${isActive ? "active" : ""}`
                                 }
                             >
-                                <span style={{ marginRight: "12px", fontSize: "16px" }}>{item.icon}</span>
-                                {item.label}
+                                <Icon name={item.icon} size={18} />
+                                <span>{item.label}</span>
                             </NavLink>
                         ))}
                     </nav>
@@ -70,7 +71,8 @@ export default function Sidebar({ isOpen, onClose }) {
                         className="ems-sidebar-logout-btn"
                         onClick={handleLogout}
                     >
-                        <span>🚪</span> Logout
+                        <Icon name="logout" size={18} />
+                        <span>Logout</span>
                     </button>
                 </div>
             </aside>

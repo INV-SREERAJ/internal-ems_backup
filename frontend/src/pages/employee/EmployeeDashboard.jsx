@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import Badge from "../../components/common/Badge";
+import Icon from "../../components/common/Icon";
 import { getProfile } from "../../api/profileApi";
 
 export default function EmployeeDashboard() {
@@ -12,7 +13,7 @@ export default function EmployeeDashboard() {
             setLoading(true);
             try {
                 const data = await getProfile();
-                setProfile(data);
+                setProfile(data?.value || data);
             } catch {
                 setProfile(null);
             } finally {
@@ -31,14 +32,14 @@ export default function EmployeeDashboard() {
     return (
         <PageContainer title="Employee Dashboard" breadcrumbs={breadcrumbs}>
             {loading ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#a0a5b2" }}>Loading dashboard...</div>
+                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Loading dashboard...</div>
             ) : profile ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                     {/* Welcome Banner */}
                     <div
                         style={{
-                            backgroundColor: "#131b2e",
-                            border: "1px solid #31394d",
+                            backgroundColor: "#ffffff",
+                            border: "1px solid #e2e8f0",
                             borderRadius: "12px",
                             padding: "24px 32px",
                             display: "flex",
@@ -46,17 +47,18 @@ export default function EmployeeDashboard() {
                             justifyContent: "space-between",
                             flexWrap: "wrap",
                             gap: "16px",
+                            boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                         }}
                     >
                         <div>
-                            <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#ffffff", marginBottom: "6px" }}>
-                                Welcome, <span style={{ color: "#f97316" }}>{profile.firstName} {profile.lastName}</span> 👋
+                            <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f172a", marginBottom: "6px" }}>
+                                Welcome back, <span style={{ color: "#2563eb" }}>{profile.firstName || profile.FirstName} {profile.lastName || profile.LastName}</span>
                             </h2>
-                            <p style={{ color: "#a0a5b2", fontSize: "15px" }}>
+                            <p style={{ color: "#64748b", fontSize: "14px" }}>
                                 Access your personal profile, manager information, and organization hierarchy.
                             </p>
                         </div>
-                        <Badge type="role" value={profile.role} />
+                        <Badge type="role" value={profile.role || profile.Role} />
                     </div>
 
                     {/* Cards Grid */}
@@ -70,31 +72,33 @@ export default function EmployeeDashboard() {
                         {/* Profile Summary Card */}
                         <div
                             style={{
-                                backgroundColor: "#131b2e",
-                                border: "1px solid #31394d",
+                                backgroundColor: "#ffffff",
+                                border: "1px solid #e2e8f0",
                                 borderRadius: "12px",
                                 padding: "24px",
+                                boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                             }}
                         >
-                            <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#ffffff", marginBottom: "16px" }}>
-                                👤 My Profile Summary
+                            <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                                <Icon name="user" size={18} color="#2563eb" />
+                                <span>My Profile Summary</span>
                             </h3>
                             <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "14px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", color: "#a0a5b2", borderBottom: "1px solid #1a2235", paddingBottom: "8px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
                                     <span>Employee Code</span>
-                                    <strong style={{ color: "#f97316" }}>{profile.employeeCode}</strong>
+                                    <strong style={{ color: "#2563eb" }}>{profile.employeeCode || profile.EmployeeCode}</strong>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", color: "#a0a5b2", borderBottom: "1px solid #1a2235", paddingBottom: "8px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
                                     <span>Email Address</span>
-                                    <span style={{ color: "#ffffff" }}>{profile.email}</span>
+                                    <span style={{ color: "#0f172a" }}>{profile.email || profile.Email}</span>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", color: "#a0a5b2", borderBottom: "1px solid #1a2235", paddingBottom: "8px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
                                     <span>Phone Number</span>
-                                    <span style={{ color: "#ffffff" }}>{profile.phoneNumber || "Not provided"}</span>
+                                    <span style={{ color: "#0f172a" }}>{profile.phoneNumber || profile.PhoneNumber || "Not provided"}</span>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", color: "#a0a5b2" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b" }}>
                                     <span>Role</span>
-                                    <Badge type="role" value={profile.role} />
+                                    <Badge type="role" value={profile.role || profile.Role} />
                                 </div>
                             </div>
                         </div>
@@ -102,28 +106,30 @@ export default function EmployeeDashboard() {
                         {/* Reporting Manager Card */}
                         <div
                             style={{
-                                backgroundColor: "#131b2e",
-                                border: "1px solid #31394d",
+                                backgroundColor: "#ffffff",
+                                border: "1px solid #e2e8f0",
                                 borderRadius: "12px",
                                 padding: "24px",
+                                boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                             }}
                         >
-                            <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#ffffff", marginBottom: "16px" }}>
-                                👔 Reporting Manager
+                            <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0f172a", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                                <Icon name="briefcase" size={18} color="#2563eb" />
+                                <span>Reporting Manager</span>
                             </h3>
-                            {profile.managerName || profile.managerEmployeeCode ? (
+                            {profile.managerName || profile.ManagerName || profile.managerEmployeeCode || profile.ManagerEmployeeCode ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "14px" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", color: "#a0a5b2", borderBottom: "1px solid #1a2235", paddingBottom: "8px" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
                                         <span>Manager Name</span>
-                                        <strong style={{ color: "#ffffff" }}>{profile.managerName || "Assigned Manager"}</strong>
+                                        <strong style={{ color: "#0f172a" }}>{profile.managerName || profile.ManagerName || "Assigned Manager"}</strong>
                                     </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", color: "#a0a5b2" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b" }}>
                                         <span>Manager Code</span>
-                                        <span style={{ color: "#f97316" }}>{profile.managerEmployeeCode}</span>
+                                        <span style={{ color: "#2563eb", fontWeight: "600" }}>{profile.managerEmployeeCode || profile.ManagerEmployeeCode}</span>
                                     </div>
                                 </div>
                             ) : (
-                                <p style={{ color: "#a0a5b2", fontSize: "14px", fontStyle: "italic" }}>
+                                <p style={{ color: "#94a3b8", fontSize: "14px", fontStyle: "italic" }}>
                                     No reporting manager currently assigned to your profile.
                                 </p>
                             )}
@@ -131,7 +137,7 @@ export default function EmployeeDashboard() {
                     </div>
                 </div>
             ) : (
-                <div style={{ padding: "40px", textAlign: "center", color: "#a0a5b2" }}>Unable to load profile data.</div>
+                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Unable to load profile data.</div>
             )}
         </PageContainer>
     );

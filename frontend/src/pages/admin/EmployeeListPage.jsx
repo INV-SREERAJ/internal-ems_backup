@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import Badge from "../../components/common/Badge";
 import Modal from "../../components/common/Modal";
+import Icon from "../../components/common/Icon";
 import { formatRole, formatStatus } from "../../utils/enumUtils";
 import {
     getEmployees,
@@ -299,7 +300,7 @@ export default function EmployeeListPage() {
     ];
 
     return (
-        <PageContainer title="Employee Management" breadcrumbs={breadcrumbs}>
+        <PageContainer title="Employee Directory" breadcrumbs={breadcrumbs}>
             {/* Action Header Banner */}
             <div
                 style={{
@@ -312,18 +313,18 @@ export default function EmployeeListPage() {
                 }}
             >
                 <div>
-                    <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#ffffff" }}>
-                        Employees Directory
+                    <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f172a" }}>
+                        Employees
                     </h2>
-                    <p style={{ color: "#a0a5b2", fontSize: "14px" }}>
-                        Manage workforce accounts, roles, and status.
+                    <p style={{ color: "#64748b", fontSize: "14px" }}>
+                        Manage corporate accounts, role assignments, and account statuses.
                     </p>
                 </div>
                 <button
                     type="button"
                     onClick={handleOpenCreateModal}
                     style={{
-                        backgroundColor: "#f97316",
+                        backgroundColor: "#2563eb",
                         color: "#ffffff",
                         fontWeight: "600",
                         fontSize: "14px",
@@ -334,9 +335,11 @@ export default function EmployeeListPage() {
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
+                        boxShadow: "0 2px 4px rgba(37, 99, 235, 0.2)",
                     }}
                 >
-                    ➕ Add Employee
+                    <Icon name="plus" size={18} />
+                    <span>Add Employee</span>
                 </button>
             </div>
 
@@ -344,72 +347,74 @@ export default function EmployeeListPage() {
             {feedbackMessage && (
                 <div
                     style={{
-                        backgroundColor: "rgba(16, 185, 129, 0.15)",
-                        border: "1px solid rgba(16, 185, 129, 0.4)",
-                        color: "#6ee7b7",
+                        backgroundColor: "#f0fdf4",
+                        border: "1px solid #bbf7d0",
+                        color: "#15803d",
                         padding: "12px 16px",
                         borderRadius: "8px",
                         marginBottom: "20px",
                         fontSize: "14px",
                         display: "flex",
                         justifyContent: "space-between",
+                        alignItems: "center",
                     }}
                 >
                     <span>{feedbackMessage}</span>
-                    <button type="button" onClick={() => setFeedbackMessage(null)} style={{ background: "none", border: "none", color: "#6ee7b7", cursor: "pointer" }}>✕</button>
+                    <button type="button" onClick={() => setFeedbackMessage(null)} style={{ background: "none", border: "none", color: "#15803d", cursor: "pointer" }}>
+                        <Icon name="x" size={16} />
+                    </button>
                 </div>
             )}
 
             {errorMessage && (
                 <div
                     style={{
-                        backgroundColor: "rgba(220, 38, 38, 0.15)",
-                        border: "1px solid rgba(220, 38, 38, 0.4)",
-                        color: "#fca5a5",
+                        backgroundColor: "#fef2f2",
+                        border: "1px solid #fca5a5",
+                        color: "#b91c1c",
                         padding: "12px 16px",
                         borderRadius: "8px",
                         marginBottom: "20px",
                         fontSize: "14px",
                         display: "flex",
                         justifyContent: "space-between",
+                        alignItems: "center",
                     }}
                 >
                     <span>{errorMessage}</span>
-                    <button type="button" onClick={() => setErrorMessage(null)} style={{ background: "none", border: "none", color: "#fca5a5", cursor: "pointer" }}>✕</button>
+                    <button type="button" onClick={() => setErrorMessage(null)} style={{ background: "none", border: "none", color: "#b91c1c", cursor: "pointer" }}>
+                        <Icon name="x" size={16} />
+                    </button>
                 </div>
             )}
 
             {/* Filters & Search Control Bar */}
             <div
                 style={{
-                    backgroundColor: "#131b2e",
-                    border: "1px solid #31394d",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "12px",
-                    padding: "20px",
+                    padding: "16px 20px",
                     marginBottom: "24px",
                     display: "flex",
                     flexWrap: "wrap",
                     gap: "16px",
                     alignItems: "center",
+                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                 }}
             >
                 {/* Search Bar */}
-                <div style={{ flex: 1, minWidth: "240px" }}>
+                <div style={{ flex: 1, minWidth: "240px", position: "relative" }}>
+                    <div style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }}>
+                        <Icon name="search" size={16} />
+                    </div>
                     <input
                         type="text"
                         placeholder="Search by code, name, or email..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "10px 14px",
-                            backgroundColor: "#1a2235",
-                            border: "1px solid #31394d",
-                            borderRadius: "6px",
-                            color: "#ffffff",
-                            fontSize: "14px",
-                            outline: "none",
-                        }}
+                        className="ems-login-input"
+                        style={{ paddingLeft: "36px" }}
                     />
                 </div>
 
@@ -418,16 +423,7 @@ export default function EmployeeListPage() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "10px 14px",
-                            backgroundColor: "#1a2235",
-                            border: "1px solid #31394d",
-                            borderRadius: "6px",
-                            color: "#ffffff",
-                            fontSize: "14px",
-                            outline: "none",
-                        }}
+                        className="ems-login-input"
                     >
                         <option value="">All Statuses</option>
                         <option value="1">Active</option>
@@ -441,16 +437,7 @@ export default function EmployeeListPage() {
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "10px 14px",
-                            backgroundColor: "#1a2235",
-                            border: "1px solid #31394d",
-                            borderRadius: "6px",
-                            color: "#ffffff",
-                            fontSize: "14px",
-                            outline: "none",
-                        }}
+                        className="ems-login-input"
                     >
                         <option value="">All Roles</option>
                         <option value="Admin">Admin</option>
@@ -463,28 +450,29 @@ export default function EmployeeListPage() {
             {/* Employees Table */}
             <div
                 style={{
-                    backgroundColor: "#131b2e",
-                    border: "1px solid #31394d",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "12px",
                     overflow: "hidden",
+                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)",
                 }}
             >
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#a0a5b2" }}>Loading employees...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Loading employees...</div>
                 ) : employees.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#a0a5b2" }}>No employees match your search parameters.</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>No employees match your search parameters.</div>
                 ) : (
                     <div style={{ overflowX: "auto" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
                             <thead>
-                                <tr style={{ borderBottom: "1px solid #31394d", backgroundColor: "#0b1326", color: "#a0a5b2" }}>
-                                    <th style={{ padding: "14px 16px" }}>Code</th>
-                                    <th style={{ padding: "14px 16px" }}>Name</th>
-                                    <th style={{ padding: "14px 16px" }}>Email</th>
-                                    <th style={{ padding: "14px 16px" }}>Role</th>
-                                    <th style={{ padding: "14px 16px" }}>Manager</th>
-                                    <th style={{ padding: "14px 16px" }}>Status</th>
-                                    <th style={{ padding: "14px 16px", textAlign: "right" }}>Actions</th>
+                                <tr style={{ borderBottom: "1px solid #e2e8f0", backgroundColor: "#f8fafc", color: "#64748b" }}>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600" }}>Code</th>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600" }}>Name</th>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600" }}>Email</th>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600" }}>Role</th>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600" }}>Manager</th>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600" }}>Status</th>
+                                    <th style={{ padding: "14px 16px", fontWeight: "600", textAlign: "right" }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -497,58 +485,61 @@ export default function EmployeeListPage() {
                                     const formattedStatusStr = formatStatus(emp.status ?? emp.Status ?? (isCurrentActive ? 1 : 2));
 
                                     return (
-                                        <tr key={code} style={{ borderBottom: "1px solid #1a2235" }}>
-                                            <td style={{ padding: "14px 16px", fontWeight: "600", color: "#f97316" }}>
+                                        <tr key={code} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                            <td style={{ padding: "14px 16px", fontWeight: "600", color: "#2563eb" }}>
                                                 {code}
                                             </td>
-                                            <td style={{ padding: "14px 16px", color: "#ffffff", fontWeight: "500" }}>
+                                            <td style={{ padding: "14px 16px", color: "#0f172a", fontWeight: "500" }}>
                                                 {name}
                                             </td>
-                                            <td style={{ padding: "14px 16px", color: "#a0a5b2" }}>
+                                            <td style={{ padding: "14px 16px", color: "#64748b" }}>
                                                 {email}
                                             </td>
                                             <td style={{ padding: "14px 16px" }}>
                                                 <Badge type="role" value={formattedRoleStr} />
                                             </td>
-                                            <td style={{ padding: "14px 16px", color: "#a0a5b2" }}>
+                                            <td style={{ padding: "14px 16px", color: "#64748b" }}>
                                                 {emp.managerName || emp.ManagerName || emp.managerEmployeeCode || emp.ManagerEmployeeCode || "N/A"}
                                             </td>
                                             <td style={{ padding: "14px 16px" }}>
                                                 <Badge type="status" value={formattedStatusStr} />
                                             </td>
                                             <td style={{ padding: "14px 16px", textAlign: "right" }}>
-                                                <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                                                <div style={{ display: "flex", justifyContent: "flex-end", gap: "6px" }}>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleViewDetails(code)}
                                                         title="View Details"
-                                                        style={{ background: "#1a2235", border: "1px solid #31394d", color: "#ffffff", padding: "6px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
+                                                        style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#0f172a", padding: "6px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}
                                                     >
-                                                        👁️ View
+                                                        <Icon name="eye" size={14} />
+                                                        <span>View</span>
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleOpenEdit(code)}
                                                         title="Edit Employee"
-                                                        style={{ background: "#1a2235", border: "1px solid #31394d", color: "#3b82f6", padding: "6px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
+                                                        style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#2563eb", padding: "6px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}
                                                     >
-                                                        ✏️ Edit
+                                                        <Icon name="edit" size={14} />
+                                                        <span>Edit</span>
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleToggleStatus(emp)}
                                                         title={isCurrentActive ? "Deactivate" : "Activate"}
-                                                        style={{ background: "#1a2235", border: "1px solid #31394d", color: isCurrentActive ? "#f59e0b" : "#10b981", padding: "6px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
+                                                        style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: isCurrentActive ? "#b45309" : "#15803d", padding: "6px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}
                                                     >
-                                                        {isCurrentActive ? "⏸️ Deactivate" : "▶️ Activate"}
+                                                        <Icon name={isCurrentActive ? "pause" : "play"} size={14} />
+                                                        <span>{isCurrentActive ? "Deactivate" : "Activate"}</span>
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleDelete(code)}
                                                         title="Soft Delete"
-                                                        style={{ background: "#1a2235", border: "1px solid #31394d", color: "#ef4444", padding: "6px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
+                                                        style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#dc2626", padding: "6px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}
                                                     >
-                                                        🗑️ Delete
+                                                        <Icon name="trash" size={14} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -564,12 +555,13 @@ export default function EmployeeListPage() {
                 <div
                     style={{
                         padding: "16px 24px",
-                        borderTop: "1px solid #1a2235",
+                        borderTop: "1px solid #f1f5f9",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                         fontSize: "14px",
-                        color: "#a0a5b2",
+                        color: "#64748b",
+                        backgroundColor: "#f8fafc",
                     }}
                 >
                     <span>Page {pageNumber} of {totalPages}</span>
@@ -579,13 +571,15 @@ export default function EmployeeListPage() {
                             disabled={pageNumber <= 1}
                             onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
                             style={{
-                                backgroundColor: "#1a2235",
-                                border: "1px solid #31394d",
-                                color: "#ffffff",
-                                padding: "6px 12px",
-                                borderRadius: "4px",
+                                backgroundColor: "#ffffff",
+                                border: "1px solid #e2e8f0",
+                                color: "#0f172a",
+                                padding: "6px 14px",
+                                borderRadius: "6px",
                                 cursor: pageNumber <= 1 ? "not-allowed" : "pointer",
                                 opacity: pageNumber <= 1 ? 0.5 : 1,
+                                fontSize: "13px",
+                                fontWeight: "500",
                             }}
                         >
                             Previous
@@ -595,13 +589,15 @@ export default function EmployeeListPage() {
                             disabled={pageNumber >= totalPages}
                             onClick={() => setPageNumber((p) => Math.min(totalPages, p + 1))}
                             style={{
-                                backgroundColor: "#1a2235",
-                                border: "1px solid #31394d",
-                                color: "#ffffff",
-                                padding: "6px 12px",
-                                borderRadius: "4px",
+                                backgroundColor: "#ffffff",
+                                border: "1px solid #e2e8f0",
+                                color: "#0f172a",
+                                padding: "6px 14px",
+                                borderRadius: "6px",
                                 cursor: pageNumber >= totalPages ? "not-allowed" : "pointer",
                                 opacity: pageNumber >= totalPages ? 0.5 : 1,
+                                fontSize: "13px",
+                                fontWeight: "500",
                             }}
                         >
                             Next
@@ -614,13 +610,27 @@ export default function EmployeeListPage() {
             <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Create New Employee">
                 {createdEmployeeData ? (
                     <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "16px" }}>
-                        <div style={{ fontSize: "40px" }}>🎉</div>
-                        <h4 style={{ fontSize: "18px", color: "#10b981", fontWeight: "700" }}>Employee Created Successfully!</h4>
-                        <div style={{ backgroundColor: "#1a2235", padding: "16px", borderRadius: "8px", border: "1px solid #31394d", textAlign: "left", fontSize: "14px" }}>
-                            <div><strong>Employee Code:</strong> <span style={{ color: "#f97316" }}>{createdEmployeeData.employeeCode || createdEmployeeData.EmployeeCode}</span></div>
-                            <div><strong>Email:</strong> {createdEmployeeData.email || createdEmployeeData.Email}</div>
+                        <div
+                            style={{
+                                width: "48px",
+                                height: "48px",
+                                borderRadius: "50%",
+                                backgroundColor: "#dcfce7",
+                                color: "#15803d",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                margin: "0 auto",
+                            }}
+                        >
+                            <Icon name="check" size={24} />
+                        </div>
+                        <h4 style={{ fontSize: "18px", color: "#0f172a", fontWeight: "700" }}>Employee Account Created</h4>
+                        <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0", textAlign: "left", fontSize: "14px" }}>
+                            <div style={{ marginBottom: "6px" }}><strong>Employee Code:</strong> <span style={{ color: "#2563eb", fontWeight: "600" }}>{createdEmployeeData.employeeCode || createdEmployeeData.EmployeeCode}</span></div>
+                            <div style={{ marginBottom: "6px" }}><strong>Email:</strong> {createdEmployeeData.email || createdEmployeeData.Email}</div>
                             {(createdEmployeeData.temporaryPassword || createdEmployeeData.TemporaryPassword) && (
-                                <div style={{ marginTop: "8px", color: "#f59e0b" }}>
+                                <div style={{ marginTop: "8px", color: "#b45309", backgroundColor: "#fffbeb", padding: "8px 12px", borderRadius: "6px", border: "1px solid #fde68a" }}>
                                     <strong>Temporary Password:</strong> {createdEmployeeData.temporaryPassword || createdEmployeeData.TemporaryPassword}
                                 </div>
                             )}
@@ -628,37 +638,37 @@ export default function EmployeeListPage() {
                         <button
                             type="button"
                             onClick={() => setIsCreateModalOpen(false)}
-                            style={{ backgroundColor: "#f97316", color: "#ffffff", padding: "12px", borderRadius: "6px", border: "none", fontWeight: "600", cursor: "pointer" }}
+                            style={{ backgroundColor: "#2563eb", color: "#ffffff", padding: "12px", borderRadius: "6px", border: "none", fontWeight: "600", cursor: "pointer" }}
                         >
-                            Close
+                            Done
                         </button>
                     </div>
                 ) : (
                     <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                             <div>
-                                <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>First Name</label>
-                                <input name="firstName" required value={formData.firstName} onChange={handleInputChange} className="ems-login-input" placeholder="John" />
+                                <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>First Name</label>
+                                <input name="firstName" required value={formData.firstName} onChange={handleInputChange} className="ems-login-input" />
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Last Name</label>
-                                <input name="lastName" required value={formData.lastName} onChange={handleInputChange} className="ems-login-input" placeholder="Doe" />
+                                <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Last Name</label>
+                                <input name="lastName" required value={formData.lastName} onChange={handleInputChange} className="ems-login-input" />
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Email Address</label>
-                            <input name="email" type="email" required value={formData.email} onChange={handleInputChange} className="ems-login-input" placeholder="john.doe@company.com" />
+                            <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Email Address</label>
+                            <input name="email" type="email" required value={formData.email} onChange={handleInputChange} className="ems-login-input" />
                         </div>
 
                         <div>
-                            <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Phone Number</label>
-                            <input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} className="ems-login-input" placeholder="+1 (555) 000-0000" />
+                            <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Phone Number</label>
+                            <input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} className="ems-login-input" />
                         </div>
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                             <div>
-                                <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Role</label>
+                                <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Role</label>
                                 <select name="role" value={formData.role} onChange={handleInputChange} className="ems-login-input">
                                     <option value="Employee">Employee</option>
                                     <option value="Manager">Manager</option>
@@ -666,7 +676,7 @@ export default function EmployeeListPage() {
                                 </select>
                             </div>
                             <div>
-                                <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Reporting Manager</label>
+                                <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Reporting Manager</label>
                                 <select name="managerEmployeeCode" value={formData.managerEmployeeCode} onChange={handleInputChange} className="ems-login-input">
                                     <option value="">None / Top Level</option>
                                     {managersList.map((m) => {
@@ -682,7 +692,7 @@ export default function EmployeeListPage() {
                             </div>
                         </div>
 
-                        <button type="submit" style={{ backgroundColor: "#f97316", color: "#ffffff", padding: "12px", borderRadius: "6px", border: "none", fontWeight: "600", cursor: "pointer", marginTop: "8px" }}>
+                        <button type="submit" style={{ backgroundColor: "#2563eb", color: "#ffffff", padding: "12px", borderRadius: "8px", border: "none", fontWeight: "600", cursor: "pointer", marginTop: "8px" }}>
                             Create Employee
                         </button>
                     </form>
@@ -693,31 +703,31 @@ export default function EmployeeListPage() {
             <Modal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} title="Employee Details">
                 {selectedEmployee && (
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #1a2235", paddingBottom: "12px" }}>
-                            <span style={{ color: "#a0a5b2" }}>Employee Code</span>
-                            <strong style={{ color: "#f97316" }}>{selectedEmployee.employeeCode || selectedEmployee.EmployeeCode}</strong>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
+                            <span style={{ color: "#64748b" }}>Employee Code</span>
+                            <strong style={{ color: "#2563eb" }}>{selectedEmployee.employeeCode || selectedEmployee.EmployeeCode}</strong>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #1a2235", paddingBottom: "12px" }}>
-                            <span style={{ color: "#a0a5b2" }}>Full Name</span>
-                            <strong style={{ color: "#ffffff" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
+                            <span style={{ color: "#64748b" }}>Full Name</span>
+                            <strong style={{ color: "#0f172a" }}>
                                 {selectedEmployee.fullName || `${selectedEmployee.firstName || ""} ${selectedEmployee.lastName || ""}`.trim()}
                             </strong>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #1a2235", paddingBottom: "12px" }}>
-                            <span style={{ color: "#a0a5b2" }}>Email</span>
-                            <span style={{ color: "#ffffff" }}>{selectedEmployee.email || selectedEmployee.Email}</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
+                            <span style={{ color: "#64748b" }}>Email</span>
+                            <span style={{ color: "#0f172a" }}>{selectedEmployee.email || selectedEmployee.Email}</span>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #1a2235", paddingBottom: "12px" }}>
-                            <span style={{ color: "#a0a5b2" }}>Phone</span>
-                            <span style={{ color: "#ffffff" }}>{selectedEmployee.phoneNumber || selectedEmployee.PhoneNumber || "N/A"}</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
+                            <span style={{ color: "#64748b" }}>Phone</span>
+                            <span style={{ color: "#0f172a" }}>{selectedEmployee.phoneNumber || selectedEmployee.PhoneNumber || "N/A"}</span>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #1a2235", paddingBottom: "12px" }}>
-                            <span style={{ color: "#a0a5b2" }}>Role</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
+                            <span style={{ color: "#64748b" }}>Role</span>
                             <Badge type="role" value={formatRole(selectedEmployee.role || selectedEmployee.Role)} />
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #1a2235", paddingBottom: "12px" }}>
-                            <span style={{ color: "#a0a5b2" }}>Reporting Manager</span>
-                            <span style={{ color: "#ffffff" }}>{selectedEmployee.managerName || selectedEmployee.ManagerName || selectedEmployee.managerEmployeeCode || selectedEmployee.ManagerEmployeeCode || "None"}</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
+                            <span style={{ color: "#64748b" }}>Reporting Manager</span>
+                            <span style={{ color: "#0f172a" }}>{selectedEmployee.managerName || selectedEmployee.ManagerName || selectedEmployee.managerEmployeeCode || selectedEmployee.ManagerEmployeeCode || "None"}</span>
                         </div>
 
                         <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
@@ -728,9 +738,10 @@ export default function EmployeeListPage() {
                                     setIsViewModalOpen(false);
                                     handleResetPassword(code);
                                 }}
-                                style={{ flex: 1, backgroundColor: "#1a2235", border: "1px solid #31394d", color: "#f59e0b", padding: "10px", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
+                                style={{ flex: 1, backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", color: "#b45309", padding: "10px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                             >
-                                🔑 Reset Password
+                                <Icon name="key" size={16} />
+                                <span>Reset Password</span>
                             </button>
                         </div>
                     </div>
@@ -742,27 +753,27 @@ export default function EmployeeListPage() {
                 <form onSubmit={handleEditSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                         <div>
-                            <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>First Name</label>
+                            <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>First Name</label>
                             <input name="firstName" required value={formData.firstName} onChange={handleInputChange} className="ems-login-input" />
                         </div>
                         <div>
-                            <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Last Name</label>
+                            <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Last Name</label>
                             <input name="lastName" required value={formData.lastName} onChange={handleInputChange} className="ems-login-input" />
                         </div>
                     </div>
 
                     <div>
-                        <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Email Address</label>
+                        <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Email Address</label>
                         <input name="email" type="email" required value={formData.email} onChange={handleInputChange} className="ems-login-input" />
                     </div>
 
                     <div>
-                        <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Phone Number</label>
+                        <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Phone Number</label>
                         <input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} className="ems-login-input" />
                     </div>
 
                     <div>
-                        <label style={{ display: "block", fontSize: "13px", color: "#a0a5b2", marginBottom: "4px" }}>Role</label>
+                        <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Role</label>
                         <select name="role" value={formData.role} onChange={handleInputChange} className="ems-login-input">
                             <option value="Employee">Employee</option>
                             <option value="Manager">Manager</option>
@@ -770,7 +781,7 @@ export default function EmployeeListPage() {
                         </select>
                     </div>
 
-                    <button type="submit" style={{ backgroundColor: "#f97316", color: "#ffffff", padding: "12px", borderRadius: "6px", border: "none", fontWeight: "600", cursor: "pointer", marginTop: "8px" }}>
+                    <button type="submit" style={{ backgroundColor: "#2563eb", color: "#ffffff", padding: "12px", borderRadius: "8px", border: "none", fontWeight: "600", cursor: "pointer", marginTop: "8px" }}>
                         Save Changes
                     </button>
                 </form>

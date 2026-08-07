@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import Icon from "./Icon";
 
 /**
  * Modal Component
- * Accessible, reusable modal overlay dialog for dark WorkForce OS theme.
+ * Accessible, reusable modal overlay dialog for enterprise SaaS theme.
  */
 export default function Modal({ isOpen, onClose, title, children }) {
     useEffect(() => {
@@ -22,8 +23,8 @@ export default function Modal({ isOpen, onClose, title, children }) {
             style={{
                 position: "fixed",
                 inset: 0,
-                backgroundColor: "rgba(6, 14, 32, 0.8)",
-                backdropFilter: "blur(6px)",
+                backgroundColor: "rgba(15, 23, 42, 0.5)",
+                backdropFilter: "blur(4px)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -34,14 +35,14 @@ export default function Modal({ isOpen, onClose, title, children }) {
         >
             <div
                 style={{
-                    backgroundColor: "#131b2e",
-                    border: "1px solid #31394d",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "12px",
                     width: "100%",
                     maxWidth: "560px",
                     maxHeight: "90vh",
                     overflowY: "auto",
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
                     display: "flex",
                     flexDirection: "column",
                 }}
@@ -51,13 +52,13 @@ export default function Modal({ isOpen, onClose, title, children }) {
                 <div
                     style={{
                         padding: "20px 24px",
-                        borderBottom: "1px solid #1a2235",
+                        borderBottom: "1px solid #f1f5f9",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                     }}
                 >
-                    <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#ffffff", margin: 0 }}>
+                    <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a", margin: 0 }}>
                         {title}
                     </h3>
                     <button
@@ -66,13 +67,16 @@ export default function Modal({ isOpen, onClose, title, children }) {
                         style={{
                             background: "transparent",
                             border: "none",
-                            color: "#a0a5b2",
-                            fontSize: "20px",
+                            color: "#64748b",
                             cursor: "pointer",
-                            lineHeight: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "4px",
+                            borderRadius: "6px",
                         }}
                     >
-                        ✕
+                        <Icon name="x" size={18} />
                     </button>
                 </div>
 

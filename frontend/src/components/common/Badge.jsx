@@ -1,41 +1,41 @@
 /**
  * Badge Component
- * Renders status and role badges with WorkForce OS color coding.
+ * Renders status and role badges with crisp professional enterprise colors.
  */
 export default function Badge({ type, value }) {
-    let bg = "#1a2235";
-    let color = "#ffffff";
-    let border = "#31394d";
+    let bg = "#f1f5f9";
+    let color = "#475569";
+    let border = "#e2e8f0";
 
-    const label = String(value || "").toUpperCase();
+    const displayVal = String(value || "").trim();
 
     if (type === "status") {
-        if (value === 0 || value === "Active" || value === true) {
-            bg = "rgba(16, 185, 129, 0.15)";
-            color = "#10b981";
-            border = "rgba(16, 185, 129, 0.3)";
-        } else if (value === 1 || value === "Inactive" || value === false) {
-            bg = "rgba(245, 158, 11, 0.15)";
-            color = "#f59e0b";
-            border = "rgba(245, 158, 11, 0.3)";
-        } else if (value === 2 || value === "Deleted") {
-            bg = "rgba(239, 68, 68, 0.15)";
-            color = "#ef4444";
-            border = "rgba(239, 68, 68, 0.3)";
+        if (value === 1 || value === "Active" || value === true) {
+            bg = "#dcfce7";
+            color = "#15803d";
+            border = "#bbf7d0";
+        } else if (value === 2 || value === "Inactive" || value === false) {
+            bg = "#fef3c7";
+            color = "#b45309";
+            border = "#fde68a";
+        } else if (value === 9 || value === "Deleted") {
+            bg = "#fee2e2";
+            color = "#b91c1c";
+            border = "#fca5a5";
         }
     } else if (type === "role") {
-        if (value === "Admin" || value === 0) {
-            bg = "rgba(249, 115, 22, 0.15)";
-            color = "#f97316";
-            border = "rgba(249, 115, 22, 0.3)";
-        } else if (value === "Manager" || value === 1) {
-            bg = "rgba(59, 130, 246, 0.15)";
-            color = "#3b82f6";
-            border = "rgba(59, 130, 246, 0.3)";
+        if (displayVal === "Admin") {
+            bg = "#e0e7ff";
+            color = "#4338ca";
+            border = "#c7d2fe";
+        } else if (displayVal === "Manager") {
+            bg = "#e0f2fe";
+            color = "#0369a1";
+            border = "#bae6fd";
         } else {
-            bg = "rgba(160, 165, 178, 0.15)";
-            color = "#a0a5b2";
-            border = "rgba(160, 165, 178, 0.3)";
+            bg = "#f1f5f9";
+            color = "#475569";
+            border = "#e2e8f0";
         }
     }
 
@@ -44,17 +44,28 @@ export default function Badge({ type, value }) {
             style={{
                 display: "inline-flex",
                 alignItems: "center",
+                gap: "6px",
                 padding: "3px 10px",
-                borderRadius: "12px",
+                borderRadius: "9999px",
                 fontSize: "12px",
                 fontWeight: "600",
                 backgroundColor: bg,
                 color: color,
                 border: `1px solid ${border}`,
-                letterSpacing: "0.3px",
+                lineHeight: "1.3",
             }}
         >
-            {label}
+            {type === "status" && (
+                <span
+                    style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        backgroundColor: color,
+                    }}
+                />
+            )}
+            {displayVal}
         </span>
     );
 }

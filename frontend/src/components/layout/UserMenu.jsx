@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import Icon from "../common/Icon";
 
 /**
  * UserMenu Component
@@ -36,6 +37,7 @@ export default function UserMenu() {
     };
 
     const displayName = user?.email ? user.email.split("@")[0] : user?.employeeCode || "User";
+    const initial = displayName.charAt(0).toUpperCase();
     const profilePath = user?.role === "Admin" ? "/admin/profile" : "/employee/profile";
 
     return (
@@ -47,9 +49,28 @@ export default function UserMenu() {
                 aria-expanded={isOpen}
                 aria-label="User menu"
             >
-                <span>{displayName}</span>
-                {user?.role && <span style={{ fontSize: "11px", color: "#f97316" }}>({user.role})</span>}
-                <span style={{ fontSize: "10px", marginLeft: "4px" }}>▼</span>
+                <div
+                    style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        backgroundColor: "#2563eb",
+                        color: "#ffffff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "600",
+                        fontSize: "12px",
+                    }}
+                >
+                    {initial}
+                </div>
+                <span style={{ fontWeight: "500", color: "#0f172a" }}>{displayName}</span>
+                {user?.role && (
+                    <span style={{ fontSize: "12px", color: "#2563eb", fontWeight: "600" }}>
+                        {user.role}
+                    </span>
+                )}
             </button>
 
             {isOpen && (
@@ -59,21 +80,24 @@ export default function UserMenu() {
                         className="ems-user-menu-item"
                         onClick={() => handleNavigation(profilePath)}
                     >
-                        My Profile
+                        <Icon name="user" size={16} />
+                        <span>My Profile</span>
                     </button>
                     <button
                         type="button"
                         className="ems-user-menu-item"
                         onClick={() => handleNavigation("/change-password")}
                     >
-                        Change Password
+                        <Icon name="key" size={16} />
+                        <span>Change Password</span>
                     </button>
                     <button
                         type="button"
                         className="ems-user-menu-item logout"
                         onClick={handleLogout}
                     >
-                        Logout
+                        <Icon name="logout" size={16} />
+                        <span>Logout</span>
                     </button>
                 </div>
             )}
