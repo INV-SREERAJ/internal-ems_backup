@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import useAuth from "../../hooks/useAuth";
-import axiosInstance from "../../api/axios";
+import { getEmployees } from "../../api/adminApi";
 
 /**
  * Admin Dashboard Component
@@ -18,23 +18,36 @@ export default function Dashboard() {
     });
     const [loading, setLoading] = useState(true);
 
+    const getCount = (res) => {
+        if (!res || res.status !== "fulfilled") return 0;
+        const val = res.value;
+        if (!val) return 0;
+        if (typeof val.totalCount === "number") return val.totalCount;
+        if (typeof val.TotalCount === "number") return val.TotalCount;
+        if (typeof val.totalItems === "number") return val.totalItems;
+        if (Array.isArray(val.data)) return val.data.length;
+        if (Array.isArray(val.items)) return val.items.length;
+        if (Array.isArray(val)) return val.length;
+        return 0;
+    };
+
     useEffect(() => {
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
                 // Fetch stats from backend API endpoints
-                // Status enum: Active = 0, Inactive = 1, Deleted = 2
+                // Backend EmployeeStatus enum: Active = 1, Inactive = 2, Deleted = 9
                 const [activeRes, inactiveRes, deletedRes, managersRes] = await Promise.allSettled([
-                    axiosInstance.get("/api/admin/employees", { params: { PageSize: 1 } }),
-                    axiosInstance.get("/api/admin/employees", { params: { Status: 1, PageSize: 1 } }),
-                    axiosInstance.get("/api/admin/employees", { params: { Status: 2, IncludeDeleted: true, PageSize: 1 } }),
-                    axiosInstance.get("/api/admin/employees", { params: { Role: "Manager", PageSize: 1 } }),
+                    getEmployees({ Status: 1, PageSize: 1 }),
+                    getEmployees({ Status: 2, PageSize: 1 }),
+                    getEmployees({ Status: 9, IncludeDeleted: true, PageSize: 1 }),
+                    getEmployees({ Role: "Manager", PageSize: 1 }),
                 ]);
 
-                const activeCount = activeRes.status === "fulfilled" ? activeRes.value.data?.totalItems || activeRes.value.data?.length || 0 : 0;
-                const inactiveCount = inactiveRes.status === "fulfilled" ? inactiveRes.value.data?.totalItems || inactiveRes.value.data?.length || 0 : 0;
-                const deletedCount = deletedRes.status === "fulfilled" ? deletedRes.value.data?.totalItems || deletedRes.value.data?.length || 0 : 0;
-                const managerCount = managersRes.status === "fulfilled" ? managersRes.value.data?.totalItems || managersRes.value.data?.length || 0 : 0;
+                const activeCount = getCount(activeRes);
+                const inactiveCount = getCount(inactiveRes);
+                const deletedCount = getCount(deletedRes);
+                const managerCount = getCount(managersRes);
 
                 setStats({
                     totalEmployees: activeCount + inactiveCount,
@@ -45,10 +58,10 @@ export default function Dashboard() {
             } catch {
                 // Fallback state if backend returns empty or non-admin user
                 setStats({
-                    totalEmployees: 24,
-                    reportingManagers: 5,
-                    inactiveEmployees: 2,
-                    deletedEmployees: 1,
+                    totalEmployees: 0,
+                    reportingManagers: 0,
+                    inactiveEmployees: 0,
+                    deletedEmployees: 0,
                 });
             } finally {
                 setLoading(false);
@@ -178,7 +191,7 @@ export default function Dashboard() {
                     </h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                         <a
-                            href="/employees"
+                            href="/admin/employees"
                             style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -199,7 +212,7 @@ export default function Dashboard() {
                         </a>
 
                         <a
-                            href="/employees"
+                            href="/admin/employees"
                             style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -220,7 +233,7 @@ export default function Dashboard() {
                         </a>
 
                         <a
-                            href="/profile"
+                            href="/admin/profile"
                             style={{
                                 display: "flex",
                                 alignItems: "center",

@@ -75,16 +75,21 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = useCallback(async (credentials) => {
-        const { data } = await loginApi(credentials);
+        const response = await loginApi(credentials);
+        const data = response?.data || response;
+        const accessToken = data?.accessToken || data?.value?.accessToken;
+        const mustChangePassword = data?.mustChangePassword ?? data?.value?.mustChangePassword ?? false;
+
+        const decodedUser = decodeToken(accessToken);
         const user = {
-            ...decodeToken(data.accessToken),
-            mustChangePassword: data.mustChangePassword,
+            ...decodedUser,
+            mustChangePassword,
         };
 
         dispatch({
             type: "LOGIN",
             payload: {
-                accessToken: data.accessToken,
+                accessToken,
                 user,
             },
         });
@@ -106,16 +111,30 @@ export function AuthProvider({ children }) {
 
     const refresh = useCallback(async () => {
         try {
-            const { data } = await refreshApi();
+            const response = await refreshApi();
+            const data = response?.data || response;
+            const accessToken = data?.accessToken || data?.value?.accessToken;
+            const mustChangePassword = data?.mustChangePassword ?? data?.value?.mustChangePassword ?? false;
+
+            if (!accessToken) {
+                initialize(AUTH_STATUS.UNAUTHENTICATED, null, null);
+                return false;
+            }
+
+            const decodedUser = decodeToken(accessToken);
+            if (!decodedUser) {
+                initialize(AUTH_STATUS.UNAUTHENTICATED, null, null);
+                return false;
+            }
 
             const user = {
-                ...decodeToken(data.accessToken),
-                mustChangePassword: data.mustChangePassword,
+                ...decodedUser,
+                mustChangePassword,
             };
 
             initialize(
                 AUTH_STATUS.AUTHENTICATED,
-                data.accessToken,
+                accessToken,
                 user
             );
 

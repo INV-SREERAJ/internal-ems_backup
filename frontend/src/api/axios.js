@@ -86,7 +86,7 @@ api.interceptors.response.use(
                 { withCredentials: true }
             );
 
-            const newAccessToken = response.data?.accessToken;
+            const newAccessToken = response.data?.accessToken || response.data?.value?.accessToken;
             if (!newAccessToken) {
                 throw new Error("No access token returned on refresh");
             }
@@ -99,7 +99,6 @@ api.interceptors.response.use(
         } catch (refreshError) {
             processQueue(refreshError, null);
             handleLogout();
-            alert("Your session has expired. Please log in again.");
             return Promise.reject(refreshError);
         } finally {
             isRefreshing = false;

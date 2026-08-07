@@ -4,8 +4,7 @@ import useAuth from "../../hooks/useAuth";
 
 /**
  * UserMenu Component
- * Displays authenticated user info and actions matching backend scope:
- * Profile, Change Password, Logout.
+ * Displays authenticated user info and actions matching user role.
  */
 export default function UserMenu() {
     const { user, logout } = useAuth();
@@ -15,7 +14,6 @@ export default function UserMenu() {
 
     const toggleMenu = () => setIsOpen((prev) => !prev);
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -38,6 +36,7 @@ export default function UserMenu() {
     };
 
     const displayName = user?.email ? user.email.split("@")[0] : user?.employeeCode || "User";
+    const profilePath = user?.role === "Admin" ? "/admin/profile" : "/employee/profile";
 
     return (
         <div className="ems-user-menu" ref={menuRef}>
@@ -49,7 +48,7 @@ export default function UserMenu() {
                 aria-label="User menu"
             >
                 <span>{displayName}</span>
-                {user?.role && <span style={{ fontSize: "11px", opacity: 0.7 }}>({user.role})</span>}
+                {user?.role && <span style={{ fontSize: "11px", color: "#f97316" }}>({user.role})</span>}
                 <span style={{ fontSize: "10px", marginLeft: "4px" }}>▼</span>
             </button>
 
@@ -58,7 +57,7 @@ export default function UserMenu() {
                     <button
                         type="button"
                         className="ems-user-menu-item"
-                        onClick={() => handleNavigation("/profile")}
+                        onClick={() => handleNavigation(profilePath)}
                     >
                         My Profile
                     </button>

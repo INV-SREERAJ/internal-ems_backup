@@ -3,19 +3,29 @@ import useAuth from "../../hooks/useAuth";
 
 /**
  * Sidebar Component
- * Interactive left sidebar navigation matching WorkForce OS theme.
- * Houses main routes (Dashboard, Employees, My Profile, Settings) and a bottom Logout button.
+ * Renders role-specific navigation for Admin vs Employee users.
  */
 export default function Sidebar({ isOpen, onClose }) {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    const navItems = [
-        { label: "Dashboard", path: "/dashboard", icon: "📊" },
-        { label: "Employees", path: "/employees", icon: "👥" },
-        { label: "My Profile", path: "/profile", icon: "👤" },
-        { label: "Settings", path: "/settings", icon: "⚙️" },
+    const isAdmin = user?.role === "Admin";
+
+    const adminNavItems = [
+        { label: "Dashboard", path: "/admin/dashboard", icon: "📊" },
+        { label: "Employees", path: "/admin/employees", icon: "👥" },
+        { label: "Organization", path: "/admin/organization", icon: "🏢" },
+        { label: "My Profile", path: "/admin/profile", icon: "👤" },
+        { label: "Settings", path: "/admin/settings", icon: "⚙️" },
     ];
+
+    const employeeNavItems = [
+        { label: "Dashboard", path: "/employee/dashboard", icon: "📊" },
+        { label: "My Profile", path: "/employee/profile", icon: "👤" },
+        { label: "Organization", path: "/employee/organization", icon: "🏢" },
+    ];
+
+    const navItems = isAdmin ? adminNavItems : employeeNavItems;
 
     const handleLinkClick = () => {
         if (onClose && window.innerWidth <= 1024) {
@@ -33,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <>
             {/* Backdrop overlay for mobile drawer */}
             {isOpen && <div className="ems-sidebar-backdrop" onClick={onClose} aria-hidden="true" />}
-            
+
             <aside className={`ems-sidebar ${isOpen ? "open" : "closed"}`}>
                 <div className="ems-sidebar-top">
                     <nav className="ems-sidebar-nav">
