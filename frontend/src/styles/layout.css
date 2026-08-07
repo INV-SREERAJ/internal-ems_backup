@@ -1,0 +1,405 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
+/* WorkForce OS Enterprise Layout Shell */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #060e20;
+    color: #ffffff;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* App Shell Container */
+.ems-app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #060e20;
+}
+
+/* Header Bar */
+.ems-header {
+    height: 64px;
+    background-color: #0b1326;
+    border-bottom: 1px solid #1a2235;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+
+.ems-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.ems-menu-toggle {
+    background: #1a2235;
+    border: 1px solid #31394d;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.ems-menu-toggle:hover {
+    background-color: #31394d;
+    border-color: #f97316;
+}
+
+.ems-header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+}
+
+.ems-header-title span {
+    color: #f97316;
+}
+
+.ems-header-spacer {
+    flex: 1;
+}
+
+.ems-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Main Container (Sidebar + Content) */
+.ems-main-wrapper {
+    display: flex;
+    flex: 1;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Sidebar Component */
+.ems-sidebar {
+    width: 250px;
+    background-color: #0b1326;
+    border-right: 1px solid #1a2235;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 30;
+    min-height: calc(100vh - 64px);
+}
+
+/* Sidebar collapsed state for desktop toggle */
+.ems-sidebar.closed {
+    margin-left: -250px;
+}
+
+.ems-sidebar-top {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+}
+
+.ems-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ems-sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #a0a5b2;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.ems-sidebar-link:hover {
+    background-color: #1a2235;
+    color: #ffffff;
+}
+
+.ems-sidebar-link.active {
+    background-color: #1a2235;
+    color: #f97316;
+    font-weight: 600;
+    border-left: 3px solid #f97316;
+}
+
+/* Sidebar Bottom (Logout Section) */
+.ems-sidebar-bottom {
+    padding: 20px 14px;
+    border-top: 1px solid #1a2235;
+}
+
+.ems-sidebar-logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ems-sidebar-logout-btn:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+/* Mobile Sidebar Drawer Overlay */
+.ems-sidebar-backdrop {
+    display: none;
+}
+
+/* User Menu Component */
+.ems-user-menu {
+    position: relative;
+}
+
+.ems-user-menu-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #131b2e;
+    border: 1px solid #31394d;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+.ems-user-menu-button:hover {
+    border-color: #f97316;
+}
+
+.ems-user-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    width: 200px;
+    background-color: #131b2e;
+    border: 1px solid #31394d;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    padding: 8px 0;
+    z-index: 50;
+}
+
+.ems-user-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    color: #a0a5b2;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.ems-user-menu-item:hover {
+    background-color: #1a2235;
+    color: #ffffff;
+}
+
+.ems-user-menu-item.logout {
+    color: #ef4444;
+    border-top: 1px solid #1a2235;
+}
+
+.ems-user-menu-item.logout:hover {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: #f87171;
+}
+
+/* Breadcrumbs */
+.ems-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #a0a5b2;
+    margin-bottom: 24px;
+}
+
+.ems-breadcrumb-item {
+    color: #a0a5b2;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.ems-breadcrumb-item:hover {
+    color: #ffffff;
+}
+
+.ems-breadcrumb-separator {
+    color: #31394d;
+}
+
+.ems-breadcrumb-item.active {
+    color: #f97316;
+    font-weight: 600;
+}
+
+/* Page Container */
+.ems-page-container {
+    flex: 1;
+    padding: 32px 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Dashboard Analytics Grid */
+.ems-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+@media (min-width: 640px) {
+    .ems-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .ems-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Stat Card */
+.ems-stat-card {
+    background-color: #131b2e;
+    border: 1px solid #31394d;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.ems-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+    border-color: #f97316;
+}
+
+.ems-stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ems-stat-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #a0a5b2;
+}
+
+.ems-stat-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.ems-stat-card-icon.employees {
+    background-color: rgba(37, 99, 235, 0.15);
+    color: #3b82f6;
+}
+
+.ems-stat-card-icon.managers {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.ems-stat-card-icon.inactive {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.ems-stat-card-icon.deleted {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.ems-stat-card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.ems-stat-card-desc {
+    font-size: 13px;
+    color: #a0a5b2;
+}
+
+/* Structural Responsiveness (Tablet/Mobile) */
+@media (max-width: 1024px) {
+    .ems-sidebar {
+        position: fixed;
+        top: 64px;
+        bottom: 0;
+        left: 0;
+        z-index: 30;
+        margin-left: 0;
+        transform: translateX(-100%);
+        height: calc(100vh - 64px);
+    }
+
+    .ems-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .ems-sidebar-backdrop {
+        display: block;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(6, 14, 32, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 20;
+    }
+}
