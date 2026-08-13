@@ -9,6 +9,7 @@ import {
     getEmployeeByCode,
     createEmployee,
     updateEmployee,
+    changeReportingManager,
     changeEmployeeStatus,
     deleteEmployee,
     resetEmployeePassword,
@@ -134,9 +135,14 @@ export default function EmployeeListPage() {
         let isMounted = true;
         const loadManagers = async () => {
             try {
-                const res = await getEmployees({ Role: "Manager", PageSize: 50 });
+                const res = await getEmployees({ PageSize: 100 });
                 if (isMounted) {
-                    setManagersList(extractItems(res));
+                    const items = extractItems(res);
+                    const eligibleManagers = items.filter((e) => {
+                        const r = formatRole(e.role || e.Role);
+                        return r === "Manager" || r === "Admin";
+                    });
+                    setManagersList(eligibleManagers);
                 }
             } catch {
                 if (isMounted) {
@@ -206,7 +212,11 @@ export default function EmployeeListPage() {
         try {
             const res = await getEmployeeByCode(code);
             const details = res?.value || res;
-            setSelectedEmployee(details);
+
+            // Merge with list object to preserve ManagerName if not in details DTO
+            const listEmp = employees.find((e) => (e.employeeCode || e.EmployeeCode) === code);
+            const mergedDetails = { ...listEmp, ...details };
+            setSelectedEmployee(mergedDetails);
 
             let first = details.firstName || "";
             let last = details.lastName || "";
@@ -216,13 +226,27 @@ export default function EmployeeListPage() {
                 last = parts.slice(1).join(" ") || "";
             }
 
+            let mgrCode = details.managerEmployeeCode || details.ManagerEmployeeCode || details.managerCode || details.ManagerCode || "";
+            const mgrName = details.managerName || details.ManagerName || listEmp?.managerName || listEmp?.ManagerName || "";
+
+            if (!mgrCode && mgrName) {
+                const targetName = mgrName.trim().toLowerCase();
+                const matchedMgr = managersList.find((m) => {
+                    const name = (m.fullName || `${m.firstName || ""} ${m.lastName || ""}`).trim().toLowerCase();
+                    return name === targetName;
+                });
+                if (matchedMgr) {
+                    mgrCode = matchedMgr.employeeCode || matchedMgr.EmployeeCode || "";
+                }
+            }
+
             setFormData({
                 firstName: first,
                 lastName: last,
                 email: details.email || details.Email || "",
                 phoneNumber: details.phoneNumber || details.PhoneNumber || "",
                 role: formatRole(details.role || details.Role),
-                managerEmployeeCode: details.managerEmployeeCode || details.ManagerEmployeeCode || "",
+                managerEmployeeCode: mgrCode,
             });
             setIsEditModalOpen(true);
         } catch {
@@ -235,18 +259,25 @@ export default function EmployeeListPage() {
         e.preventDefault();
         setErrorMessage(null);
         try {
-            await updateEmployee(selectedEmployee.employeeCode || selectedEmployee.EmployeeCode, {
+            const empCode = selectedEmployee.employeeCode || selectedEmployee.EmployeeCode;
+
+            // 1. Update core profile details
+            await updateEmployee(empCode, {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 phoneNumber: formData.phoneNumber,
                 role: formData.role,
             });
+
+            // 2. Update reporting manager in backend DB via PATCH /admin/employees/{empCode}/manager
+            await changeReportingManager(empCode, formData.managerEmployeeCode || "");
+
             setIsEditModalOpen(false);
-            setFeedbackMessage(`Employee updated successfully.`);
+            setFeedbackMessage(`Employee ${empCode} updated successfully.`);
             fetchEmployeesList();
         } catch (err) {
-            const msg = err.response?.data?.message || "Failed to update employee.";
+            const msg = err.response?.data?.message || err.response?.data?.title || "Failed to update employee.";
             setErrorMessage(msg);
         }
     };
@@ -772,13 +803,38 @@ export default function EmployeeListPage() {
                         <input name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} className="ems-login-input" />
                     </div>
 
-                    <div>
-                        <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Role</label>
-                        <select name="role" value={formData.role} onChange={handleInputChange} className="ems-login-input">
-                            <option value="Employee">Employee</option>
-                            <option value="Manager">Manager</option>
-                            <option value="Admin">Admin</option>
-                        </select>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                        <div>
+                            <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Role</label>
+                            <select name="role" value={formData.role} onChange={handleInputChange} className="ems-login-input">
+                                <option value="Employee">Employee</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: "block", fontSize: "13px", color: "#64748b", marginBottom: "4px", fontWeight: "500" }}>Reporting Manager</label>
+                            <select name="managerEmployeeCode" value={formData.managerEmployeeCode} onChange={handleInputChange} className="ems-login-input">
+                                <option value="">None / Top Level (Admin)</option>
+                                {managersList
+                                    .filter((m) => {
+                                        const code = m.employeeCode || m.EmployeeCode;
+                                        const selfCode = selectedEmployee?.employeeCode || selectedEmployee?.EmployeeCode;
+                                        const roleStr = formatRole(m.role || m.Role);
+                                        return (roleStr === "Manager" || roleStr === "Admin") && code !== selfCode;
+                                    })
+                                    .map((m) => {
+                                        const code = m.employeeCode || m.EmployeeCode;
+                                        const name = m.fullName || `${m.firstName || ""} ${m.lastName || ""}`.trim() || code;
+                                        const role = formatRole(m.role || m.Role);
+                                        return (
+                                            <option key={code} value={code}>
+                                                {name} ({code}) — {role}
+                                            </option>
+                                        );
+                                    })}
+                            </select>
+                        </div>
                     </div>
 
                     <button type="submit" style={{ backgroundColor: "#2563eb", color: "#ffffff", padding: "12px", borderRadius: "8px", border: "none", fontWeight: "600", cursor: "pointer", marginTop: "8px" }}>
