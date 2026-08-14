@@ -256,11 +256,11 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.NotFound, "Employee not found, check the employeeCode.");
             }
 
-            if (employee.Status == EmployeeStatus.Deleted)
-            {
-                _logger.LogWarning("Update failed. Employee {EmployeeCode} is deleted.", employeeCode);
-                return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.NotFound, "Employee is deleted, activate him.");
-            }
+            //if (employee.Status == EmployeeStatus.Deleted)
+            //{
+            //    _logger.LogWarning("Update failed. Employee {EmployeeCode} is deleted.", employeeCode);
+            //    return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.NotFound, "Employee is deleted, activate him.");
+            //}
 
             //admin cant change his role (only 1 admin and if role changes the system breaks)
             if (employee.Role == Role.Admin && request.Role != Role.Admin)
@@ -275,15 +275,6 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Cant change the role as manager has active employees reporting, please change the reporting manager and try again.");
             }
 
-            // check if the email is already present (excluding the current email)
-            if (!employee.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase))
-            {
-                if (await _employeeRepository.EmailExistsAsync(request.Email))
-                {
-                    _logger.LogWarning("The email trying to change to {Email} already exists", request.Email);
-                    return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Email already exists.");
-                }
-            }
 
             if (request.Role == Role.Admin)
             {
@@ -294,7 +285,6 @@ namespace EmployeeManagementSystem.Business.Services
             employee.FirstName = request.FirstName;
             employee.LastName = request.LastName;
             employee.PhoneNumber = request.PhoneNumber;
-            employee.Email = request.Email;
             employee.Role = request.Role;
 
             employee.UpdatedAt = DateTime.UtcNow;
@@ -404,7 +394,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
 
-            if(manager.ManagerId == employee.Id)
+            if (manager.ManagerId == employee.Id)
             {
                 _logger.LogInformation("Change in RM failed as the manager {managerEmployeeCode} reports to the employee {employeeCode}", managerEmployeeCode, employeeCode);
                 return Result.Fail(ErrorType.Conflict, "Selected manager reports to the employee.");

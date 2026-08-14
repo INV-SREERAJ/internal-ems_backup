@@ -16,6 +16,8 @@ namespace EmployeeManagementSystem.Business.Validators.Profile
                 .WithMessage("New password is required.")
                 .MinimumLength(8)
                 .WithMessage("Password must be at least 8 characters long.")
+                .MaximumLength(72)
+                .WithMessage("Password is too long")
                 .Matches("[A-Z]")
                 .WithMessage("Password must contain at least one uppercase letter.")
                 .Matches("[a-z]")

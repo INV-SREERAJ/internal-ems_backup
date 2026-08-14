@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.DataAccess.Entities.Enums;
+using EmployeeManagementSystem.DataAccess.Entities.Enums;
 
 namespace EmployeeManagementSystem.Business.DTOs.Admin
 {
