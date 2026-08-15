@@ -1,5 +1,5 @@
 export const AUTH_STATUS = {
-    INITIALIZING: "initializing",
-    AUTHENTICATED: "authenticated",
-    UNAUTHENTICATED: "unauthenticated",
+  INITIALIZING: "initializing",
+  AUTHENTICATED: "authenticated",
+  UNAUTHENTICATED: "unauthenticated",
 };

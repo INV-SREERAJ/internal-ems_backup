@@ -267,8 +267,12 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
             //taking the tokenversion from the refreshtoken
-            var tokenVersion = int.Parse(
-                principal.FindFirst("TokenVersion")!.Value);
+            var tokenVersionClaim = principal.FindFirst("TokenVersion")?.Value;
+            if (!int.TryParse(tokenVersionClaim, out var tokenVersion))
+            {
+                ClearRefreshTokenCookie();
+                return new LoginResponseDto { Success = false, Message = "Invalid refresh token." };
+            }
 
             //checking if the tokenversion in refresh token is matching the one in the db
             if (tokenVersion != employee.TokenVersion)
