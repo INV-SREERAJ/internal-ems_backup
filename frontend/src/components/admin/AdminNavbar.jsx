@@ -1,7 +1,25 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import useAuth from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
 
 export default function AdminNavbar({ onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const { logout } = useAuth();
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="admin-navbar">
@@ -15,12 +33,12 @@ export default function AdminNavbar({ onMenuClick }) {
           ☰
         </button>
 
-        <div className="admin-brand">
+        <Link to="/admin" className="admin-brand">
           Workforce <span>OS</span>
-        </div>
+        </Link>
       </div>
 
-      <div className="admin-profile">
+      <div className="admin-profile" ref={profileRef}>
         <button
           type="button"
           className="admin-profile-btn"
@@ -32,7 +50,9 @@ export default function AdminNavbar({ onMenuClick }) {
         {profileOpen && (
           <div className="admin-profile-menu">
             <button type="button">Edit Profile</button>
-            <button type="button">Logout</button>
+            <button type="button" onClick={logout}>
+              Logout
+            </button>
           </div>
         )}
       </div>

@@ -4,6 +4,8 @@ import "./EmployeePage.css";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
+import { Link } from "react-router-dom";
+
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -143,6 +145,13 @@ export default function EmployeesPage() {
           />
           Include deleted
         </label>
+
+        <Link
+          to="/admin/employees/create-employee"
+          className="add-employee-btn"
+        >
+          + Add Employee
+        </Link>
       </div>
 
       {loading && (
