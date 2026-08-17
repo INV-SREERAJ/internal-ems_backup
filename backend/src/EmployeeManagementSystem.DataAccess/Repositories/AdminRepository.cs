@@ -34,7 +34,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             }
             else if (!parameters.IncludeDeleted)
             {
-                query = query.Where(e => e.Status != EmployeeStatus.Deleted);
+                query =  query.Where(e => e.Status != EmployeeStatus.Deleted);
             }
 
             // Search
@@ -46,6 +46,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                     e.EmployeeCode.Contains(search) ||
                     e.FirstName.Contains(search) ||
                     e.LastName.Contains(search) ||
+                    (e.FirstName + " " + e.LastName).Contains(search) ||
                     e.Email.Contains(search));
             }
 

@@ -4,21 +4,38 @@ export default function AdminNavbar({ onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
-    <nav>
-      <button onClick={onMenuClick}>☰</button>
-      <h2>
-        Workforce <span>OS</span>
-      </h2>
-      <div>
-        <button onClick={() => setProfileOpen(!profileOpen)}>Profile</button>
+    <header className="admin-navbar">
+      <div className="admin-navbar-left">
+        <button
+          type="button"
+          className="admin-menu-btn"
+          onClick={onMenuClick}
+          aria-label="Open navigation menu"
+        >
+          ☰
+        </button>
+
+        <div className="admin-brand">
+          Workforce <span>OS</span>
+        </div>
+      </div>
+
+      <div className="admin-profile">
+        <button
+          type="button"
+          className="admin-profile-btn"
+          onClick={() => setProfileOpen((current) => !current)}
+        >
+          Profile
+        </button>
 
         {profileOpen && (
-          <div>
-            <button>Edit Profile</button>
-            <button>Logout</button>
+          <div className="admin-profile-menu">
+            <button type="button">Edit Profile</button>
+            <button type="button">Logout</button>
           </div>
         )}
       </div>
-    </nav>
+    </header>
   );
 }

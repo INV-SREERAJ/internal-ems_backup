@@ -21,7 +21,7 @@ export default function LoginPage() {
       if (user?.mustChangePassword) {
         navigate("/change-password", { replace: true });
       } else if (user?.role === "Admin") {
-        navigate("/admin/dashboard", { replace: true });
+        navigate("/admin", { replace: true });
       } else {
         navigate("/employee/dashboard", { replace: true });
       }
@@ -62,7 +62,7 @@ export default function LoginPage() {
       if (loggedInUser?.mustChangePassword) {
         navigate("/change-password", { replace: true });
       } else if (loggedInUser?.role === "Admin") {
-        navigate("/admin/dashboard", { replace: true });
+        navigate("/admin", { replace: true });
       } else {
         navigate("/employee/dashboard", { replace: true });
       }

@@ -1,0 +1,165 @@
+import { Link } from "react-router-dom";
+
+export default function EmployeeTable({
+  employees,
+  onSort,
+  sortBy,
+  descending,
+}) {
+  return (
+    <div className="employees-table-wrapper">
+      <table className="employee-table">
+        <colgroup>
+          <col className="employee-code-column" />
+          <col className="full-name-column" />
+          <col className="email-column" />
+          <col className="phone-column" />
+          <col className="role-column" />
+          <col className="manager-column" />
+          <col className="status-column" />
+          <col className="action-column" />
+        </colgroup>
+
+        <thead>
+          <tr>
+            <th>
+              <div className="employee-table-th-content">
+                <span>Employee Code</span>
+                <button
+                  type="button"
+                  onClick={() => onSort("employeeCode")}
+                  className={`sort-button${sortBy === "employeeCode" ? " sort-button-active" : ""}`}
+                  aria-label="Sort by employee code"
+                >
+                  {sortBy === "employeeCode" ? (descending ? "↓" : "↑") : "↕"}
+                </button>
+              </div>
+            </th>
+            <th>
+              <div className="employee-table-th-content">
+                <span>Full Name</span>
+                <button
+                  type="button"
+                  onClick={() => onSort("name")}
+                  className={`sort-button${
+                    sortBy === "name" ? " sort-button-active" : ""
+                  }`}
+                  aria-label="Sort by full name"
+                >
+                  {sortBy === "name" ? (descending ? "↓" : "↑") : "↕"}
+                </button>
+              </div>
+            </th>
+
+            <th>
+              <div className="employee-table-th-content">
+                <span>Email</span>
+                <button
+                  type="button"
+                  onClick={() => onSort("email")}
+                  className={`sort-button${
+                    sortBy === "email" ? " sort-button-active" : ""
+                  }`}
+                  aria-label="Sort by email"
+                >
+                  {sortBy === "email" ? (descending ? "↓" : "↑") : "↕"}
+                </button>
+              </div>
+            </th>
+
+            <th>Phone Number</th>
+
+            <th>
+              <div className="employee-table-th-content">
+                <span>Role</span>
+                <button
+                  type="button"
+                  onClick={() => onSort("role")}
+                  className={`sort-button${
+                    sortBy === "role" ? " sort-button-active" : ""
+                  }`}
+                  aria-label="Sort by role"
+                >
+                  {sortBy === "role" ? (descending ? "↓" : "↑") : "↕"}
+                </button>
+              </div>
+            </th>
+            <th>Manager</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {employees.map((employee) => (
+            <tr key={employee.employeeCode}>
+              <td>
+                <span
+                  className="employee-table-text"
+                  title={employee.employeeCode}
+                >
+                  {employee.employeeCode}
+                </span>
+              </td>
+              <td>
+                <span className="employee-table-text" title={employee.fullName}>
+                  {employee.fullName}
+                </span>
+              </td>
+              <td>
+                <span className="employee-table-text" title={employee.email}>
+                  {employee.email}
+                </span>
+              </td>
+              <td>
+                <span
+                  className="employee-table-text"
+                  title={employee.phoneNumber}
+                >
+                  {employee.phoneNumber}
+                </span>
+              </td>
+              <td>
+                <span className="employee-table-text" title={employee.role}>
+                  {employee.role}
+                </span>
+              </td>
+              <td>
+                <span
+                  className="employee-table-text"
+                  title={employee.managerName ?? "-"}
+                >
+                  {employee.managerName ?? "-"}
+                </span>
+              </td>
+              <td>
+                <span
+                  className={`employee-status ${
+                    employee.status === 1
+                      ? "employee-status-active"
+                      : employee.status === 2
+                        ? "employee-status-inactive"
+                        : "employee-status-deleted"
+                  }`}
+                >
+                  {employee.status === 1
+                    ? "Active"
+                    : employee.status === 2
+                      ? "Inactive"
+                      : "Deleted"}
+                </span>
+              </td>
+              <td>
+                <Link
+                  to="/admin/employees/edit"
+                  state={{ employeeCode: employee.employeeCode }}
+                  className="employee-edit-btn"
+                >
+                  Edit
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

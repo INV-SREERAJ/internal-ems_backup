@@ -1,16 +1,50 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-export default function AdminSidebar() {
+export default function AdminSidebar(onNavigate) {
+
+  const linkClass = ({ isActive }) => (isActive ? "active" : "")
+
   return (
-    <aside>
-      <nav>
-        <Link to = "/admin/employees">
+    <aside className="admin-sidebar">
+      <nav className="admin-sidebar-nav">
+        <NavLink
+          to="/admin" end
+          className={linkClass} onClick={onNavigate}
+        >
+          Dashboard
+        </NavLink>
+
+        <NavLink
+          to="/admin/employees"
+          end
+          className={linkClass}
+          onClick={onNavigate}
+        >
           View Employees
-        </Link>
-        <Link to = "/admin/employees/edit">
+        </NavLink>
+
+        <NavLink
+          to="/admin/employees/create-employee"
+          end
+          className={linkClass}
+          onClick={onNavigate}
+        >
+          Create Employee
+        </NavLink>
+
+        <NavLink
+          to="/admin/employees/edit"
+          end
+          className={
+            linkClass
+          } onClick={onNavigate}
+        >
           Edit Employees
-        </Link>
-        <button>Logout</button>
+        </NavLink>
+
+        <button type="button" className="admin-logout-btn">
+          Logout
+        </button>
       </nav>
     </aside>
   );
