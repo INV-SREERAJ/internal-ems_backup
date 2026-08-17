@@ -1,16 +1,14 @@
 import { NavLink } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
-export default function AdminSidebar(onNavigate) {
-
-  const linkClass = ({ isActive }) => (isActive ? "active" : "")
+export default function AdminSidebar({ onNavigate }) {
+  const { logout } = useAuth();
+  const linkClass = ({ isActive }) => (isActive ? "active" : "");
 
   return (
     <aside className="admin-sidebar">
       <nav className="admin-sidebar-nav">
-        <NavLink
-          to="/admin" end
-          className={linkClass} onClick={onNavigate}
-        >
+        <NavLink to="/admin" end className={linkClass} onClick={onNavigate}>
           Dashboard
         </NavLink>
 
@@ -35,14 +33,13 @@ export default function AdminSidebar(onNavigate) {
         <NavLink
           to="/admin/employees/edit"
           end
-          className={
-            linkClass
-          } onClick={onNavigate}
+          className={linkClass}
+          onClick={onNavigate}
         >
           Edit Employees
         </NavLink>
 
-        <button type="button" className="admin-logout-btn">
+        <button type="button" className="admin-logout-btn" onClick={logout}>
           Logout
         </button>
       </nav>

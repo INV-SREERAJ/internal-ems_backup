@@ -7,13 +7,14 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import useAuth from "./hooks/useAuth";
 import { AUTH_STATUS } from "./utils/authStatus";
 import CreateEmployee from "./pages/admin/CreateEmployee";
+import SplashScreen from "./pages/Loading/SplashScreen";
 
 export default function App() {
   const { status } = useAuth();
 
-  if (status !== AUTH_STATUS.AUTHENTICATED) {
-    return <LoginPage />;
-  }
+  // App.jsx
+  if (status === AUTH_STATUS.INITIALIZING) return <SplashScreen />;
+  if (status !== AUTH_STATUS.AUTHENTICATED) return <LoginPage />;
 
   return (
     <Routes>

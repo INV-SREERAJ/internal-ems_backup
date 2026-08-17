@@ -44,13 +44,11 @@
 
 .admin-brand {
   color: #ffffff;
-
   font-size: 20px;
   font-weight: 700;
-
   letter-spacing: -0.5px;
+  text-decoration: none;
 }
-
 .admin-brand span {
   color: #3b82f6;
 }
@@ -283,8 +281,6 @@
   background-color: rgba(15, 23, 42, 0.4);
 
   z-index: 80;
-
-  display: none;
 }
 
 /* ================================
