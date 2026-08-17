@@ -26,13 +26,15 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         public async Task<bool> EmailExistsAsync(string email)
         {
             return await _context.Employees
-                .AnyAsync(e => e.Email == email);
+                .AnyAsync(e => e.Email == email && e.Status != EmployeeStatus.Deleted);
         }
 
         public async Task<Employee?> GetByEmailAsync(string email)
         {
             return await _context.Employees
-                .FirstOrDefaultAsync(e => e.Email == email);
+                .FirstOrDefaultAsync(e =>
+                    e.Email == email &&
+                    e.Status != EmployeeStatus.Deleted);
         }
 
         public async Task<Employee?> GetByEmployeeCodeAsync(string employeeCode)
@@ -40,13 +42,15 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             return await _context.Employees
                 .Include(e => e.Manager)
                 .FirstOrDefaultAsync(e =>
-                    e.EmployeeCode == employeeCode);
+                    e.EmployeeCode == employeeCode && e.Status!=EmployeeStatus.Deleted);
         }
 
         public async Task<Employee?> GetByIdAsync(int id)
         {
             return await _context.Employees
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id &&
+                    e.Status != EmployeeStatus.Deleted);
         }
 
         public async Task UpdateAsync(Employee employee)

@@ -37,7 +37,7 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
 
             builder.Property(u => u.PasswordHash)
                    .IsRequired()
-                   .HasMaxLength(255);
+                   .HasMaxLength(60);
 
             builder.Property(u => u.TokenVersion)
                    .HasDefaultValue(0);

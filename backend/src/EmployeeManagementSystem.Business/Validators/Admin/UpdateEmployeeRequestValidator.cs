@@ -20,14 +20,7 @@ namespace EmployeeManagementSystem.Business.Validators.Admin
                 .Length(1, 50)
                 .WithMessage("Last name must be between 1 and 50 characters.");
 
-            RuleFor(x => x.Email)
-                .NotEmpty()
-                .WithMessage("Email is required.")
-                .EmailAddress()
-                .WithMessage("Enter a valid email address.")
-                .MaximumLength(100)
-                .WithMessage("Email cannot exceed 100 characters.");
-
+            
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty()
                 .WithMessage("Phone number is required.")

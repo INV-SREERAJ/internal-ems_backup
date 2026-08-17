@@ -9,8 +9,8 @@ namespace EmployeeManagementSystem.Business.Interfaces
 
         ClaimsPrincipal? GetPrincipalFromToken(string token);
         string GenerateAccessToken(Employee employee, DateTime expiresAt);
-        string GenerateRefreshToken(Employee employee, DateTime expiresAt);
-        TokenResponseDto GenerateTokenPair(Employee employee);
+        string GenerateRefreshToken(Employee employee, DateTime expiresAt, bool rememberMe);
+        TokenResponseDto GenerateTokenPair(Employee employee, bool rememberMe);
         bool ShouldRotateRefreshToken(string refreshToken);
         TokenResponseDto GenerateAccessTokenOnly(Employee employee);
     }

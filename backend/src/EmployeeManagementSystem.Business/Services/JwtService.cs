@@ -20,16 +20,16 @@ namespace EmployeeManagementSystem.Business.Services
         }
 
         // generate access and refresh token
-        public TokenResponseDto GenerateTokenPair(Employee employee)
+        public TokenResponseDto GenerateTokenPair(Employee employee, bool rememberMe=false)
         {
             var accessTokenExpiry = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpiryMinutes);
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDays);
+            var refreshTokenExpiry = rememberMe ? DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDays) : DateTime.UtcNow.AddDays(1);
 
 
             return new TokenResponseDto
             {
                 AccessToken = GenerateAccessToken(employee, accessTokenExpiry),
-                RefreshToken = GenerateRefreshToken(employee, refreshTokenExpiry),
+                RefreshToken = GenerateRefreshToken(employee, refreshTokenExpiry, rememberMe),
                 AccessTokenExpiresAt = accessTokenExpiry,
                 RefreshTokenExpiresAt = refreshTokenExpiry
             };
@@ -109,13 +109,14 @@ namespace EmployeeManagementSystem.Business.Services
 
 
         //refresh token logic
-        public string GenerateRefreshToken(Employee employee, DateTime expiresAt)
+        public string GenerateRefreshToken(Employee employee, DateTime expiresAt, bool rememberMe)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, employee.EmployeeCode),
                 new Claim("EmployeeCode", employee.EmployeeCode),
                 new Claim("TokenVersion", employee.TokenVersion.ToString()),
+                new Claim("RememberMe", rememberMe.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("TokenType", "Refresh")
             };

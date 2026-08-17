@@ -38,7 +38,7 @@ namespace EmployeeManagementSystem.Business.Services
             _env = env;
         }
 
-        private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
+        private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt, bool rememberMe)
         {
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null) return;
@@ -50,7 +50,7 @@ namespace EmployeeManagementSystem.Business.Services
                 Secure = !isDev,
                 SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
                 IsEssential = true,
-                Expires = expiresAt
+                Expires = rememberMe? expiresAt : null
             };
 
             httpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
@@ -145,9 +145,9 @@ namespace EmployeeManagementSystem.Business.Services
             await _employeeRepository.UpdateAsync(employee);
 
             // Login successful
-            var tokens = _jwtService.GenerateTokenPair(employee);
+            var tokens = _jwtService.GenerateTokenPair(employee, request.RememberMe);
 
-            SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+            SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt, request.RememberMe);
 
             return new LoginResponseDto
             {
@@ -267,8 +267,12 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
             //taking the tokenversion from the refreshtoken
-            var tokenVersion = int.Parse(
-                principal.FindFirst("TokenVersion")!.Value);
+            var tokenVersionClaim = principal.FindFirst("TokenVersion")?.Value;
+            if (!int.TryParse(tokenVersionClaim, out var tokenVersion))
+            {
+                ClearRefreshTokenCookie();
+                return new LoginResponseDto { Success = false, Message = "Invalid refresh token." };
+            }
 
             //checking if the tokenversion in refresh token is matching the one in the db
             if (tokenVersion != employee.TokenVersion)
@@ -293,9 +297,12 @@ namespace EmployeeManagementSystem.Business.Services
 
                 await _employeeRepository.UpdateAsync(employee);
 
-                var tokens = _jwtService.GenerateTokenPair(employee);
+                var isRememberMe = bool.TryParse(principal.FindFirst("RememberMe")?.Value, out var rm) && rm;
 
-                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+
+                var tokens = _jwtService.GenerateTokenPair(employee, isRememberMe);
+
+                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt, isRememberMe);
 
                 response = new LoginResponseDto
                 {
