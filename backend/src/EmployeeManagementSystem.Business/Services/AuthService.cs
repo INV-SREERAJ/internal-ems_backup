@@ -160,6 +160,9 @@ namespace EmployeeManagementSystem.Business.Services
         }
 
         //refresh access token
+        private static readonly SemaphoreSlim _refreshLock = new(1, 1);
+
+        //refresh access token
         public async Task<LoginResponseDto> RefreshTokenAsync()
         {
             _logger.LogInformation("Refresh token request received.");
@@ -184,155 +187,174 @@ namespace EmployeeManagementSystem.Business.Services
                 _logger.LogInformation("Refresh token served from grace cache.");
                 return cached;
             }
-            ClaimsPrincipal? principal;
 
+            // Serialize concurrent refresh attempts so only one request actually
+            // rotates the token; everyone else waits and reads the grace cache.
+            await _refreshLock.WaitAsync();
             try
             {
-                //taking the pricipal from the token passed
-                principal = _jwtService.GetPrincipalFromToken(refreshToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(
-                ex,
-                "Invalid refresh token received.");
-
-                ClearRefreshTokenCookie();
-
-                return new LoginResponseDto
+                // Re-check the grace cache now that we hold the lock — another
+                // request may have just finished processing this exact token.
+                cached = _graceCache.Get(refreshToken);
+                if (cached != null)
                 {
-                    Success = false,
-                    Message = "Invalid refresh token."
-                };
-            }
+                    _logger.LogInformation("Refresh token served from grace cache after lock wait.");
+                    return cached;
+                }
 
-            if (principal == null)
-            {
-                ClearRefreshTokenCookie();
+                ClaimsPrincipal? principal;
 
-                return new LoginResponseDto
+                try
                 {
-                    Success = false,
-                    Message = "Invalid refresh token."
-                };
-            }
-
-            var tokenType = principal.FindFirst("TokenType")?.Value;
-
-            if (tokenType != "Refresh")
-            {
-                _logger.LogWarning("Refresh failed because token type was invalid.");
-                ClearRefreshTokenCookie();
-                return new LoginResponseDto
+                    //taking the pricipal from the token passed
+                    principal = _jwtService.GetPrincipalFromToken(refreshToken);
+                }
+                catch (Exception ex)
                 {
-                    Success = false,
-                    Message = "Invalid token type."
-                };
-            }
+                    _logger.LogWarning(
+                    ex,
+                    "Invalid refresh token received.");
 
-            var employeeCode = principal.FindFirst("EmployeeCode")?.Value;
+                    ClearRefreshTokenCookie();
 
-            if (string.IsNullOrWhiteSpace(employeeCode))
-            {
-                _logger.LogWarning("Refresh failed because EmployeeCode claim was missing.");
-                ClearRefreshTokenCookie();
-                return new LoginResponseDto
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "Invalid refresh token."
+                    };
+                }
+
+                if (principal == null)
                 {
-                    Success = false,
-                    Message = "Invalid refresh token."
-                };
-            }
+                    ClearRefreshTokenCookie();
 
-            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "Invalid refresh token."
+                    };
+                }
 
-            if (employee == null)
-            {
-                ClearRefreshTokenCookie();
-                return new LoginResponseDto
+                var tokenType = principal.FindFirst("TokenType")?.Value;
+
+                if (tokenType != "Refresh")
                 {
-                    Success = false,
-                    Message = "User not found."
-                };
-            }
+                    _logger.LogWarning("Refresh failed because token type was invalid.");
+                    ClearRefreshTokenCookie();
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "Invalid token type."
+                    };
+                }
 
-            if (employee.Status != EmployeeStatus.Active)
-            {
-                _logger.LogWarning("Refresh denied for inactive employee {EmployeeCode}.", employee.EmployeeCode);
-                ClearRefreshTokenCookie();
-                return new LoginResponseDto
+                var employeeCode = principal.FindFirst("EmployeeCode")?.Value;
+
+                if (string.IsNullOrWhiteSpace(employeeCode))
                 {
-                    Success = false,
-                    Message = "User account is not active."
-                };
-            }
+                    _logger.LogWarning("Refresh failed because EmployeeCode claim was missing.");
+                    ClearRefreshTokenCookie();
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "Invalid refresh token."
+                    };
+                }
 
-            //taking the tokenversion from the refreshtoken
-            var tokenVersionClaim = principal.FindFirst("TokenVersion")?.Value;
-            if (!int.TryParse(tokenVersionClaim, out var tokenVersion))
-            {
-                ClearRefreshTokenCookie();
-                return new LoginResponseDto { Success = false, Message = "Invalid refresh token." };
-            }
+                var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
 
-            //checking if the tokenversion in refresh token is matching the one in the db
-            if (tokenVersion != employee.TokenVersion)
-            {
-                _logger.LogWarning("Refresh token revoked for {EmployeeCode}.", employee.EmployeeCode);
-                ClearRefreshTokenCookie();
-                return new LoginResponseDto
+                if (employee == null)
                 {
-                    Success = false,
-                    Message = "Refresh token has been revoked."
-                };
-            }
+                    ClearRefreshTokenCookie();
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
 
-            var shouldRotate = _jwtService.ShouldRotateRefreshToken(refreshToken);
-
-            LoginResponseDto response;
-
-            if (shouldRotate)
-            {
-                _logger.LogInformation("Refresh token rotated for {EmployeeCode}.", employee.EmployeeCode);
-                employee.TokenVersion++;
-
-                await _employeeRepository.UpdateAsync(employee);
-
-                var isRememberMe = bool.TryParse(principal.FindFirst("RememberMe")?.Value, out var rm) && rm;
-
-
-                var tokens = _jwtService.GenerateTokenPair(employee, isRememberMe);
-
-                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt, isRememberMe);
-
-                response = new LoginResponseDto
+                if (employee.Status != EmployeeStatus.Active)
                 {
-                    Success = true,
-                    Message = "Token refreshed successfully.",
-                    AccessToken = tokens.AccessToken,
-                    ExpiresAt = tokens.AccessTokenExpiresAt
-                };
-            }
-            else
-            {
-                _logger.LogInformation("Access token regenerated for {EmployeeCode}.", employee.EmployeeCode);
-                var tokens = _jwtService.GenerateAccessTokenOnly(employee);
+                    _logger.LogWarning("Refresh denied for inactive employee {EmployeeCode}.", employee.EmployeeCode);
+                    ClearRefreshTokenCookie();
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "User account is not active."
+                    };
+                }
 
-                response = new LoginResponseDto
+                //taking the tokenversion from the refreshtoken
+                var tokenVersionClaim = principal.FindFirst("TokenVersion")?.Value;
+                if (!int.TryParse(tokenVersionClaim, out var tokenVersion))
                 {
-                    Success = true,
-                    Message = "Token refreshed successfully.",
-                    AccessToken = tokens.AccessToken,
-                    ExpiresAt = tokens.AccessTokenExpiresAt
-                };
-            }
+                    ClearRefreshTokenCookie();
+                    return new LoginResponseDto { Success = false, Message = "Invalid refresh token." };
+                }
 
-            //storing the tokens in cache to tackle the network race conditions
-            _graceCache.Set(
-                refreshToken,
-                response,
-                TimeSpan.FromSeconds(5));
-            _logger.LogDebug("Refresh response cached for grace period.");
-            return response;
+                //checking if the tokenversion in refresh token is matching the one in the db
+                if (tokenVersion != employee.TokenVersion)
+                {
+                    _logger.LogWarning("Refresh token revoked for {EmployeeCode}.", employee.EmployeeCode);
+                    ClearRefreshTokenCookie();
+                    return new LoginResponseDto
+                    {
+                        Success = false,
+                        Message = "Refresh token has been revoked."
+                    };
+                }
+
+                var shouldRotate = _jwtService.ShouldRotateRefreshToken(refreshToken);
+
+                LoginResponseDto response;
+
+                if (shouldRotate)
+                {
+                    _logger.LogInformation("Refresh token rotated for {EmployeeCode}.", employee.EmployeeCode);
+                    employee.TokenVersion++;
+
+                    await _employeeRepository.UpdateAsync(employee);
+
+                    var isRememberMe = bool.TryParse(principal.FindFirst("RememberMe")?.Value, out var rm) && rm;
+
+                    var tokens = _jwtService.GenerateTokenPair(employee, isRememberMe);
+
+                    SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt, isRememberMe);
+
+                    response = new LoginResponseDto
+                    {
+                        Success = true,
+                        Message = "Token refreshed successfully.",
+                        AccessToken = tokens.AccessToken,
+                        ExpiresAt = tokens.AccessTokenExpiresAt
+                    };
+                }
+                else
+                {
+                    _logger.LogInformation("Access token regenerated for {EmployeeCode}.", employee.EmployeeCode);
+                    var tokens = _jwtService.GenerateAccessTokenOnly(employee);
+
+                    response = new LoginResponseDto
+                    {
+                        Success = true,
+                        Message = "Token refreshed successfully.",
+                        AccessToken = tokens.AccessToken,
+                        ExpiresAt = tokens.AccessTokenExpiresAt
+                    };
+                }
+
+                //storing the tokens in cache to tackle the network race conditions
+                _graceCache.Set(
+                    refreshToken,
+                    response,
+                    TimeSpan.FromSeconds(5));
+                _logger.LogDebug("Refresh response cached for grace period.");
+                return response;
+            }
+            finally
+            {
+                _refreshLock.Release();
+            }
         }
 
         public async Task LogoutAsync()
