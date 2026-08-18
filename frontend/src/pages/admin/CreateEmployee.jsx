@@ -422,7 +422,6 @@ export default function CreateEmployee() {
           )}
         </div>
 
-
         {/* Form Actions */}
         <div className="create-employee-actions">
           <button type="button" className="cancel-btn">
