@@ -5,6 +5,7 @@ export default function EmployeeTable({
   onSort,
   sortBy,
   descending,
+  onDelete,
 }) {
   return (
     <div className="employees-table-wrapper">
@@ -86,6 +87,7 @@ export default function EmployeeTable({
             </th>
             <th>Manager</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -148,13 +150,22 @@ export default function EmployeeTable({
                 </span>
               </td>
               <td>
-                <Link
-                  to="/admin/employees/edit"
-                  state={{ employeeCode: employee.employeeCode }}
-                  className="employee-edit-btn"
-                >
-                  Edit
-                </Link>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <Link
+                    to="/admin/employees/edit"
+                    state={{ employeeCode: employee.employeeCode }}
+                    className="employee-edit-btn"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(employee.employeeCode)}
+                    className="employee-delete-btn"
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
