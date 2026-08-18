@@ -150,10 +150,14 @@ export default function EmployeeTable({
                 </span>
               </td>
               <td>
-                <div style={{ display: "flex", gap: "6px" }}>
+                <div className="employee-table-actions">
+                  {/*
+                    IMPORTANT: EditEmployeePage reads the code from a URL
+                    param (useParams), not router state, so the code must
+                    be part of the path here to match.
+                  */}
                   <Link
-                    to="/admin/employees/edit"
-                    state={{ employeeCode: employee.employeeCode }}
+                    to={`/admin/employees/edit/${employee.employeeCode}`}
                     className="employee-edit-btn"
                   >
                     Edit

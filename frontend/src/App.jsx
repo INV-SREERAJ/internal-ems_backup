@@ -8,6 +8,7 @@ import useAuth from "./hooks/useAuth";
 import { AUTH_STATUS } from "./utils/authStatus";
 import CreateEmployee from "./pages/admin/CreateEmployee";
 import SplashScreen from "./pages/Loading/SplashScreen";
+import EditEmployeesSearchPage from "./pages/admin/EditEmployeesSearchPage";
 
 export default function App() {
   const { status } = useAuth();
@@ -29,7 +30,7 @@ export default function App() {
           element={<EditEmployeePage />}
         />
 
-        <Route path="employees/edit" element={<EditEmployeePage />} />
+        <Route path="employees/edit" element={<EditEmployeesSearchPage />} />
       </Route>
     </Routes>
   );

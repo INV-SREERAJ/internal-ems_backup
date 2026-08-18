@@ -1,0 +1,229 @@
+.edit-employee-page {
+  padding: 32px;
+}
+
+.edit-employee-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.edit-employee-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.edit-employee-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.edit-employee-back-btn {
+  padding: 9px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.edit-employee-back-btn:hover {
+  background: #f9fafb;
+}
+
+.edit-employee-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ================================
+   Save banners
+================================ */
+
+.edit-employee-banner {
+  padding: 12px 28px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-employee-banner-success {
+  background: #f0fdf4;
+  color: #166534;
+  border-bottom-color: #bbf7d0;
+}
+
+.edit-employee-banner-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-bottom-color: #fecaca;
+}
+
+.edit-employee-section {
+  padding: 28px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-employee-section h2 {
+  margin: 0 0 20px;
+  font-size: 17px;
+  font-weight: 650;
+  color: #111827;
+}
+
+.edit-employee-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.edit-employee-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.edit-employee-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.edit-employee-field input,
+.edit-employee-field select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.edit-employee-field input:focus,
+.edit-employee-field select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.edit-employee-field input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* ================================
+   Field validation
+================================ */
+
+.edit-employee-field-invalid {
+  border-color: #dc2626 !important;
+}
+
+.edit-employee-field-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+}
+
+.edit-employee-field-error {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.edit-employee-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px;
+  background: #f9fafb;
+}
+
+.edit-employee-cancel-btn,
+.edit-employee-save-btn {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-employee-cancel-btn {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+.edit-employee-cancel-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.edit-employee-save-btn {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.edit-employee-save-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.edit-employee-cancel-btn:disabled,
+.edit-employee-save-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.edit-employee-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.edit-employee-state-error {
+  color: #dc2626;
+}
+
+.edit-employee-state-error button {
+  margin-top: 12px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .edit-employee-page {
+    padding: 20px;
+  }
+
+  .edit-employee-header {
+    flex-direction: column;
+  }
+
+  .edit-employee-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-employee-actions {
+    flex-direction: column-reverse;
+  }
+
+  .edit-employee-cancel-btn,
+  .edit-employee-save-btn {
+    width: 100%;
+  }
+}
