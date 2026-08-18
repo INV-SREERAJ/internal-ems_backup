@@ -144,37 +144,14 @@
 
 /* Column widths */
 
-.employee-code-column {
-  width: 150px;
-}
-
-.full-name-column {
-  width: 220px;
-}
-
-.email-column {
-  width: 250px;
-}
-
-.phone-column {
-  width: 160px;
-}
-
-.role-column {
-  width: 120px;
-}
-
-.manager-column {
-  width: 220px;
-}
-
-.status-column {
-  width: 120px;
-}
-
-.action-column {
-  width: 100px;
-}
+.employee-code-column { width: 140px; }
+.full-name-column     { width: 160px; }
+.email-column         { width: 220px; }
+.phone-column         { width: 130px; }
+.role-column          { width: 100px; }
+.manager-column       { width: 160px; }
+.status-column        { width: 100px; }
+.action-column        { width: 140px; }
 
 .employee-table th {
   padding: 14px 16px;
@@ -259,6 +236,33 @@
   background-color: #f8fafc;
 }
 
+.employee-delete-btn {
+  padding: 7px 10px;
+
+  background-color: #dc2626;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 6px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: background-color 0.15s ease;
+}
+
+.employee-delete-btn:hover {
+  background-color: #b91c1c;
+}
+
+.employee-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Text truncation */
 
 .employee-table-text {
@@ -312,7 +316,7 @@
   align-items: center;
   justify-content: center;
 
-  padding: 7px 12px;
+  padding: 7px 10px;
 
   background-color: #eff6ff;
   color: #2563eb;

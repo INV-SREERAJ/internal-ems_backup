@@ -38,13 +38,16 @@ const processQueue = (error, token = null) => {
 
 api.interceptors.request.use(
   (config) => {
-    const token = getAccessToken();
     const isAuthEndpoint =
       config.url?.includes("/auth/login") ||
       config.url?.includes("/auth/refresh");
 
-    if (token && !isAuthEndpoint) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Don't clobber a token that was explicitly set (e.g. by the retry logic)
+    if (!isAuthEndpoint && !config.headers.Authorization) {
+      const token = getAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
