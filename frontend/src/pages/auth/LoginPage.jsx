@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [rememberMe, setRememberMe] = useState(false);
+
   useEffect(() => {
     if (status === AUTH_STATUS.AUTHENTICATED) {
       if (user?.mustChangePassword) {
@@ -57,7 +59,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { user: loggedInUser } = await login({ email, password });
+      const payload = { email, password, rememberMe };
+      console.log("login payload:", payload);
+      const { user: loggedInUser } = await login({
+        email,
+        password,
+        rememberMe,
+      });
 
       if (loggedInUser?.mustChangePassword) {
         navigate("/change-password", { replace: true });
@@ -181,6 +189,18 @@ export default function LoginPage() {
                     {fieldErrors.password}
                   </span>
                 )}
+
+                <div className="ems-login-field ems-login-remember">
+                  <label className="ems-login-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      disabled={loading}
+                    />
+                    <span>Remember me</span>
+                  </label>
+                </div>
               </div>
 
               <button
