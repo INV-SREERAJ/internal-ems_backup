@@ -82,6 +82,33 @@
   background-color: rgba(255, 255, 255, 0.08);
 }
 
+.admin-profile-menu .edit-profile {
+  width: 100%;
+  box-sizing: border-box;
+
+  display: block;
+
+  padding: 10px 12px;
+
+  background-color: transparent;
+  color: #475569;
+
+  border-radius: 6px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+
+  text-align: left;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.admin-profile-menu .edit-profile:hover {
+  background-color: #eff6ff;
+  color: #0f172a;
+}
+
 /* Profile */
 
 .admin-profile {

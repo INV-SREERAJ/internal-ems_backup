@@ -49,7 +49,7 @@ export default function AdminNavbar({ onMenuClick }) {
 
         {profileOpen && (
           <div className="admin-profile-menu">
-            <button type="button">Edit Profile</button>
+            <Link to="/admin/employees/edit" className="edit-profile">Edit Profile</Link>
             <button type="button" onClick={logout}>
               Logout
             </button>
