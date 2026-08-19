@@ -51,10 +51,9 @@ export default function EmployeesPage() {
           params: {
             pageNumber,
             pageSize: 10,
-            search: debouncedSearch ,
+            search: debouncedSearch,
             includeDeleted,
-            sortBy: sortBy,
-            undefined,
+            sortBy,
             descending,
           },
         });

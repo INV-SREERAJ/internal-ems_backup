@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import api from "../../api/axios";
 import Icon from "../../components/common/Icon";
+import { ROLES, VALIDATION } from "../../utils/constants";
 
 export default function CreateEmployee() {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function CreateEmployee() {
           },
         });
 
-        console.log("Managers:", response.data);
+
 
         setManagers(response.data.data);
       } catch (error) {
@@ -107,7 +108,7 @@ export default function CreateEmployee() {
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (!VALIDATION.EMAIL_REGEX.test(formData.email)) {
       newErrors.email = "Enter a valid email address.";
     } else if (formData.email.length > 100) {
       newErrors.email = "Email cannot exceed 100 characters.";
@@ -115,7 +116,7 @@ export default function CreateEmployee() {
 
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number is required.";
-    } else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) {
+    } else if (!VALIDATION.PHONE_REGEX.test(formData.phoneNumber)) {
       newErrors.phoneNumber =
         "Please enter a valid 10-digit Indian mobile number.";
     }
@@ -126,10 +127,10 @@ export default function CreateEmployee() {
 
     if (
       formData.managerEmployeeCode.trim() &&
-      !/^EMP\d{8}$/.test(formData.managerEmployeeCode.trim())
+      !VALIDATION.EMPLOYEE_CODE_REGEX.test(formData.managerEmployeeCode.trim())
     ) {
       newErrors.managerEmployeeCode =
-        "Manager employee code must be in the format EMP2026XXXX.";
+        "Manager employee code must be in the format EMPXXXXXXXX.";
     }
 
     setErrors(newErrors);
@@ -161,7 +162,7 @@ export default function CreateEmployee() {
 
       const response = await api.post("/admin/employees", request);
 
-      console.log("Employee created:", response.data);
+
 
       navigate("/admin/employees");
     } catch (error) {
@@ -294,8 +295,8 @@ export default function CreateEmployee() {
               Select role
             </option>
 
-            <option value="2">Manager</option>
-            <option value="3">Employee</option>
+            <option value={ROLES.Manager}>Manager</option>
+            <option value={ROLES.Employee}>Employee</option>
           </select>
 
           {errors.role && <span className="form-error">{errors.role}</span>}
@@ -424,7 +425,7 @@ export default function CreateEmployee() {
 
         {/* Form Actions */}
         <div className="create-employee-actions">
-          <button type="button" className="cancel-btn">
+          <button type="button" className="cancel-btn" onClick={() => navigate("/admin/employees")}>
             Cancel
           </button>
 

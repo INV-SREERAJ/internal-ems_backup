@@ -1,5 +1,5 @@
 import LoginPage from "./pages/auth/LoginPage";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from "./pages/admin/AdminLayout";
 import EmployeesPage from "./pages/admin/EmployeesPage";
 import EditEmployeePage from "./pages/admin/EditEmployeePage";
@@ -32,6 +32,9 @@ export default function App() {
 
         <Route path="employees/edit" element={<EditEmployeesSearchPage />} />
       </Route>
+
+      {/* Catch-all: redirect unmatched routes to admin dashboard */}
+      <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
   );
 }
