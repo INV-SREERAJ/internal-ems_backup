@@ -59,8 +59,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const payload = { email, password, rememberMe };
-      console.log("login payload:", payload);
       const { user: loggedInUser } = await login({
         email,
         password,

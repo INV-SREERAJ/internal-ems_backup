@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 export default function AdminNavbar({ onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const profileRef = useRef(null);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function AdminNavbar({ onMenuClick }) {
 
         {profileOpen && (
           <div className="admin-profile-menu">
-            <Link to="/admin/employees/edit" className="edit-profile">Edit Profile</Link>
+            <Link to={`/admin/employees/edit/${user?.employeeCode}`} className="edit-profile">Edit Profile</Link>
             <button type="button" onClick={logout}>
               Logout
             </button>

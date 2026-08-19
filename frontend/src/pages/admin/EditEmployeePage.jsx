@@ -2,16 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import { ROLES, VALIDATION } from "../../utils/constants";
 import "./EditEmployeePage.css";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[0-9+\-\s()]{7,15}$/;
-
-const ROLE_MAP = {
-  Admin: 1,
-  Employee: 2,
-  Manager: 3,
-};
 
 function validateEmployee(employee) {
   const errors = {};
@@ -26,13 +18,13 @@ function validateEmployee(employee) {
 
   if (!employee.email?.trim()) {
     errors.email = "Email is required.";
-  } else if (!EMAIL_REGEX.test(employee.email.trim())) {
+  } else if (!VALIDATION.EMAIL_REGEX.test(employee.email.trim())) {
     errors.email = "Enter a valid email address.";
   }
 
   if (!employee.phoneNumber?.trim()) {
     errors.phoneNumber = "Phone number is required.";
-  } else if (!PHONE_REGEX.test(employee.phoneNumber.trim())) {
+  } else if (!VALIDATION.PHONE_REGEX.test(employee.phoneNumber.trim())) {
     errors.phoneNumber = "Enter a valid phone number.";
   }
 
@@ -158,7 +150,7 @@ export default function EditEmployeePage() {
         firstName: employee.firstName.trim(),
         lastName: employee.lastName.trim(),
         phoneNumber: employee.phoneNumber.trim(),
-        role: ROLE_MAP[employee.role],
+        role: ROLES[employee.role],
       };
 
       const response = await api.put(

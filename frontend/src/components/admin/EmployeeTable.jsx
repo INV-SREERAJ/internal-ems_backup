@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { STATUS_LABEL, STATUS_CLASS } from "../../utils/constants";
 
 export default function EmployeeTable({
   employees,
@@ -135,18 +136,10 @@ export default function EmployeeTable({
               <td>
                 <span
                   className={`employee-status ${
-                    employee.status === 1
-                      ? "employee-status-active"
-                      : employee.status === 2
-                        ? "employee-status-inactive"
-                        : "employee-status-deleted"
+                    STATUS_CLASS[employee.status] || "employee-status-deleted"
                   }`}
                 >
-                  {employee.status === 1
-                    ? "Active"
-                    : employee.status === 2
-                      ? "Inactive"
-                      : "Deleted"}
+                  {STATUS_LABEL[employee.status] || "Unknown"}
                 </span>
               </td>
               <td>
