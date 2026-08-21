@@ -151,6 +151,7 @@ export default function EditEmployeePage() {
         lastName: employee.lastName.trim(),
         phoneNumber: employee.phoneNumber.trim(),
         role: ROLES[employee.role],
+        status: employee.status,
       };
 
       const response = await api.put(
@@ -170,7 +171,7 @@ export default function EditEmployeePage() {
     } finally {
       setSaving(false);
     }
-  };  
+  };
 
   if (loading) {
     return (
@@ -364,12 +365,25 @@ export default function EditEmployeePage() {
             <div className="edit-employee-field">
               <label htmlFor="status">Status</label>
 
-              <input
+              <select
                 id="status"
-                type="text"
-                value={employee.status || ""}
-                disabled
-              />
+                value={employee.status ?? ""}
+                onChange={(e) => handleChange("status", Number(e.target.value))}
+                disabled={employee.role === "Admin" || saving}
+                className={
+                  fieldErrors.status ? "edit-employee-field-invalid" : ""
+                }
+                aria-invalid={Boolean(fieldErrors.status)}
+              >
+                <option value={1}>Active</option>
+                <option value={2}>Inactive</option>
+              </select>
+
+              {fieldErrors.status && (
+                <span className="edit-employee-field-error">
+                  {fieldErrors.status}
+                </span>
+              )}
             </div>
           </div>
         </div>
