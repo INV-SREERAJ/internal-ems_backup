@@ -11,7 +11,7 @@ export function decodeToken(token) {
   try {
     const decoded = jwtDecode(token);
     return {
-      employeeCode: decoded.EmployeeCode || decoded.employeeCode,
+      employeeCode: decoded.sub,
       email: decoded.email || decoded.Email,
       role:
         decoded[
