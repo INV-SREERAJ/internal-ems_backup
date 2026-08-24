@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Icon from "./Icon";
+import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 
 /**
  * Reusable PasswordInput Component with Password Peek (Show / Hide) Toggle
@@ -17,7 +17,7 @@ export default function PasswordInput({
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => {
-    setShowPassword((prev) => !prev);
+    setShowPassword((current) => !current);
   };
 
   return (
@@ -64,7 +64,7 @@ export default function PasswordInput({
           lineHeight: 1,
         }}
       >
-        <Icon name={showPassword ? "eye-off" : "eye"} size={18} />
+        {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
       </button>
     </div>
   );
