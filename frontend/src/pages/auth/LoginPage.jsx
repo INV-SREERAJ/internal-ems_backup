@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import Icon from "../../components/common/Icon";
+import { FaShieldAlt } from "react-icons/fa";
+import { FaBuilding, FaUsers, FaKey } from "react-icons/fa6";
 import PasswordInput from "../../components/common/PasswordInput";
 import { AUTH_STATUS } from "../../utils/authStatus";
 import "../auth/LoginPage.css";
@@ -85,10 +86,10 @@ export default function LoginPage() {
   };
 
   const features = [
-    { label: "Secure Authentication", icon: "shield" },
-    { label: "Employee Management", icon: "users" },
-    { label: "Organization Structure", icon: "building" },
-    { label: "Role-Based Control", icon: "key" },
+    { label: "Secure Authentication", icon: FaShieldAlt },
+    { label: "Employee Management", icon: FaUsers },
+    { label: "Organization Structure", icon: FaBuilding },
+    { label: "Role-Based Control", icon: FaKey },
   ];
 
   return (
@@ -114,7 +115,7 @@ export default function LoginPage() {
             <div className="ems-login-features animate-fade-in-up delay-100">
               {features.map((item) => (
                 <span key={item.label} className="ems-login-feature">
-                  <Icon name={item.icon} size={15} color="#3b82f6" />
+                  <item.icon size={15} color="#3b82f6" />
                   <span>{item.label}</span>
                 </span>
               ))}
@@ -127,7 +128,7 @@ export default function LoginPage() {
           >
             <div className="ems-login-card-header">
               <div className="ems-login-icon">
-                <Icon name="building" size={24} />
+                <FaBuilding size={24} />
               </div>
 
               <h2 className="ems-login-card-title">Sign In</h2>
