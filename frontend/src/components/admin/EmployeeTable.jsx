@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
-import { STATUS_LABEL, STATUS_CLASS } from "../../utils/constants";
+import {
+  STATUS_LABEL,
+  STATUS_CLASS,
+  EMPLOYEE_STATUS,
+} from "../../utils/constants";
 
 export default function EmployeeTable({
   employees,
@@ -139,29 +143,34 @@ export default function EmployeeTable({
                     STATUS_CLASS[employee.status] || "employee-status-deleted"
                   }`}
                 >
-                  {STATUS_LABEL[employee.status] || "Unknown"}
+                  {STATUS_LABEL[employee.status] || "Deleted"}
                 </span>
               </td>
               <td>
                 <div className="employee-table-actions">
-                  {/*
-                    IMPORTANT: EditEmployeePage reads the code from a URL
-                    param (useParams), not router state, so the code must
-                    be part of the path here to match.
-                  */}
-                  <Link
-                    to={`/admin/employees/edit/${employee.employeeCode}`}
-                    className="employee-edit-btn"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(employee.employeeCode)}
-                    className="employee-delete-btn"
-                  >
-                    Delete
-                  </button>
+                  {console.log(
+                    employee.employeeCode,
+                    employee.status,
+                    typeof employee.status,
+                  )}
+                  {Number(employee.status) !== EMPLOYEE_STATUS.Deleted && (
+                    <>
+                      <Link
+                        to={`/admin/employees/edit/${employee.employeeCode}`}
+                        className="employee-edit-btn"
+                      >
+                        Edit
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => onDelete(employee.employeeCode)}
+                        className="employee-delete-btn"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </td>
             </tr>
