@@ -1,7 +1,7 @@
 using EmployeeManagementSystem.Business.Common;
 using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Business.Interfaces;
-using EmployeeManagementSystem.DataAccess.common;
+using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Entities;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using EmployeeManagementSystem.DataAccess.Interfaces;

@@ -1,7 +1,7 @@
 using EmployeeManagementSystem.Api.Extensions;
 using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Business.Interfaces;
-using EmployeeManagementSystem.DataAccess.common;
+using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

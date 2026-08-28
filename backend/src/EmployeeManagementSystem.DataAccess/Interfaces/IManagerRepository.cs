@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.DataAccess.common;
+﻿using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Entities;
 
 namespace EmployeeManagementSystem.DataAccess.Interfaces
