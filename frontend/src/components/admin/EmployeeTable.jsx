@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { HiOutlineEye } from "react-icons/hi2";
 import {
   STATUS_LABEL,
   STATUS_CLASS,
@@ -10,7 +10,7 @@ export default function EmployeeTable({
   onSort,
   sortBy,
   descending,
-  onDelete,
+  onView,
 }) {
   return (
     <div className="employees-table-wrapper">
@@ -148,24 +148,14 @@ export default function EmployeeTable({
               </td>
               <td>
                 <div className="employee-table-actions">
-                  {Number(employee.status) !== EMPLOYEE_STATUS.Deleted && (
-                    <>
-                      <Link
-                        to={`/admin/employees/edit/${employee.employeeCode}`}
-                        className="employee-edit-btn"
-                      >
-                        Edit
-                      </Link>
-
-                      <button
-                        type="button"
-                        onClick={() => onDelete(employee.employeeCode)}
-                        className="employee-delete-btn"
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
+                  <button
+                    type="button"
+                    className="employee-view-btn"
+                    onClick={() => onView(employee.employeeCode)}
+                    title="View Details"
+                  >
+                    <HiOutlineEye size={18} />
+                  </button>
                 </div>
               </td>
             </tr>

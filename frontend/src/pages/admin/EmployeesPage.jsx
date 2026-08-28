@@ -1,5 +1,5 @@
 import EmployeeTable from "../../components/admin/EmployeeTable";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
+import EmployeeViewDialog from "../../components/admin/EmployeeViewDialog";
 import "./EmployeePage.css";
 
 import { useEffect, useState } from "react";
@@ -22,9 +22,8 @@ export default function EmployeesPage() {
   const [sortBy, setSortBy] = useState("");
   const [descending, setDescending] = useState(false);
 
-  // Controls the delete confirmation dialog
-  const [employeeToDelete, setEmployeeToDelete] = useState(null); // employeeCode or null
-  const [deleting, setDeleting] = useState(false);
+  // View dialog – holds the employeeCode of the employee being viewed
+  const [viewingEmployee, setViewingEmployee] = useState(null);
 
   // Bumped after a successful delete to force a refetch
   const [refreshKey, setRefreshKey] = useState(0);
@@ -97,39 +96,14 @@ export default function EmployeesPage() {
     }
   };
 
-  // Open the confirm dialog for a given employee instead of window.confirm
-  const requestDelete = (employeeCode) => {
-    setEmployeeToDelete(employeeCode);
-  };
-
-  const cancelDelete = () => {
-    if (deleting) return; // don't allow cancel mid-request
-    setEmployeeToDelete(null);
-  };
-
-  const confirmDelete = async () => {
-    if (!employeeToDelete) return;
-
-    setDeleting(true);
-    setError(null);
-
-    try {
-      await api.delete(`/admin/employees/${employeeToDelete}`);
-
-      setEmployeeToDelete(null);
-
-      // If this was the last row on the current page (and not page 1),
-      // step back a page; otherwise just refetch the current page.
-      if (employees.length === 1 && pageNumber > 1) {
-        setPageNumber((current) => current - 1);
-      } else {
-        setRefreshKey((key) => key + 1);
-      }
-    } catch (error) {
-      setError("Failed to delete employee.");
-      setEmployeeToDelete(null);
-    } finally {
-      setDeleting(false);
+  // Called when the view dialog successfully deletes an employee
+  const handleDeleted = () => {
+    // If this was the last row on the current page (and not page 1),
+    // step back a page; otherwise just refetch the current page.
+    if (employees.length === 1 && pageNumber > 1) {
+      setPageNumber((current) => current - 1);
+    } else {
+      setRefreshKey((key) => key + 1);
     }
   };
 
@@ -230,7 +204,7 @@ export default function EmployeesPage() {
             onSort={handleSort}
             sortBy={sortBy}
             descending={descending}
-            onDelete={requestDelete}
+            onView={(code) => setViewingEmployee(code)}
           />
 
           <div className="employees-pagination">
@@ -282,16 +256,11 @@ export default function EmployeesPage() {
         </>
       )}
 
-      <ConfirmDialog
-        open={employeeToDelete !== null}
-        title="Delete employee?"
-        message="This will permanently remove this employee from the system. This action can't be undone."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        danger
-        loading={deleting}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+      {/* Employee view/details dialog */}
+      <EmployeeViewDialog
+        employeeCode={viewingEmployee}
+        onClose={() => setViewingEmployee(null)}
+        onDeleted={handleDeleted}
       />
     </section>
   );

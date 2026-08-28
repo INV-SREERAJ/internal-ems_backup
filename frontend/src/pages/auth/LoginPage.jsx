@@ -88,7 +88,7 @@ export default function LoginPage() {
   const features = [
     { label: "Secure Authentication", icon: FaShieldAlt },
     { label: "Employee Management", icon: FaUsers },
-    { label: "Organization Structure", icon: FaBuilding },
+    { label: "Secure API", icon: FaBuilding },
     { label: "Role-Based Control", icon: FaKey },
   ];
 
@@ -108,8 +108,7 @@ export default function LoginPage() {
             </h1>
 
             <p className="ems-login-hero-subtitle animate-fade-in-up delay-100">
-              Centralized workforce administration, role-based security,
-              organizational structure, and audit capabilities.
+              Centralized workforce administration, role-based security.
             </p>
 
             <div className="ems-login-features animate-fade-in-up delay-100">

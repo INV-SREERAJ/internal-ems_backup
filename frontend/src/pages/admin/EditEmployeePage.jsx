@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { RxChevronDown, RxCross2 } from "react-icons/rx";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
@@ -32,6 +33,14 @@ function validateEmployee(employee) {
     errors.role = "Please select a role.";
   }
 
+  if (
+    employee.managerEmployeeCode?.trim() &&
+    !VALIDATION.EMPLOYEE_CODE_REGEX.test(employee.managerEmployeeCode.trim())
+  ) {
+    errors.managerEmployeeCode =
+      "Manager employee code must be in the format EMPXXXXXXXX.";
+  }
+
   return errors;
 }
 
@@ -50,6 +59,15 @@ export default function EditEmployeePage() {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Manager state
+  const [managers, setManagers] = useState([]);
+  const [managerLoading, setManagerLoading] = useState(true);
+  const [managerError, setManagerError] = useState(null);
+  const [managerSearch, setManagerSearch] = useState("");
+  const [managerDropdownOpen, setManagerDropdownOpen] = useState(false);
+  const [selectedManager, setSelectedManager] = useState(null);
+  const managerSelectRef = useRef(null);
+
   const [pendingNavigation, setPendingNavigation] = useState(null);
 
   useEffect(() => {
@@ -64,6 +82,18 @@ export default function EditEmployeePage() {
 
         setEmployee(response.data);
         setInitialEmployee(response.data);
+
+        if (response.data.managerEmployeeCode) {
+          setSelectedManager({
+            employeeCode: response.data.managerEmployeeCode,
+            fullName: response.data.managerName || response.data.managerEmployeeCode,
+          });
+          setManagerSearch(
+            response.data.managerName
+              ? `${response.data.managerName} — ${response.data.managerEmployeeCode}`
+              : response.data.managerEmployeeCode
+          );
+        }
       } catch (error) {
         setError(error.response?.data?.message || "Failed to load employee.");
       } finally {
@@ -73,6 +103,69 @@ export default function EditEmployeePage() {
 
     fetchEmployee();
   }, [employeeCode]);
+
+  useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        setManagerLoading(true);
+        setManagerError(null);
+
+        const managerRes = await api.get("/admin/employees", {
+          params: {
+            pageNumber: 1,
+            pageSize: 100,
+            role: "manager",
+            includeDeleted: false,
+          },
+        });
+
+        const adminRes = await api.get("/admin/employees", {
+          params: {
+            pageNumber: 1,
+            pageSize: 100,
+            role: "admin",
+            includeDeleted: false,
+          },
+        });
+
+        const combined = [...adminRes.data.data, ...managerRes.data.data];
+        setManagers(combined);
+      } catch (error) {
+        setManagerError("Failed to load managers.");
+      } finally {
+        setManagerLoading(false);
+      }
+    };
+
+    fetchManagers();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        managerSelectRef.current &&
+        !managerSelectRef.current.contains(event.target)
+      ) {
+        setManagerDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const filteredManagers = managers.filter((manager) => {
+    if (manager.employeeCode === employeeCode) return false;
+
+    const search = managerSearch.toLowerCase().trim();
+    if (!search) return true;
+    return (
+      (manager.fullName && manager.fullName.toLowerCase().includes(search)) ||
+      (manager.employeeCode && manager.employeeCode.toLowerCase().includes(search))
+    );
+  });
 
   const isDirty = useMemo(() => {
     if (!employee || !initialEmployee) {
@@ -155,6 +248,7 @@ export default function EditEmployeePage() {
         lastName: employee.lastName.trim(),
         phoneNumber: employee.phoneNumber.trim(),
         role: ROLES[employee.role],
+        managerEmployeeCode: employee.managerEmployeeCode?.trim() || null,
       };
 
       let updatedEmployee;
@@ -182,18 +276,41 @@ export default function EditEmployeePage() {
             { status: employee.status },
           );
 
-          // The status endpoint doesn't return the employee, so merge the
-          // new status into what the PUT call gave us back.
           updatedEmployee = { ...updatedEmployee, status: employee.status };
         } catch (error) {
-          // Details already saved successfully — reflect that, but keep
-          // the previous status since the change was rejected, and let the
-          // user know only the status update failed.
           setEmployee(updatedEmployee);
           setInitialEmployee(updatedEmployee);
           setSaveError(
             error.response?.data?.message ||
               "Details were saved, but the status change failed.",
+          );
+          setSaveSuccess(false);
+          return;
+        }
+      }
+
+      const managerChanged =
+        (employee.managerEmployeeCode || "") !==
+        (initialEmployee.managerEmployeeCode || "");
+
+      if (managerChanged && employee.managerEmployeeCode) {
+        try {
+          await api.patch(
+            `/admin/employees/${encodeURIComponent(employeeCode)}/manager`,
+            { managerEmployeeCode: employee.managerEmployeeCode },
+          );
+
+          updatedEmployee = {
+            ...updatedEmployee,
+            managerEmployeeCode: employee.managerEmployeeCode,
+            managerName: selectedManager ? selectedManager.fullName : null,
+          };
+        } catch (error) {
+          setEmployee(updatedEmployee);
+          setInitialEmployee(updatedEmployee);
+          setSaveError(
+            error.response?.data?.message ||
+              "Details were saved, but changing reporting manager failed.",
           );
           setSaveSuccess(false);
           return;
@@ -378,6 +495,7 @@ export default function EditEmployeePage() {
                 id="role"
                 value={employee.role || ""}
                 onChange={(e) => handleChange("role", e.target.value)}
+                disabled={employee.role === "Admin" || saving}
                 className={
                   fieldErrors.role ? "edit-employee-field-invalid" : ""
                 }
@@ -423,6 +541,109 @@ export default function EditEmployeePage() {
               {fieldErrors.status && (
                 <span className="edit-employee-field-error">
                   {fieldErrors.status}
+                </span>
+              )}
+            </div>
+
+            <div className="edit-employee-field">
+              <label htmlFor="managerEmployeeCode">Reporting Manager</label>
+
+              <div className="manager-select-wrapper" ref={managerSelectRef}>
+                <input
+                  id="managerEmployeeCode"
+                  type="text"
+                  placeholder={employee.role === "Admin" ? "N/A (Admin)" : "Search manager by name or code"}
+                  value={managerSearch}
+                  disabled={employee.role === "Admin" || saving}
+                  onFocus={() => {
+                    if (employee.role === "Admin" || saving) return;
+                    if (selectedManager) setManagerSearch("");
+                    setManagerDropdownOpen(true);
+                  }}
+                  onChange={(e) => {
+                    if (employee.role === "Admin" || saving) return;
+                    const value = e.target.value;
+                    setManagerSearch(value);
+                    setManagerDropdownOpen(true);
+                    setSelectedManager(null);
+                    handleChange("managerEmployeeCode", "");
+                  }}
+                  className={
+                    fieldErrors.managerEmployeeCode ? "edit-employee-field-invalid" : ""
+                  }
+                  aria-invalid={Boolean(fieldErrors.managerEmployeeCode)}
+                />
+
+                <div className="manager-input-icons">
+                  {selectedManager && employee.role !== "Admin" && !saving && (
+                    <button
+                      type="button"
+                      className="manager-clear-btn"
+                      aria-label="Clear selected manager"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedManager(null);
+                        setManagerSearch("");
+                        handleChange("managerEmployeeCode", "");
+                      }}
+                    >
+                      <RxCross2 size={14} />
+                    </button>
+                  )}
+                  {employee.role !== "Admin" && (
+                    <RxChevronDown
+                      size={14}
+                      className={`manager-chevron${managerDropdownOpen ? " manager-chevron-open" : ""}`}
+                    />
+                  )}
+                </div>
+
+                {managerDropdownOpen && employee.role !== "Admin" && (
+                  <div className="manager-dropdown">
+                    {managerLoading && (
+                      <div className="manager-dropdown-message">
+                        Loading managers...
+                      </div>
+                    )}
+                    {!managerLoading && managerError && (
+                      <div className="manager-dropdown-message manager-dropdown-error">
+                        {managerError}
+                      </div>
+                    )}
+                    {!managerLoading && !managerError && filteredManagers.length === 0 && (
+                      <div className="manager-dropdown-message">
+                        No managers found.
+                      </div>
+                    )}
+                    {!managerLoading &&
+                      !managerError &&
+                      filteredManagers.map((manager) => (
+                        <button
+                          key={manager.employeeCode}
+                          type="button"
+                          className={`manager-option${
+                            manager.employeeCode === selectedManager?.employeeCode
+                              ? " manager-option-selected"
+                              : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedManager(manager);
+                            setManagerSearch(`${manager.fullName} — ${manager.employeeCode}`);
+                            handleChange("managerEmployeeCode", manager.employeeCode);
+                            setManagerDropdownOpen(false);
+                          }}
+                        >
+                          <span className="manager-option-name">{manager.fullName}</span>
+                          <span className="manager-option-code">{manager.employeeCode}</span>
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              {fieldErrors.managerEmployeeCode && (
+                <span className="edit-employee-field-error">
+                  {fieldErrors.managerEmployeeCode}
                 </span>
               )}
             </div>

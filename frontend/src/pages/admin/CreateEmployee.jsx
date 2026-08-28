@@ -2,8 +2,8 @@ import "./CreateEmployee.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import api from "../../api/axios";
-import Icon from "../../components/common/Icon";
 import { ROLES, VALIDATION } from "../../utils/constants";
+import { RxChevronDown, RxCross2 } from "react-icons/rx";
 
 export default function CreateEmployee() {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function CreateEmployee() {
         setManagerLoading(true);
         setManagerError(null);
 
-        const response = await api.get("/admin/employees", {
+        const managerRes = await api.get("/admin/employees", {
           params: {
             pageNumber: 1,
             pageSize: 100,
@@ -44,9 +44,17 @@ export default function CreateEmployee() {
           },
         });
 
+        const adminRes = await api.get("/admin/employees", {
+          params: {
+            pageNumber: 1,
+            pageSize: 100,
+            role: "admin",
+            includeDeleted: false,
+          },
+        });
 
-
-        setManagers(response.data.data);
+        const combined = [...adminRes.data.data, ...managerRes.data.data];
+        setManagers(combined);
       } catch (error) {
         console.error("Failed to fetch managers:", error);
         setManagerError("Failed to load managers.");
@@ -170,7 +178,7 @@ export default function CreateEmployee() {
 
       setSubmitError(
         error.response?.data?.message ||
-          "Failed to create employee. Please try again.",
+        "Failed to create employee. Please try again.",
       );
     } finally {
       setSubmitting(false);
@@ -350,8 +358,7 @@ export default function CreateEmployee() {
                   <Icon name="x" size={14} />
                 </button>
               )}
-              <Icon
-                name="chevron-down"
+              <RxChevronDown
                 size={14}
                 className={`manager-chevron${managerDropdownOpen ? " manager-chevron-open" : ""}`}
               />
@@ -385,11 +392,10 @@ export default function CreateEmployee() {
                     <button
                       key={manager.employeeCode}
                       type="button"
-                      className={`manager-option${
-                        manager.employeeCode === selectedManager?.employeeCode
-                          ? " manager-option-selected"
-                          : ""
-                      }`}
+                      className={`manager-option${manager.employeeCode === selectedManager?.employeeCode
+                        ? " manager-option-selected"
+                        : ""
+                        }`}
                       onClick={() => {
                         setSelectedManager(manager);
 

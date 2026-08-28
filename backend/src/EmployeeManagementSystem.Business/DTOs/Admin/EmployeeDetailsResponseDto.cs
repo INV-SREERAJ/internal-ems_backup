@@ -18,6 +18,9 @@ namespace EmployeeManagementSystem.Business.DTOs.Admin
 
         public EmployeeStatus Status { get; set; }
 
+        public string ManagerEmployeeCode { get; set; }
+        public string ManagerName { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
