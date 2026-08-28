@@ -148,11 +148,6 @@ export default function EmployeeTable({
               </td>
               <td>
                 <div className="employee-table-actions">
-                  {console.log(
-                    employee.employeeCode,
-                    employee.status,
-                    typeof employee.status,
-                  )}
                   {Number(employee.status) !== EMPLOYEE_STATUS.Deleted && (
                     <>
                       <Link
