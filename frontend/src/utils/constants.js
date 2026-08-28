@@ -21,7 +21,7 @@ export const ROLE_LABEL = {
 export const EMPLOYEE_STATUS = {
   Active: 1,
   Inactive: 2,
-  Deleted: 3,
+  Deleted: 9,
 };
 
 export const STATUS_LABEL = {
