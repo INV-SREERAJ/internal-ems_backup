@@ -6,8 +6,8 @@
 // ── Role enum (numeric values sent to the backend) ──────────────────
 export const ROLES = {
   Admin: 1,
-  Manager: 2,
-  Employee: 3,
+  Manager: 3,
+  Employee: 2,
 };
 
 /** Reverse lookup: numeric role → display label */

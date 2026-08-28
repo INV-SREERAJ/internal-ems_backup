@@ -1,7 +1,7 @@
 using EmployeeManagementSystem.Business.Common;
 using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Business.Interfaces;
-using EmployeeManagementSystem.DataAccess.common;
+using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Entities;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using EmployeeManagementSystem.DataAccess.Interfaces;
@@ -272,7 +272,7 @@ namespace EmployeeManagementSystem.Business.Services
             if (employee.Role != Role.Employee && request.Role == Role.Employee && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
             {
                 _logger.LogWarning("Update employee failed for {employeeCode} since manager has active employees reporting", employeeCode);
-                return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Cant change the role as manager has active employees reporting, please change the reporting manager and try again.");
+                return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Cant change the role, as manager has active employees reporting. Please change the reporting manager and try again.");
             }
 
 

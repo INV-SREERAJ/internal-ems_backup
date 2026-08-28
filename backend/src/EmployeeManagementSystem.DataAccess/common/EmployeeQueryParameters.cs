@@ -1,6 +1,6 @@
 ﻿using EmployeeManagementSystem.DataAccess.Entities.Enums;
 
-namespace EmployeeManagementSystem.DataAccess.common;
+namespace EmployeeManagementSystem.DataAccess.Common;
 
 public class EmployeeQueryParameters
 {

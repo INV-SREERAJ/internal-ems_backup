@@ -146,22 +146,63 @@ export default function EditEmployeePage() {
     setSaveSuccess(false);
 
     try {
-      const payload = {
+      // The backend has two separate endpoints: PUT updates the basic
+      // details/role, PATCH .../status handles activate/deactivate (it runs
+      // its own business rules, e.g. can't disable yourself or a manager
+      // with active reports). They must be sent as separate requests.
+      const detailsPayload = {
         firstName: employee.firstName.trim(),
         lastName: employee.lastName.trim(),
         phoneNumber: employee.phoneNumber.trim(),
         role: ROLES[employee.role],
-        status: employee.status,
       };
 
-      const response = await api.put(
-        `/admin/employees/${encodeURIComponent(employeeCode)}`,
-        payload,
-      );
+      let updatedEmployee;
+
+      try {
+        const response = await api.put(
+          `/admin/employees/${encodeURIComponent(employeeCode)}`,
+          detailsPayload,
+        );
+        updatedEmployee = response.data;
+      } catch (error) {
+        setSaveError(
+          error.response?.data?.message || "Failed to save employee details.",
+        );
+        setSaveSuccess(false);
+        return;
+      }
+
+      const statusChanged = employee.status !== initialEmployee.status;
+
+      if (statusChanged) {
+        try {
+          await api.patch(
+            `/admin/employees/${encodeURIComponent(employeeCode)}/status`,
+            { status: employee.status },
+          );
+
+          // The status endpoint doesn't return the employee, so merge the
+          // new status into what the PUT call gave us back.
+          updatedEmployee = { ...updatedEmployee, status: employee.status };
+        } catch (error) {
+          // Details already saved successfully — reflect that, but keep
+          // the previous status since the change was rejected, and let the
+          // user know only the status update failed.
+          setEmployee(updatedEmployee);
+          setInitialEmployee(updatedEmployee);
+          setSaveError(
+            error.response?.data?.message ||
+              "Details were saved, but the status change failed.",
+          );
+          setSaveSuccess(false);
+          return;
+        }
+      }
 
       // Use the server's returned employee as the new baseline.
-      setEmployee(response.data);
-      setInitialEmployee(response.data);
+      setEmployee(updatedEmployee);
+      setInitialEmployee(updatedEmployee);
 
       // Show success message.
       setSaveSuccess(true);
