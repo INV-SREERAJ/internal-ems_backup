@@ -355,7 +355,7 @@ export default function CreateEmployee() {
                     setFormData({ ...formData, managerEmployeeCode: "" });
                   }}
                 >
-                  <Icon name="x" size={14} />
+                  <RxCross2 size={14} />
                 </button>
               )}
               <RxChevronDown

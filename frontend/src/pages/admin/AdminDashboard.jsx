@@ -12,7 +12,7 @@ import {
   STATUS_LABEL,
 } from "../../utils/constants";
 import "./AdminDashboard.css";
-
+  
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);

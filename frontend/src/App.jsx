@@ -1,40 +1,104 @@
-import LoginPage from "./pages/auth/LoginPage";
+import { lazy, Suspense } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-import AdminLayout from "./pages/admin/AdminLayout";
-import EmployeesPage from "./pages/admin/EmployeesPage";
-import EditEmployeePage from "./pages/admin/EditEmployeePage";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import useAuth from "./hooks/useAuth";
 import { AUTH_STATUS } from "./utils/authStatus";
-import CreateEmployee from "./pages/admin/CreateEmployee";
 import SplashScreen from "./pages/Loading/SplashScreen";
-import EditEmployeesSearchPage from "./pages/admin/EditEmployeesSearchPage";
+import { ROLES, ROLE_LABEL } from "./utils/constants";
+
+// Lazy-loaded pages
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const UnauthorizedPage = lazy(() => import("./pages/auth/UnauthorizedPage"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const EmployeesPage = lazy(() => import("./pages/admin/EmployeesPage"));
+const EditEmployeePage = lazy(() => import("./pages/admin/EditEmployeePage"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const CreateEmployee = lazy(() => import("./pages/admin/CreateEmployee"));
+const EditEmployeesSearchPage = lazy(() =>
+  import("./pages/admin/EditEmployeesSearchPage")
+);
+
+function ProtectedRoute({ children, allowedRoles }) {
+  const { status, user } = useAuth();
+
+  if (status === AUTH_STATUS.INITIALIZING) {
+    return <SplashScreen />;
+  }
+
+  if (status !== AUTH_STATUS.AUTHENTICATED) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children;
+}
+
+function getDefaultRoute(user) {
+  switch (user?.role) {
+    case ROLE_LABEL[ROLES.Admin]:
+      return "/admin";
+    default:
+      return "/unauthorized";
+  }
+}
 
 export default function App() {
-  const { status } = useAuth();
+  const { status, user } = useAuth();
 
-  // App.jsx
   if (status === AUTH_STATUS.INITIALIZING) return <SplashScreen />;
-  if (status !== AUTH_STATUS.AUTHENTICATED) return <LoginPage />;
+
+  const defaultRoute = getDefaultRoute(user);
 
   return (
-    <Routes>
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-
-        <Route path="employees" element={<EmployeesPage />} />
-
-        <Route path="employees/create-employee" element={<CreateEmployee />} />
+    // Suspense wraps the whole Routes tree
+    <Suspense fallback={<SplashScreen />}>
+      <Routes>
         <Route
-          path="employees/edit/:employeeCode"
-          element={<EditEmployeePage />}
+          path="/login"
+          element={
+            status === AUTH_STATUS.AUTHENTICATED ? (
+              <Navigate to={defaultRoute} replace />
+            ) : (
+              <LoginPage />
+            )
+          }
         />
 
-        <Route path="employees/edit" element={<EditEmployeesSearchPage />} />
-      </Route>
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-      {/* Catch-all: redirect unmatched routes to admin dashboard */}
-      <Route path="*" element={<Navigate to="/admin" replace />} />
-    </Routes>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={[ROLE_LABEL[ROLES.Admin]]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="employees" element={<EmployeesPage />} />
+          <Route
+            path="employees/create-employee"
+            element={<CreateEmployee />}
+          />
+          <Route
+            path="employees/edit/:employeeCode"
+            element={<EditEmployeePage />}
+          />
+          <Route path="employees/edit" element={<EditEmployeesSearchPage />} />
+        </Route>
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to={status === AUTH_STATUS.AUTHENTICATED ? "/admin" : "/login"}
+              replace
+            />
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
