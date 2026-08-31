@@ -117,7 +117,8 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.edit-employee-field input:disabled {
+.edit-employee-field input:disabled,
+.edit-employee-field select:disabled {
   background: #f3f4f6;
   color: #6b7280;
   cursor: not-allowed;
@@ -203,6 +204,105 @@
   background: #2563eb;
   color: #ffffff;
   cursor: pointer;
+}
+
+/* ================================
+   Manager Dropdown
+================================ */
+
+.manager-select-wrapper {
+  position: relative;
+}
+
+#managerEmployeeCode {
+  padding-right: 56px;
+}
+
+.manager-input-icons {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.manager-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+}
+.manager-clear-btn:hover {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.manager-chevron {
+  color: #9ca3af;
+  transition: transform 0.15s ease;
+  pointer-events: none;
+}
+.manager-chevron-open {
+  transform: rotate(180deg);
+}
+
+.manager-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.1);
+}
+
+.manager-dropdown-message {
+  padding: 12px;
+  font-size: 13px;
+  color: #6b7280;
+}
+.manager-dropdown-error {
+  color: #dc2626;
+}
+
+.manager-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+}
+.manager-option:hover {
+  background-color: #f3f4f6;
+}
+.manager-option-selected {
+  background-color: #eff6ff;
+}
+
+.manager-option-name {
+  color: #111827;
+  font-weight: 500;
+}
+.manager-option-code {
+  color: #9ca3af;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {

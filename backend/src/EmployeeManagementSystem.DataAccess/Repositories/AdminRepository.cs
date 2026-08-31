@@ -49,9 +49,11 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         }
 
 
-        public async Task<Employee?> GetEmployeeByEmployeeCodeAsync(string employeeCode)
+        public async Task<Employee? > GetEmployeeByEmployeeCodeAsync(string employeeCode)
         {
-            return await _context.Employees.FirstOrDefaultAsync(u =>
+            return await _context.Employees
+                .Include(u => u.Manager)
+                .FirstOrDefaultAsync(u =>
                 u.EmployeeCode == employeeCode && u.Status != EmployeeStatus.Deleted);
         }
 

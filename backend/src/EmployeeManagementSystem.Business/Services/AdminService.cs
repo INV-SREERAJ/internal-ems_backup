@@ -238,6 +238,10 @@ namespace EmployeeManagementSystem.Business.Services
                 Email = employee.Email,
                 PhoneNumber = employee.PhoneNumber,
                 Role = employee.Role.ToString(),
+                ManagerEmployeeCode = employee.Manager?.EmployeeCode,
+                ManagerName = employee.Manager != null
+                    ? $"{employee.Manager.FirstName} {employee.Manager.LastName}"
+                    : null,
                 Status = employee.Status,
                 CreatedAt = employee.CreatedAt,
                 UpdatedAt = employee.UpdatedAt
@@ -301,6 +305,10 @@ namespace EmployeeManagementSystem.Business.Services
                 EmployeeCode = employee.EmployeeCode,
                 PhoneNumber = employee.PhoneNumber,
                 Role = employee.Role.ToString(),
+                ManagerEmployeeCode = employee.Manager?.EmployeeCode,
+                ManagerName = employee.Manager != null
+                    ? $"{employee.Manager.FirstName} {employee.Manager.LastName}"
+                    : null,
                 Status = employee.Status,
                 CreatedAt = employee.CreatedAt,
                 UpdatedAt = employee.UpdatedAt
