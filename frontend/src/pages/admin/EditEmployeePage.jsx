@@ -66,7 +66,12 @@ export default function EditEmployeePage() {
   const [managerSearch, setManagerSearch] = useState("");
   const [managerDropdownOpen, setManagerDropdownOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
+  const selectedManagerRef = useRef(selectedManager);
   const managerSelectRef = useRef(null);
+
+  useEffect(() => {
+    selectedManagerRef.current = selectedManager;
+  }, [selectedManager]);
 
   const [pendingNavigation, setPendingNavigation] = useState(null);
 
@@ -84,15 +89,19 @@ export default function EditEmployeePage() {
         setInitialEmployee(response.data);
 
         if (response.data.managerEmployeeCode) {
-          setSelectedManager({
+          const mgr = {
             employeeCode: response.data.managerEmployeeCode,
             fullName: response.data.managerName || response.data.managerEmployeeCode,
-          });
+          };
+          setSelectedManager(mgr);
           setManagerSearch(
             response.data.managerName
               ? `${response.data.managerName} — ${response.data.managerEmployeeCode}`
               : response.data.managerEmployeeCode
           );
+        } else {
+          setSelectedManager(null);
+          setManagerSearch("");
         }
       } catch (error) {
         setError(error.response?.data?.message || "Failed to load employee.");
@@ -147,6 +156,16 @@ export default function EditEmployeePage() {
         !managerSelectRef.current.contains(event.target)
       ) {
         setManagerDropdownOpen(false);
+        const currentSelected = selectedManagerRef.current;
+        if (currentSelected) {
+          setManagerSearch(
+            currentSelected.fullName
+              ? `${currentSelected.fullName} — ${currentSelected.employeeCode}`
+              : currentSelected.employeeCode
+          );
+        } else {
+          setManagerSearch("");
+        }
       }
     };
 
@@ -156,16 +175,18 @@ export default function EditEmployeePage() {
     };
   }, []);
 
-  const filteredManagers = managers.filter((manager) => {
-    if (manager.employeeCode === employeeCode) return false;
+  const filteredManagers = useMemo(() => {
+    return managers.filter((manager) => {
+      if (manager.employeeCode === employeeCode) return false;
 
-    const search = managerSearch.toLowerCase().trim();
-    if (!search) return true;
-    return (
-      (manager.fullName && manager.fullName.toLowerCase().includes(search)) ||
-      (manager.employeeCode && manager.employeeCode.toLowerCase().includes(search))
-    );
-  });
+      const search = managerSearch.toLowerCase().trim();
+      if (!search) return true;
+      return (
+        (manager.fullName && manager.fullName.toLowerCase().includes(search)) ||
+        (manager.employeeCode && manager.employeeCode.toLowerCase().includes(search))
+      );
+    });
+  }, [managers, employeeCode, managerSearch]);
 
   const isDirty = useMemo(() => {
     if (!employee || !initialEmployee) {
@@ -293,16 +314,16 @@ export default function EditEmployeePage() {
         (employee.managerEmployeeCode || "") !==
         (initialEmployee.managerEmployeeCode || "");
 
-      if (managerChanged && employee.managerEmployeeCode) {
+      if (managerChanged) {
         try {
           await api.patch(
             `/admin/employees/${encodeURIComponent(employeeCode)}/manager`,
-            { managerEmployeeCode: employee.managerEmployeeCode },
+            { managerEmployeeCode: employee.managerEmployeeCode?.trim() || null },
           );
 
           updatedEmployee = {
             ...updatedEmployee,
-            managerEmployeeCode: employee.managerEmployeeCode,
+            managerEmployeeCode: employee.managerEmployeeCode || null,
             managerName: selectedManager ? selectedManager.fullName : null,
           };
         } catch (error) {
@@ -552,13 +573,24 @@ export default function EditEmployeePage() {
                 <input
                   id="managerEmployeeCode"
                   type="text"
-                  placeholder={employee.role === "Admin" ? "N/A (Admin)" : "Search manager by name or code"}
+                  placeholder={
+                    employee.role === "Admin"
+                      ? "N/A (Admin)"
+                      : "Search manager by name or code"
+                  }
                   value={managerSearch}
                   disabled={employee.role === "Admin" || saving}
                   onFocus={() => {
                     if (employee.role === "Admin" || saving) return;
                     if (selectedManager) setManagerSearch("");
                     setManagerDropdownOpen(true);
+                  }}
+                  onClick={() => {
+                    if (employee.role === "Admin" || saving) return;
+                    if (!managerDropdownOpen) {
+                      if (selectedManager) setManagerSearch("");
+                      setManagerDropdownOpen(true);
+                    }
                   }}
                   onChange={(e) => {
                     if (employee.role === "Admin" || saving) return;
@@ -569,7 +601,9 @@ export default function EditEmployeePage() {
                     handleChange("managerEmployeeCode", "");
                   }}
                   className={
-                    fieldErrors.managerEmployeeCode ? "edit-employee-field-invalid" : ""
+                    fieldErrors.managerEmployeeCode
+                      ? "edit-employee-field-invalid"
+                      : ""
                   }
                   aria-invalid={Boolean(fieldErrors.managerEmployeeCode)}
                 />
@@ -593,7 +627,9 @@ export default function EditEmployeePage() {
                   {employee.role !== "Admin" && (
                     <RxChevronDown
                       size={14}
-                      className={`manager-chevron${managerDropdownOpen ? " manager-chevron-open" : ""}`}
+                      className={`manager-chevron${
+                        managerDropdownOpen ? " manager-chevron-open" : ""
+                      }`}
                     />
                   )}
                 </div>
@@ -610,11 +646,13 @@ export default function EditEmployeePage() {
                         {managerError}
                       </div>
                     )}
-                    {!managerLoading && !managerError && filteredManagers.length === 0 && (
-                      <div className="manager-dropdown-message">
-                        No managers found.
-                      </div>
-                    )}
+                    {!managerLoading &&
+                      !managerError &&
+                      filteredManagers.length === 0 && (
+                        <div className="manager-dropdown-message">
+                          No managers found.
+                        </div>
+                      )}
                     {!managerLoading &&
                       !managerError &&
                       filteredManagers.map((manager) => (
@@ -622,19 +660,29 @@ export default function EditEmployeePage() {
                           key={manager.employeeCode}
                           type="button"
                           className={`manager-option${
-                            manager.employeeCode === selectedManager?.employeeCode
+                            manager.employeeCode ===
+                            selectedManager?.employeeCode
                               ? " manager-option-selected"
                               : ""
                           }`}
                           onClick={() => {
                             setSelectedManager(manager);
-                            setManagerSearch(`${manager.fullName} — ${manager.employeeCode}`);
-                            handleChange("managerEmployeeCode", manager.employeeCode);
+                            setManagerSearch(
+                              `${manager.fullName} — ${manager.employeeCode}`,
+                            );
+                            handleChange(
+                              "managerEmployeeCode",
+                              manager.employeeCode,
+                            );
                             setManagerDropdownOpen(false);
                           }}
                         >
-                          <span className="manager-option-name">{manager.fullName}</span>
-                          <span className="manager-option-code">{manager.employeeCode}</span>
+                          <span className="manager-option-name">
+                            {manager.fullName}
+                          </span>
+                          <span className="manager-option-code">
+                            {manager.employeeCode}
+                          </span>
                         </button>
                       ))}
                   </div>

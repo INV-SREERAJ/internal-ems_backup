@@ -41,7 +41,6 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  overflow: hidden;
 }
 
 /* ================================
@@ -53,6 +52,11 @@
   font-size: 13px;
   font-weight: 600;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-employee-banner:first-child {
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
 }
 
 .edit-employee-banner-success {
@@ -126,7 +130,7 @@
 
 /* ================================
    Field validation
-================================ */
+=============================== */
 
 .edit-employee-field-invalid {
   border-color: #dc2626 !important;
@@ -148,6 +152,8 @@
   gap: 12px;
   padding: 20px 28px;
   background: #f9fafb;
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
 }
 
 .edit-employee-cancel-btn,
@@ -258,13 +264,13 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 50;
   max-height: 240px;
   overflow-y: auto;
   background-color: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.1);
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.12);
 }
 
 .manager-dropdown-message {

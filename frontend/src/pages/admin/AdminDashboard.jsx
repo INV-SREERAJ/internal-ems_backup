@@ -12,7 +12,7 @@ import {
   STATUS_LABEL,
 } from "../../utils/constants";
 import "./AdminDashboard.css";
-  
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
         // Get the 5 most recent (non-deleted) for the table
         const recent = allEmployees
           .filter((e) => e.status !== EMPLOYEE_STATUS.Deleted)
-          .slice(0, 5);
+          .slice(-8);
 
         setRecentEmployees(recent);
       } catch {

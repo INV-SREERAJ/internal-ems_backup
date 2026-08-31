@@ -5,7 +5,7 @@ import { AUTH_STATUS } from "./utils/authStatus";
 import SplashScreen from "./pages/Loading/SplashScreen";
 import { ROLES, ROLE_LABEL } from "./utils/constants";
 
-// Lazy-loaded pages
+// LazyLoading pages
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
 const UnauthorizedPage = lazy(() => import("./pages/auth/UnauthorizedPage"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
