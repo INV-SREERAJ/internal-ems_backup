@@ -272,7 +272,7 @@
 /* Logout */
 
 .admin-logout-btn {
-  margin-top: 420px;
+  margin-top: 400px;
 }
 
 /* ================================
@@ -299,15 +299,21 @@
 ================================ */
 
 .admin-sidebar-backdrop {
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  display: none; /* Hide on PC / desktop */
+}
 
-  background-color: rgba(15, 23, 42, 0.4);
+@media (max-width: 767px) {
+  .admin-sidebar-backdrop {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
 
-  z-index: 80;
+    background-color: rgba(15, 23, 42, 0.4);
+
+    z-index: 80;
+  }
 }
 
 /* ================================

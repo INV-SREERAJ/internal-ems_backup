@@ -26,15 +26,9 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 .AsNoTracking()
                 .Include(e => e.Manager)
                 .AsQueryable();
-
-            // If admin did not explicitly request a status,
-            // exclude deleted employees by default.
-            if (!parameters.Status.HasValue &&
-                !parameters.IncludeDeleted)
-            {
-                query = query.Where(
-                    e => e.Status != EmployeeStatus.Deleted);
-            }
+            
+            //Exclude deleted employees .
+            query = query.Where(e => e.Status != EmployeeStatus.Deleted);
 
             query = query
                 .ApplyFilters(parameters)
@@ -46,15 +40,6 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             return await query.ToPagedResultAsync(
                 parameters.PageNumber,
                 parameters.PageSize);
-        }
-
-
-        public async Task<Employee? > GetEmployeeByEmployeeCodeAsync(string employeeCode)
-        {
-            return await _context.Employees
-                .Include(u => u.Manager)
-                .FirstOrDefaultAsync(u =>
-                u.EmployeeCode == employeeCode && u.Status != EmployeeStatus.Deleted);
         }
 
 

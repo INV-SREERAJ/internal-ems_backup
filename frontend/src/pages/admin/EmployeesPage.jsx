@@ -17,8 +17,6 @@ export default function EmployeesPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const [includeDeleted, setIncludeDeleted] = useState(false);
-
   const [sortBy, setSortBy] = useState("");
   const [descending, setDescending] = useState(false);
 
@@ -51,7 +49,6 @@ export default function EmployeesPage() {
             pageNumber,
             pageSize: 10,
             search: debouncedSearch,
-            includeDeleted,
             sortBy,
             descending,
           },
@@ -70,7 +67,6 @@ export default function EmployeesPage() {
   }, [
     pageNumber,
     debouncedSearch,
-    includeDeleted,
     descending,
     sortBy,
     refreshKey,
@@ -159,17 +155,7 @@ export default function EmployeesPage() {
           />
         </div>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={includeDeleted}
-            onChange={(e) => {
-              setIncludeDeleted(e.target.checked);
-              setPageNumber(1);
-            }}
-          />
-          Include deleted
-        </label>
+        
 
         <Link
           to="/admin/employees/create-employee"

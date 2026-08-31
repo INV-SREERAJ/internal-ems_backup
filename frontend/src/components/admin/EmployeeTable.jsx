@@ -47,9 +47,8 @@ export default function EmployeeTable({
                 <button
                   type="button"
                   onClick={() => onSort("name")}
-                  className={`sort-button${
-                    sortBy === "name" ? " sort-button-active" : ""
-                  }`}
+                  className={`sort-button${sortBy === "name" ? " sort-button-active" : ""
+                    }`}
                   aria-label="Sort by full name"
                 >
                   {sortBy === "name" ? (descending ? "↓" : "↑") : "↕"}
@@ -63,9 +62,8 @@ export default function EmployeeTable({
                 <button
                   type="button"
                   onClick={() => onSort("email")}
-                  className={`sort-button${
-                    sortBy === "email" ? " sort-button-active" : ""
-                  }`}
+                  className={`sort-button${sortBy === "email" ? " sort-button-active" : ""
+                    }`}
                   aria-label="Sort by email"
                 >
                   {sortBy === "email" ? (descending ? "↓" : "↑") : "↕"}
@@ -81,9 +79,8 @@ export default function EmployeeTable({
                 <button
                   type="button"
                   onClick={() => onSort("role")}
-                  className={`sort-button${
-                    sortBy === "role" ? " sort-button-active" : ""
-                  }`}
+                  className={`sort-button${sortBy === "role" ? " sort-button-active" : ""
+                    }`}
                   aria-label="Sort by role"
                 >
                   {sortBy === "role" ? (descending ? "↓" : "↑") : "↕"}
@@ -139,9 +136,8 @@ export default function EmployeeTable({
               </td>
               <td>
                 <span
-                  className={`employee-status ${
-                    STATUS_CLASS[employee.status] || "employee-status-deleted"
-                  }`}
+                  className={`employee-status ${STATUS_CLASS[employee.status] || "employee-status-deleted"
+                    }`}
                 >
                   {STATUS_LABEL[employee.status] || "Deleted"}
                 </span>

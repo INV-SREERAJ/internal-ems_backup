@@ -40,7 +40,6 @@ export default function CreateEmployee() {
             pageNumber: 1,
             pageSize: 100,
             role: "manager",
-            includeDeleted: false,
           },
         });
 
@@ -49,7 +48,6 @@ export default function CreateEmployee() {
             pageNumber: 1,
             pageSize: 100,
             role: "admin",
-            includeDeleted: false,
           },
         });
 
