@@ -31,7 +31,6 @@ export default function AdminDashboard() {
           params: {
             pageNumber: 1,
             pageSize: 100,
-            includeDeleted: true,
           },
         });
 

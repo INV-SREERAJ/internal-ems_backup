@@ -40,10 +40,9 @@ namespace EmployeeManagementSystem.DataAccess.Common.Extensions
             this IQueryable<Employee> query,
             EmployeeStatus? status)
         {
-            if (status.HasValue)
+            if (status.HasValue && status.Value != EmployeeStatus.Deleted)
             {
-                query = query.Where(
-                    e => e.Status == status.Value);
+                query = query.Where(e => e.Status == status.Value);
             }
 
             return query;

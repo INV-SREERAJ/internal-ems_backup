@@ -29,5 +29,4 @@ public class EmployeeQueryParameters
     public DateTime? CreatedAt { get; set; }
 
     public bool Descending { get; set; }
-    public bool IncludeDeleted { get; set; } = false;
 }

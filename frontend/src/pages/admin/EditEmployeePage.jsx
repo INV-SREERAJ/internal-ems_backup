@@ -124,7 +124,6 @@ export default function EditEmployeePage() {
             pageNumber: 1,
             pageSize: 100,
             role: "manager",
-            includeDeleted: false,
           },
         });
 
@@ -133,7 +132,6 @@ export default function EditEmployeePage() {
             pageNumber: 1,
             pageSize: 100,
             role: "admin",
-            includeDeleted: false,
           },
         });
 
