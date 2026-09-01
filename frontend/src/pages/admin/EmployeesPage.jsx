@@ -1,6 +1,5 @@
 import EmployeeTable from "../../components/admin/EmployeeTable";
 import EmployeeViewDialog from "../../components/admin/EmployeeViewDialog";
-import "./EmployeePage.css";
 
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
@@ -136,22 +135,27 @@ export default function EmployeesPage() {
   }
 
   return (
-    <section className="employees-page">
-      <div className="employees-page-header">
+    <section className="w-full max-w-[1400px] mx-auto">
+      <div className="mb-6 flex items-center justify-between max-[767px]:mb-[18px]">
         <div>
-          <h1>Employees</h1>
-          <p>Manage employees in your organization.</p>
+          <h1 className="m-0 text-slate-900 text-[28px] font-bold tracking-[-0.5px] max-[767px]:text-2xl">
+            Employees
+          </h1>
+          <p className="mt-1.5 mb-0 text-slate-500 text-sm max-[767px]:text-[13px]">
+            Manage employees in your organization.
+          </p>
         </div>
       </div>
 
-      <div className="employees-toolbar">
-        <div className="employees-search">
+      <div className="mb-5 flex items-center gap-3 max-[767px]:flex-wrap">
+        <div className="w-full max-w-[420px] max-[767px]:max-w-none">
           <input
             type="search"
             placeholder="Search employees..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search employees"
+            className="w-full box-border px-3.5 py-[11px] bg-white text-slate-900 border border-slate-300 rounded-lg font-sans text-sm outline-none transition-colors duration-150 placeholder:text-slate-400 focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/15"
           />
         </div>
 
@@ -159,27 +163,27 @@ export default function EmployeesPage() {
 
         <Link
           to="/admin/employees/create-employee"
-          className="add-employee-btn"
+          className="ml-auto inline-flex items-center justify-center px-4 py-[11px] bg-blue-600 text-white border border-blue-600 rounded-lg font-sans text-sm font-semibold no-underline whitespace-nowrap transition-colors duration-150 hover:bg-blue-700 hover:border-blue-700"
         >
           + Add Employee
         </Link>
       </div>
 
       {loading && (
-        <div className="employees-state">
-          <p>Loading employees...</p>
+        <div className="p-6 py-12 bg-white border border-slate-200 rounded-xl text-slate-500 text-center">
+          <p className="m-0 text-sm">Loading employees...</p>
         </div>
       )}
 
       {!loading && error && (
-        <div className="employees-state employees-state-error">
-          <p>{error}</p>
+        <div className="p-6 py-12 bg-red-50 border border-red-300 rounded-xl text-red-700 text-center">
+          <p className="m-0 text-sm">{error}</p>
         </div>
       )}
 
       {!loading && !error && employees.length === 0 && (
-        <div className="employees-state">
-          <p>No employees found.</p>
+        <div className="p-6 py-12 bg-white border border-slate-200 rounded-xl text-slate-500 text-center">
+          <p className="m-0 text-sm">No employees found.</p>
         </div>
       )}
 
@@ -193,22 +197,22 @@ export default function EmployeesPage() {
             onView={(code) => setViewingEmployee(code)}
           />
 
-          <div className="employees-pagination">
+          <div className="mt-5 flex items-center justify-center gap-2 max-[767px]:flex-wrap">
             <button
               type="button"
               onClick={handlePrevious}
               disabled={pageNumber === 1}
-              className="employees-pagination-nav"
+              className="px-4 py-[9px] bg-white text-blue-600 border border-slate-300 rounded-lg font-sans text-[13px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-50 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed max-[767px]:px-3 max-[767px]:py-2"
             >
               ‹ Previous
             </button>
 
-            <div className="employees-pagination-pages">
+            <div className="flex items-center gap-1">
               {getPageNumbers(pageNumber, totalPages).map((page, index) =>
                 page === "..." ? (
                   <span
                     key={`dots-${index}`}
-                    className="employees-pagination-ellipsis"
+                    className="min-w-5 inline-flex items-center justify-center text-slate-400 text-[13px]"
                   >
                     …
                   </span>
@@ -217,9 +221,9 @@ export default function EmployeesPage() {
                     key={page}
                     type="button"
                     onClick={() => setPageNumber(page)}
-                    className={`employees-pagination-page${
+                    className={`min-w-[34px] h-[34px] px-1.5 inline-flex items-center justify-center bg-white text-slate-600 border border-slate-200 rounded-lg font-sans text-[13px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 max-[767px]:px-3 max-[767px]:py-2${
                       page === pageNumber
-                        ? " employees-pagination-page-active"
+                        ? " !bg-blue-600 !text-white !border-blue-600"
                         : ""
                     }`}
                     aria-current={page === pageNumber ? "page" : undefined}
@@ -234,7 +238,7 @@ export default function EmployeesPage() {
               type="button"
               onClick={handleNext}
               disabled={pageNumber === totalPages}
-              className="employees-pagination-nav"
+              className="px-4 py-[9px] bg-white text-blue-600 border border-slate-300 rounded-lg font-sans text-[13px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-50 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed max-[767px]:px-3 max-[767px]:py-2"
             >
               Next ›
             </button>

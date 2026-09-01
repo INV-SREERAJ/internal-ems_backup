@@ -30,11 +30,11 @@ export const STATUS_LABEL = {
   [EMPLOYEE_STATUS.Deleted]: "Deleted",
 };
 
-/** Maps numeric status → CSS class suffix for badge styling */
+/** Maps numeric status → Tailwind color classes for badge styling */
 export const STATUS_CLASS = {
-  [EMPLOYEE_STATUS.Active]: "employee-status-active",
-  [EMPLOYEE_STATUS.Inactive]: "employee-status-inactive",
-  [EMPLOYEE_STATUS.Deleted]: "employee-status-deleted",
+  [EMPLOYEE_STATUS.Active]: "bg-green-100 text-green-800",
+  [EMPLOYEE_STATUS.Inactive]: "bg-amber-100 text-amber-800",
+  [EMPLOYEE_STATUS.Deleted]: "bg-red-100 text-red-800",
 };
 
 // ── Validation patterns ─────────────────────────────────────────────

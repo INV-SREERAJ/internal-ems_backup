@@ -5,11 +5,11 @@ import ConfirmDialog from "../common/ConfirmDialog";
 import {
   EMPLOYEE_STATUS,
   STATUS_LABEL,
+  STATUS_CLASS,
 } from "../../utils/constants";
 import { CiEdit } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { HiOutlineTrash } from "react-icons/hi2";
-import "./EmployeeViewDialog.css";
 
 /**
  * Full-detail view dialog for a single employee.
@@ -144,19 +144,6 @@ export default function EmployeeViewDialog({
     setConfirmDeleteOpen(false);
   };
 
-  const getStatusClass = (status) => {
-    switch (Number(status)) {
-      case EMPLOYEE_STATUS.Active:
-        return "employee-view-status-active";
-      case EMPLOYEE_STATUS.Inactive:
-        return "employee-view-status-inactive";
-      case EMPLOYEE_STATUS.Deleted:
-        return "employee-view-status-deleted";
-      default:
-        return "";
-    }
-  };
-
   const formatDate = (dateStr) => {
     if (!dateStr) return "—";
     const date = new Date(dateStr);
@@ -169,52 +156,57 @@ export default function EmployeeViewDialog({
     });
   };
 
+  const actionBtnBase =
+    "inline-flex items-center gap-1.5 px-3.5 py-2 border rounded-lg font-sans text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed";
+  const fieldLabelClass = "text-slate-400 text-xs font-medium";
+  const fieldValueClass = "text-slate-900 text-sm font-medium break-words";
+
   return (
     <>
       <div
-        className="employee-view-overlay"
+        className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/45 [animation:employee-view-fade-in_0.15s_ease]"
         onMouseDown={(e) => {
           if (e.target === e.currentTarget) onClose();
         }}
       >
         <div
-          className="employee-view-dialog"
+          className="w-full max-w-[620px] max-h-[90vh] bg-white rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] overflow-y-auto [animation:employee-view-slide-up_0.15s_ease] max-[767px]:max-w-none max-[767px]:max-h-[95vh]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="employee-view-dialog-title"
         >
           {/* Loading */}
           {loading && (
-            <div className="employee-view-loading">
+            <div className="px-6 py-12 text-slate-500 text-sm text-center">
               Loading employee details…
             </div>
           )}
 
           {/* Error */}
           {!loading && error && (
-            <div className="employee-view-error">{error}</div>
+            <div className="p-6 text-red-700 text-sm text-center">{error}</div>
           )}
 
           {/* Content */}
           {!loading && !error && employee && (
             <>
               {/* Header */}
-              <div className="employee-view-header">
-                <div className="employee-view-title-block">
+              <div className="pt-6 px-6 pb-0 flex items-start justify-between gap-4 max-[767px]:pt-5 max-[767px]:px-[18px]">
+                <div className="min-w-0">
                   <h2
                     id="employee-view-dialog-title"
-                    className="employee-view-name"
+                    className="m-0 text-slate-900 text-xl font-bold tracking-[-0.3px] max-[767px]:text-lg"
                   >
                     {employee.firstName} {employee.lastName}
                   </h2>
-                  <p className="employee-view-code">
+                  <p className="mt-1 mb-0 text-slate-500 text-[13px] font-medium">
                     {employee.employeeCode}
                   </p>
                 </div>
 
                 <button
                   type="button"
-                  className="employee-view-close-btn"
+                  className="w-8 h-8 flex items-center justify-center p-0 bg-transparent text-slate-400 border-none rounded-md text-lg cursor-pointer shrink-0 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900"
                   onClick={onClose}
                   aria-label="Close dialog"
                 >
@@ -224,10 +216,10 @@ export default function EmployeeViewDialog({
 
               {/* Action bar — hidden for deleted employees */}
               {!isDeleted && (
-                <div className="employee-view-actions">
+                <div className="px-6 py-4 flex items-center gap-2.5 border-b border-slate-200 max-[767px]:px-[18px] max-[767px]:py-3.5 max-[767px]:flex-wrap">
                   <button
                     type="button"
-                    className="employee-view-action-btn employee-view-action-edit"
+                    className={`${actionBtnBase} bg-blue-50 text-blue-600 border-blue-200 hover:not-disabled:bg-blue-600 hover:not-disabled:text-white hover:not-disabled:border-blue-600`}
                     onClick={handleEdit}
                   >
                     <CiEdit size={16} />
@@ -236,7 +228,7 @@ export default function EmployeeViewDialog({
 
                   <button
                     type="button"
-                    className="employee-view-action-btn employee-view-action-reset"
+                    className={`${actionBtnBase} bg-amber-50 text-amber-600 border-amber-200 hover:not-disabled:bg-amber-600 hover:not-disabled:text-white hover:not-disabled:border-amber-600`}
                     onClick={handleResetPassword}
                     disabled={resetting}
                   >
@@ -246,7 +238,7 @@ export default function EmployeeViewDialog({
 
                   <button
                     type="button"
-                    className="employee-view-action-btn employee-view-action-delete"
+                    className={`${actionBtnBase} bg-red-50 text-red-600 border-red-300 hover:not-disabled:bg-red-600 hover:not-disabled:text-white hover:not-disabled:border-red-600`}
                     onClick={handleDeleteRequest}
                     disabled={deleting}
                   >
@@ -259,50 +251,53 @@ export default function EmployeeViewDialog({
               {/* Banner messages */}
               {resetMsg && (
                 <div
-                  className={`employee-view-banner employee-view-banner-${resetMsg.type}`}
+                  className={`mx-6 mt-4 px-3.5 py-[10px] rounded-lg text-[13px] font-medium max-[767px]:mx-[18px] max-[767px]:mt-3.5 ${resetMsg.type === "success"
+                      ? "bg-green-50 text-green-800 border border-green-200"
+                      : "bg-red-50 text-red-800 border border-red-300"
+                    }`}
                 >
                   {resetMsg.text}
                 </div>
               )}
 
               {/* Details body */}
-              <div className="employee-view-body">
+              <div className="p-6 max-[767px]:px-[18px] max-[767px]:py-5">
                 {/* Personal information */}
-                <div className="employee-view-section">
-                  <h3 className="employee-view-section-title">
+                <div className="mb-6 last:mb-0">
+                  <h3 className="m-0 mb-3.5 text-slate-600 text-xs font-semibold uppercase tracking-[0.5px]">
                     Personal Information
                   </h3>
-                  <div className="employee-view-grid">
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                  <div className="grid grid-cols-2 gap-4 max-[767px]:grid-cols-1 max-[767px]:gap-3.5">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         First Name
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {employee.firstName}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         Last Name
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {employee.lastName}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">Email</span>
-                      <span className="employee-view-field-value">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>Email</span>
+                      <span className={fieldValueClass}>
                         {employee.email}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         Phone Number
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {employee.phoneNumber || "—"}
                       </span>
                     </div>
@@ -310,30 +305,31 @@ export default function EmployeeViewDialog({
                 </div>
 
                 {/* Organization */}
-                <div className="employee-view-section">
-                  <h3 className="employee-view-section-title">Organization</h3>
-                  <div className="employee-view-grid">
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">Role</span>
-                      <span className="employee-view-field-value">
+                <div className="mb-6 last:mb-0">
+                  <h3 className="m-0 mb-3.5 text-slate-600 text-xs font-semibold uppercase tracking-[0.5px]">Organization</h3>
+                  <div className="grid grid-cols-2 gap-4 max-[767px]:grid-cols-1 max-[767px]:gap-3.5">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>Role</span>
+                      <span className={fieldValueClass}>
                         {employee.role || "—"}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">Status</span>
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>Status</span>
                       <span
-                        className={`employee-view-status ${getStatusClass(employee.status)}`}
+                        className={`inline-flex w-fit px-2 py-[3px] rounded-full text-xs font-semibold ${STATUS_CLASS[Number(employee.status)] || "bg-red-100 text-red-800"
+                          }`}
                       >
                         {STATUS_LABEL[employee.status] || "—"}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         Manager
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {employee.managerName
                           ? `${employee.managerName} (${employee.managerEmployeeCode})`
                           : "—"}
@@ -343,32 +339,32 @@ export default function EmployeeViewDialog({
                 </div>
 
                 {/* Timestamps */}
-                <div className="employee-view-section">
-                  <h3 className="employee-view-section-title">Record Info</h3>
-                  <div className="employee-view-grid">
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                <div className="mb-6 last:mb-0">
+                  <h3 className="m-0 mb-3.5 text-slate-600 text-xs font-semibold uppercase tracking-[0.5px]">Record Info</h3>
+                  <div className="grid grid-cols-2 gap-4 max-[767px]:grid-cols-1 max-[767px]:gap-3.5">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         Employee Code
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {employee.employeeCode}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         Created At
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {formatDate(employee.createdAt)}
                       </span>
                     </div>
 
-                    <div className="employee-view-field">
-                      <span className="employee-view-field-label">
+                    <div className="flex flex-col gap-1">
+                      <span className={fieldLabelClass}>
                         Updated At
                       </span>
-                      <span className="employee-view-field-value">
+                      <span className={fieldValueClass}>
                         {formatDate(employee.updatedAt)}
                       </span>
                     </div>

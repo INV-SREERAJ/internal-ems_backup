@@ -1,4 +1,3 @@
-import "./CreateEmployee.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import api from "../../api/axios";
@@ -177,9 +176,7 @@ export default function CreateEmployee() {
         managerEmployeeCode: formData.managerEmployeeCode.trim() || null,
       };
 
-      const response = await api.post("/admin/employees", request);
-
-
+      await api.post("/admin/employees", request);
 
       navigate("/admin/employees");
     } catch (error) {
@@ -194,23 +191,43 @@ export default function CreateEmployee() {
     }
   };
 
+  const formGroupClass = "flex flex-col gap-1.5";
+  const labelClass = "text-slate-900 text-sm font-semibold";
+  const inputBase =
+    "w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-slate-400 focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10";
+  const inputInvalid = "!border-red-600 focus:!ring-red-600/15";
+  const errorClass = "text-red-600 text-xs leading-tight";
+
   return (
-    <div className="create-employee-page">
-      <div className="create-employee-header">
-        <h1>Create Employee</h1>
-        <p>Add a new employee to the system.</p>
+    <div className="w-full max-w-[900px] mx-auto font-sans">
+      <div className="mb-6">
+        <h1 className="m-0 mb-1.5 text-slate-900 text-[28px] font-bold tracking-[-0.5px] max-[480px]:text-2xl">
+          Create Employee
+        </h1>
+        <p className="m-0 text-slate-500 text-sm">
+          Add a new employee to the system.
+        </p>
       </div>
 
       {submitError && (
-        <div className="submit-error" role="alert" aria-live="assertive">
+        <div
+          className="flex items-center gap-2 mb-4 p-2.5 px-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-[13px] leading-relaxed"
+          role="alert"
+          aria-live="assertive"
+        >
           <span>{submitError}</span>
         </div>
       )}
 
-      <form className="create-employee-form" onSubmit={handleSubmit}>
+      <form
+        className="grid grid-cols-2 gap-5 p-7 bg-white border border-slate-200 rounded-xl shadow-[0_2px_8px_rgba(15,23,42,0.04)] max-[767px]:grid-cols-1 max-[767px]:p-5 max-[480px]:p-4"
+        onSubmit={handleSubmit}
+      >
         {/* First Name */}
-        <div className="form-group">
-          <label htmlFor="firstName">First Name</label>
+        <div className={formGroupClass}>
+          <label htmlFor="firstName" className={labelClass}>
+            First Name
+          </label>
 
           <input
             id="firstName"
@@ -223,16 +240,19 @@ export default function CreateEmployee() {
                 firstName: e.target.value,
               });
             }}
+            className={`${inputBase} ${errors.firstName ? inputInvalid : ""}`}
           />
 
           {errors.firstName && (
-            <span className="form-error">{errors.firstName}</span>
+            <span className={errorClass}>{errors.firstName}</span>
           )}
         </div>
 
         {/* Last Name */}
-        <div className="form-group">
-          <label htmlFor="lastName">Last Name</label>
+        <div className={formGroupClass}>
+          <label htmlFor="lastName" className={labelClass}>
+            Last Name
+          </label>
 
           <input
             id="lastName"
@@ -245,16 +265,19 @@ export default function CreateEmployee() {
                 lastName: e.target.value,
               });
             }}
+            className={`${inputBase} ${errors.lastName ? inputInvalid : ""}`}
           />
 
           {errors.lastName && (
-            <span className="form-error">{errors.lastName}</span>
+            <span className={errorClass}>{errors.lastName}</span>
           )}
         </div>
 
-        {/* Email */}
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+        {/* Email - full width on desktop */}
+        <div className={`${formGroupClass} col-span-2 max-[767px]:col-span-1`}>
+          <label htmlFor="email" className={labelClass}>
+            Email
+          </label>
 
           <input
             id="email"
@@ -267,14 +290,17 @@ export default function CreateEmployee() {
                 email: e.target.value,
               });
             }}
+            className={`${inputBase} ${errors.email ? inputInvalid : ""}`}
           />
 
-          {errors.email && <span className="form-error">{errors.email}</span>}
+          {errors.email && <span className={errorClass}>{errors.email}</span>}
         </div>
 
         {/* Phone Number */}
-        <div className="form-group">
-          <label htmlFor="phoneNumber">Phone Number</label>
+        <div className={formGroupClass}>
+          <label htmlFor="phoneNumber" className={labelClass}>
+            Phone Number
+          </label>
 
           <input
             id="phoneNumber"
@@ -287,29 +313,32 @@ export default function CreateEmployee() {
                 phoneNumber: e.target.value,
               });
             }}
+            className={`${inputBase} ${errors.phoneNumber ? inputInvalid : ""}`}
           />
 
           {errors.phoneNumber && (
-            <span className="form-error">{errors.phoneNumber}</span>
+            <span className={errorClass}>{errors.phoneNumber}</span>
           )}
         </div>
 
         {/* Role */}
-        <div className="form-group">
-          <label htmlFor="role">Role</label>
+        <div className={formGroupClass}>
+          <label htmlFor="role" className={labelClass}>
+            Role
+          </label>
 
-          <div className="custom-select-wrapper" ref={roleSelectRef}>
+          <div className="relative" ref={roleSelectRef}>
             <button
               id="role"
               type="button"
-              className={`custom-select-trigger${
-                errors.role ? " edit-employee-field-invalid" : ""
+              className={`flex items-center justify-between w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 text-left focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 cursor-pointer ${
+                errors.role ? inputInvalid : ""
               }`}
               onClick={() => setRoleDropdownOpen((prev) => !prev)}
               aria-invalid={Boolean(errors.role)}
               aria-expanded={roleDropdownOpen}
             >
-              <span className="custom-select-value">
+              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                 {formData.role === ""
                   ? "Select role"
                   : formData.role === ROLES.Manager
@@ -318,14 +347,14 @@ export default function CreateEmployee() {
               </span>
               <RxChevronDown
                 size={14}
-                className={`custom-select-chevron${
-                  roleDropdownOpen ? " custom-select-chevron-open" : ""
+                className={`text-slate-400 transition-transform duration-150 shrink-0 ml-2 ${
+                  roleDropdownOpen ? "rotate-180" : ""
                 }`}
               />
             </button>
 
             {roleDropdownOpen && (
-              <div className="custom-select-dropdown">
+              <div className="absolute top-[calc(100%+4px)] inset-x-0 z-20 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-[0_8px_20px_rgba(15,23,42,0.1)]">
                 {[
                   { value: ROLES.Manager, label: "Manager" },
                   { value: ROLES.Employee, label: "Employee" },
@@ -333,9 +362,9 @@ export default function CreateEmployee() {
                   <button
                     key={opt.value}
                     type="button"
-                    className={`custom-select-option${
+                    className={`flex items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] text-slate-900 cursor-pointer hover:bg-slate-100 ${
                       formData.role === opt.value
-                        ? " custom-select-option-selected"
+                        ? "!bg-blue-50 font-medium"
                         : ""
                     }`}
                     onClick={() => {
@@ -350,23 +379,22 @@ export default function CreateEmployee() {
             )}
           </div>
 
-          {errors.role && <span className="form-error">{errors.role}</span>}
+          {errors.role && <span className={errorClass}>{errors.role}</span>}
         </div>
 
         {/* Reporting Manager */}
-        <div className="form-group">
-          <label htmlFor="managerEmployeeCode">
+        <div className={formGroupClass}>
+          <label htmlFor="managerEmployeeCode" className={labelClass}>
             Reporting Manager
-            <span className="optional-label"> (Optional)</span>
+            <span className="text-slate-400 text-xs font-normal"> (Optional)</span>
           </label>
 
-          <div className="manager-select-wrapper" ref={managerSelectRef}>
+          <div className="relative" ref={managerSelectRef}>
             <input
               id="managerEmployeeCode"
               type="text"
               placeholder="Search manager by name or employee code"
               value={managerSearch}
-              // onFocus={() => { setManagerDropdownOpen(true); }}
               onFocus={() => {
                 if (selectedManager) setManagerSearch("");
                 setManagerDropdownOpen(true);
@@ -383,13 +411,16 @@ export default function CreateEmployee() {
                   managerEmployeeCode: "",
                 });
               }}
+              className={`${inputBase} pr-14 ${
+                errors.managerEmployeeCode ? inputInvalid : ""
+              }`}
             />
 
-            <div className="manager-input-icons">
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
               {selectedManager && (
                 <button
                   type="button"
-                  className="manager-clear-btn"
+                  className="flex items-center justify-center p-0.5 bg-transparent border-none text-slate-400 rounded cursor-pointer hover:bg-slate-100 hover:text-slate-600"
                   aria-label="Clear selected manager"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -403,20 +434,22 @@ export default function CreateEmployee() {
               )}
               <RxChevronDown
                 size={14}
-                className={`manager-chevron${managerDropdownOpen ? " manager-chevron-open" : ""}`}
+                className={`text-slate-400 transition-transform duration-150 pointer-events-none ${
+                  managerDropdownOpen ? "rotate-180" : ""
+                }`}
               />
             </div>
 
             {managerDropdownOpen && (
-              <div className="manager-dropdown">
+              <div className="absolute top-[calc(100%+4px)] inset-x-0 z-20 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-[0_8px_20px_rgba(15,23,42,0.1)]">
                 {managerLoading && (
-                  <div className="manager-dropdown-message">
+                  <div className="p-3 text-[13px] text-slate-500">
                     Loading managers...
                   </div>
                 )}
 
                 {!managerLoading && managerError && (
-                  <div className="manager-dropdown-message manager-dropdown-error">
+                  <div className="p-3 text-[13px] text-red-600">
                     {managerError}
                   </div>
                 )}
@@ -424,7 +457,7 @@ export default function CreateEmployee() {
                 {!managerLoading &&
                   !managerError &&
                   filteredManagers.length === 0 && (
-                    <div className="manager-dropdown-message">
+                    <div className="p-3 text-[13px] text-slate-500">
                       No managers found.
                     </div>
                   )}
@@ -435,10 +468,11 @@ export default function CreateEmployee() {
                     <button
                       key={manager.employeeCode}
                       type="button"
-                      className={`manager-option${manager.employeeCode === selectedManager?.employeeCode
-                        ? " manager-option-selected"
-                        : ""
-                        }`}
+                      className={`flex justify-between items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 ${
+                        manager.employeeCode === selectedManager?.employeeCode
+                          ? "!bg-blue-50"
+                          : ""
+                      }`}
                       onClick={() => {
                         setSelectedManager(manager);
 
@@ -454,11 +488,11 @@ export default function CreateEmployee() {
                         setManagerDropdownOpen(false);
                       }}
                     >
-                      <span className="manager-option-name">
+                      <span className="text-slate-900 font-medium">
                         {manager.fullName}
                       </span>
 
-                      <span className="manager-option-code">
+                      <span className="text-slate-400 text-xs">
                         {manager.employeeCode}
                       </span>
                     </button>
@@ -468,17 +502,25 @@ export default function CreateEmployee() {
           </div>
 
           {errors.managerEmployeeCode && (
-            <span className="form-error">{errors.managerEmployeeCode}</span>
+            <span className={errorClass}>{errors.managerEmployeeCode}</span>
           )}
         </div>
 
         {/* Form Actions */}
-        <div className="create-employee-actions">
-          <button type="button" className="cancel-btn" onClick={() => navigate("/admin/employees")}>
+        <div className="col-span-2 max-[767px]:col-span-1 flex justify-end gap-3 mt-2 pt-5 border-t border-slate-200 max-[480px]:flex-col-reverse">
+          <button
+            type="button"
+            className="h-[42px] px-4.5 bg-white text-slate-900 border border-slate-300 rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-slate-50 max-[480px]:w-full"
+            onClick={() => navigate("/admin/employees")}
+          >
             Cancel
           </button>
 
-          <button type="submit" className="create-btn" disabled={submitting}>
+          <button
+            type="submit"
+            className="h-[42px] px-4.5 bg-blue-600 text-white border border-blue-600 rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-700 hover:border-blue-700 disabled:opacity-60 disabled:cursor-not-allowed max-[480px]:w-full"
+            disabled={submitting}
+          >
             {submitting ? "Creating..." : "Create Employee"}
           </button>
         </div>

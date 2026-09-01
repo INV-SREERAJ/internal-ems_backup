@@ -7,11 +7,7 @@ import { HiOutlineUsers } from "react-icons/hi2";
 import { LiaUserSolid } from "react-icons/lia";
 import { FaPlus } from "react-icons/fa6";
 import { CiEdit } from "react-icons/ci";
-import {
-  EMPLOYEE_STATUS,
-  STATUS_LABEL,
-} from "../../utils/constants";
-import "./AdminDashboard.css";
+import { EMPLOYEE_STATUS, STATUS_LABEL } from "../../utils/constants";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -38,15 +34,15 @@ export default function AdminDashboard() {
 
         // Compute stats from the data
         const totalEmployees = allEmployees.filter(
-          (e) => e.status !== EMPLOYEE_STATUS.Deleted
+          (e) => e.status !== EMPLOYEE_STATUS.Deleted,
         ).length;
 
         const activeCount = allEmployees.filter(
-          (e) => e.status === EMPLOYEE_STATUS.Active
+          (e) => e.status === EMPLOYEE_STATUS.Active,
         ).length;
 
         const inactiveCount = allEmployees.filter(
-          (e) => e.status === EMPLOYEE_STATUS.Inactive
+          (e) => e.status === EMPLOYEE_STATUS.Inactive,
         ).length;
 
         // Count roles by string value (API returns role as a display string)
@@ -62,7 +58,6 @@ export default function AdminDashboard() {
           active: activeCount,
           inactive: inactiveCount,
           roles: roleCounts,
-
         });
 
         // Get the 5 most recent (non-deleted) for the table
@@ -84,11 +79,11 @@ export default function AdminDashboard() {
   const getStatusClass = (status) => {
     switch (status) {
       case EMPLOYEE_STATUS.Active:
-        return "dashboard-table-status-active";
+        return "bg-green-100 text-green-800";
       case EMPLOYEE_STATUS.Inactive:
-        return "dashboard-table-status-inactive";
+        return "bg-amber-100 text-amber-800";
       case EMPLOYEE_STATUS.Deleted:
-        return "dashboard-table-status-deleted";
+        return "bg-red-100 text-red-800";
       default:
         return "";
     }
@@ -96,16 +91,20 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <section className="dashboard">
-        <div className="dashboard-loading">Loading dashboard…</div>
+      <section className="w-full max-w-[1400px] mx-auto">
+        <div className="px-6 py-12 text-center text-sm text-slate-500">
+          Loading dashboard…
+        </div>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section className="dashboard">
-        <div className="dashboard-error">{error}</div>
+      <section className="w-full max-w-[1400px] mx-auto">
+        <div className="px-6 py-12 text-center text-sm text-red-700 bg-red-50 border border-red-300 rounded-xl">
+          {error}
+        </div>
       </section>
     );
   }
@@ -114,93 +113,123 @@ export default function AdminDashboard() {
   const roleTotal = roleEntries.reduce((sum, [, count]) => sum + count, 0);
 
   return (
-    <section className="dashboard">
+    <section className="w-full max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>
-          Welcome back{user?.email ? `, ${user.email}` : ""}. Here's
-          an overview of your organization.
+      <div className="mb-8 max-[480px]:mb-6">
+        <h1 className="m-0 text-slate-900 text-[28px] font-bold tracking-[-0.5px] max-[767px]:text-2xl max-[480px]:text-[22px]">
+          Dashboard
+        </h1>
+        <p className="mt-1.5 mb-0 text-slate-500 text-sm">
+          Welcome back{user?.email ? `, ${user.email}` : ""}. Here's an overview
+          of your organization.
         </p>
       </div>
 
       {/* Stat cards */}
       {stats && (
-        <div className="dashboard-stats">
-          <div className="dashboard-stat-card">
-            <div className="dashboard-stat-icon dashboard-stat-icon-blue">
+        <div className="grid grid-cols-3 gap-5 mb-8 max-[1023px]:grid-cols-2 max-[767px]:grid-cols-1 max-[767px]:gap-3">
+          <div className="p-6 bg-white border border-slate-200 rounded-xl flex items-start gap-4 max-[767px]:p-5">
+            <div className="w-11 h-11 flex items-center justify-center rounded-[10px] shrink-0 bg-blue-50 text-blue-600">
               <HiOutlineUsers size={22} />
             </div>
-            <div className="dashboard-stat-info">
-              <span className="dashboard-stat-label">Total Employees</span>
-              <span className="dashboard-stat-value">{stats.total}</span>
+            <div className="flex flex-col gap-1 min-w-0">
+              <span className="text-slate-500 text-[13px] font-medium">
+                Total Employees
+              </span>
+              <span className="text-slate-900 text-[28px] font-bold tracking-[-0.5px] leading-[1.1] max-[767px]:text-2xl">
+                {stats.total}
+              </span>
             </div>
           </div>
 
-          <div className="dashboard-stat-card">
-            <div className="dashboard-stat-icon dashboard-stat-icon-green">
+          <div className="p-6 bg-white border border-slate-200 rounded-xl flex items-start gap-4 max-[767px]:p-5">
+            <div className="w-11 h-11 flex items-center justify-center rounded-[10px] shrink-0 bg-green-50 text-green-600">
               <LiaUserSolid size={22} />
             </div>
-            <div className="dashboard-stat-info">
-              <span className="dashboard-stat-label">Active</span>
-              <span className="dashboard-stat-value">{stats.active}</span>
+            <div className="flex flex-col gap-1 min-w-0">
+              <span className="text-slate-500 text-[13px] font-medium">
+                Active
+              </span>
+              <span className="text-slate-900 text-[28px] font-bold tracking-[-0.5px] leading-[1.1] max-[767px]:text-2xl">
+                {stats.active}
+              </span>
             </div>
           </div>
 
-          <div className="dashboard-stat-card">
-            <div className="dashboard-stat-icon dashboard-stat-icon-amber">
+          <div className="p-6 bg-white border border-slate-200 rounded-xl flex items-start gap-4 max-[767px]:p-5">
+            <div className="w-11 h-11 flex items-center justify-center rounded-[10px] shrink-0 bg-amber-50 text-amber-600">
               <CiPause1 size={22} />
             </div>
-            <div className="dashboard-stat-info">
-              <span className="dashboard-stat-label">Inactive</span>
-              <span className="dashboard-stat-value">{stats.inactive}</span>
+            <div className="flex flex-col gap-1 min-w-0">
+              <span className="text-slate-500 text-[13px] font-medium">
+                Inactive
+              </span>
+              <span className="text-slate-900 text-[28px] font-bold tracking-[-0.5px] leading-[1.1] max-[767px]:text-2xl">
+                {stats.inactive}
+              </span>
             </div>
           </div>
-
         </div>
       )}
 
       {/* Body: table + sidebar */}
-      <div className="dashboard-body">
+      <div className="grid grid-cols-[1fr_340px] gap-6 max-[1023px]:grid-cols-1">
         {/* Recent employees */}
-        <div className="dashboard-section">
-          <div className="dashboard-section-header">
-            <h2>Recent Employees</h2>
-            <Link to="/admin/employees" className="dashboard-section-link">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div className="px-6 py-5 flex items-center justify-between border-b border-slate-200 max-[767px]:px-[18px] max-[767px]:py-4">
+            <h2 className="m-0 text-slate-900 text-base font-semibold">
+              Recent Employees
+            </h2>
+            <Link
+              to="/admin/employees"
+              className="text-blue-600 text-[13px] font-semibold no-underline hover:text-blue-700"
+            >
               View all
             </Link>
           </div>
 
           {recentEmployees.length === 0 ? (
-            <div className="dashboard-table-empty">
+            <div className="px-6 py-10 text-slate-500 text-sm text-center">
               No employees found.
             </div>
           ) : (
-            <table className="dashboard-table">
+            <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  <th>Employee</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
+                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                    Employee
+                  </th>
+                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                    Role
+                  </th>
+                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                    Status
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="[&>tr:last-child>td]:border-b-0">
                 {recentEmployees.map((emp) => (
                   <tr key={emp.employeeCode}>
-                    <td>
-                      <div className="dashboard-table-name">
+                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
+                      <div className="font-medium text-slate-900">
                         {emp.firstName} {emp.lastName}
                       </div>
-                      <div className="dashboard-table-code">
+                      <div className="text-slate-500 text-[13px]">
                         {emp.employeeCode}
                       </div>
                     </td>
-                    <td>{emp.email}</td>
-                    <td>{emp.role || "—"}</td>
-                    <td>
+                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
+                      {emp.email}
+                    </td>
+                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
+                      {emp.role || "—"}
+                    </td>
+                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
                       <span
-                        className={`dashboard-table-status ${getStatusClass(emp.status)}`}
+                        className={`inline-flex px-2 py-[3px] rounded-full text-xs font-semibold ${getStatusClass(emp.status)}`}
                       >
                         {STATUS_LABEL[emp.status] || "—"}
                       </span>
@@ -213,18 +242,20 @@ export default function AdminDashboard() {
         </div>
 
         {/* Sidebar: Quick actions + Role breakdown */}
-        <div className="dashboard-quick-actions">
+        <div className="flex flex-col gap-6">
           {/* Quick actions */}
-          <div className="dashboard-actions-card">
-            <div className="dashboard-actions-card-header">
-              <h2>Quick Actions</h2>
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 max-[767px]:px-[18px] max-[767px]:py-4">
+              <h2 className="m-0 text-slate-900 text-base font-semibold">
+                Quick Actions
+              </h2>
             </div>
-            <div className="dashboard-actions-list">
+            <div className="p-3 flex flex-col gap-1">
               <Link
                 to="/admin/employees/create-employee"
-                className="dashboard-action-link"
+                className="p-3 flex items-center gap-3 rounded-lg text-slate-700 text-sm font-medium no-underline transition-colors duration-150 hover:bg-slate-50"
               >
-                <div className="dashboard-action-icon">
+                <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
                   <FaPlus size={18} />
                 </div>
                 Create Employee
@@ -232,9 +263,9 @@ export default function AdminDashboard() {
 
               <Link
                 to="/admin/employees"
-                className="dashboard-action-link"
+                className="p-3 flex items-center gap-3 rounded-lg text-slate-700 text-sm font-medium no-underline transition-colors duration-150 hover:bg-slate-50"
               >
-                <div className="dashboard-action-icon">
+                <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
                   <HiOutlineUsers size={18} />
                 </div>
                 View All Employees
@@ -242,9 +273,9 @@ export default function AdminDashboard() {
 
               <Link
                 to="/admin/employees/edit"
-                className="dashboard-action-link"
+                className="p-3 flex items-center gap-3 rounded-lg text-slate-700 text-sm font-medium no-underline transition-colors duration-150 hover:bg-slate-50"
               >
-                <div className="dashboard-action-icon">
+                <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
                   <CiEdit size={18} />
                 </div>
                 Edit Employees
@@ -254,30 +285,32 @@ export default function AdminDashboard() {
 
           {/* Role breakdown */}
           {roleTotal > 0 && (
-            <div className="dashboard-actions-card">
-              <div className="dashboard-actions-card-header">
-                <h2>Role Breakdown</h2>
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="px-6 py-5 border-b border-slate-200 max-[767px]:px-[18px] max-[767px]:py-4">
+                <h2 className="m-0 text-slate-900 text-base font-semibold">
+                  Role Breakdown
+                </h2>
               </div>
-              <div className="dashboard-breakdown">
+              <div className="px-6 py-5 flex flex-col gap-4 max-[767px]:px-[18px] max-[767px]:py-4">
                 {roleEntries.map(([role, count], index) => {
                   const barColors = [
-                    "dashboard-breakdown-fill-admin",
-                    "dashboard-breakdown-fill-manager",
-                    "dashboard-breakdown-fill-employee",
+                    "bg-blue-600",
+                    "bg-violet-600",
+                    "bg-sky-500",
                   ];
                   return (
                     <div key={role}>
-                      <div className="dashboard-breakdown-row">
-                        <span className="dashboard-breakdown-label">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600 text-sm font-medium">
                           {role}s
                         </span>
-                        <span className="dashboard-breakdown-value">
+                        <span className="text-slate-900 text-sm font-bold">
                           {count}
                         </span>
                       </div>
-                      <div className="dashboard-breakdown-bar">
+                      <div className="h-1.5 bg-slate-100 rounded-[3px] overflow-hidden">
                         <div
-                          className={`dashboard-breakdown-fill ${barColors[index % barColors.length]}`}
+                          className={`h-full rounded-[3px] ${barColors[index % barColors.length]}`}
                           style={{
                             width: `${(count / roleTotal) * 100}%`,
                           }}
