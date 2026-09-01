@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { ROLES, VALIDATION } from "../../utils/constants";
-import "./EditEmployeePage.css";
 
 function validateEmployee(employee) {
   const errors = {};
@@ -237,6 +236,7 @@ export default function EditEmployeePage() {
     setSaveSuccess(false);
     setSaveError("");
   };
+
   const attemptNavigate = (path) => {
     if (isDirty) {
       setPendingNavigation(path);
@@ -280,10 +280,6 @@ export default function EditEmployeePage() {
     setSaveSuccess(false);
 
     try {
-      // The backend has two separate endpoints: PUT updates the basic
-      // details/role, PATCH .../status handles activate/deactivate (it runs
-      // its own business rules, e.g. can't disable yourself or a manager
-      // with active reports). They must be sent as separate requests.
       const detailsPayload = {
         firstName: employee.firstName.trim(),
         lastName: employee.lastName.trim(),
@@ -374,9 +370,9 @@ export default function EditEmployeePage() {
 
   if (loading) {
     return (
-      <section className="edit-employee-page">
-        <div className="edit-employee-state">
-          <p>Loading employee...</p>
+      <section className="w-full max-w-[1400px] mx-auto font-sans">
+        <div className="p-16 text-center text-slate-500 bg-white border border-slate-200 rounded-xl">
+          <p className="m-0 text-sm">Loading employee...</p>
         </div>
       </section>
     );
@@ -384,13 +380,14 @@ export default function EditEmployeePage() {
 
   if (error) {
     return (
-      <section className="edit-employee-page">
-        <div className="edit-employee-state edit-employee-state-error">
-          <p>{error}</p>
+      <section className="w-full max-w-[1400px] mx-auto font-sans">
+        <div className="p-16 text-center text-red-600 bg-red-50 border border-red-200 rounded-xl">
+          <p className="m-0 text-sm">{error}</p>
 
           <button
             type="button"
             onClick={() => navigate("/admin/employees/edit")}
+            className="mt-3 px-3.5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold cursor-pointer border-none transition-colors duration-150 hover:bg-blue-700"
           >
             Back to Search
           </button>
@@ -403,17 +400,28 @@ export default function EditEmployeePage() {
     return null;
   }
 
+  const fieldGroupClass = "flex flex-col gap-1.5";
+  const labelClass = "text-slate-700 text-[13px] font-semibold";
+  const inputBase =
+    "w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-slate-400 focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed";
+  const inputInvalid = "!border-red-600 focus:!ring-red-600/15";
+  const errorTextClass = "text-red-600 text-xs font-medium";
+
   return (
-    <section className="edit-employee-page">
-      <div className="edit-employee-header">
+    <section className="w-full max-w-[1400px] mx-auto font-sans">
+      <div className="flex items-start justify-between gap-6 mb-6 max-[767px]:flex-col">
         <div>
-          <h1>Edit Employee</h1>
-          <p>Update the employee information and save your changes.</p>
+          <h1 className="m-0 text-slate-900 text-[28px] font-bold tracking-[-0.5px] max-[767px]:text-2xl">
+            Edit Employee
+          </h1>
+          <p className="mt-1.5 mb-0 text-slate-500 text-sm">
+            Update the employee information and save your changes.
+          </p>
         </div>
 
         <button
           type="button"
-          className="edit-employee-back-btn"
+          className="px-3.5 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-medium cursor-pointer transition-colors duration-150 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed"
           onClick={() => attemptNavigate("/admin/employees")}
           disabled={saving}
         >
@@ -421,103 +429,118 @@ export default function EditEmployeePage() {
         </button>
       </div>
 
-      <div className="edit-employee-card">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         {saveSuccess && (
-          <div className="edit-employee-banner edit-employee-banner-success">
+          <div className="px-7 py-3 text-[13px] font-semibold bg-green-50 text-green-800 border-b border-green-200">
             Changes saved successfully.
           </div>
         )}
 
         {saveError && (
-          <div className="edit-employee-banner edit-employee-banner-error">
+          <div className="px-7 py-3 text-[13px] font-semibold bg-red-50 text-red-700 border-b border-red-200">
             {saveError}
           </div>
         )}
 
-        <div className="edit-employee-section">
-          <h2>Basic Information</h2>
+        {/* Basic Information */}
+        <div className="p-7 border-b border-slate-200 max-[767px]:p-5">
+          <h2 className="m-0 mb-5 text-[17px] font-semibold text-slate-900">
+            Basic Information
+          </h2>
 
-          <div className="edit-employee-grid">
-            <div className="edit-employee-field">
-              <label htmlFor="employeeCode">Employee Code</label>
+          <div className="grid grid-cols-2 gap-5 max-[767px]:grid-cols-1">
+            <div className={fieldGroupClass}>
+              <label htmlFor="employeeCode" className={labelClass}>
+                Employee Code
+              </label>
 
               <input
                 id="employeeCode"
                 type="text"
                 value={employee.employeeCode || ""}
                 disabled
+                className={inputBase}
               />
             </div>
 
-            <div className="edit-employee-field">
-              <label htmlFor="email">Email</label>
+            <div className={fieldGroupClass}>
+              <label htmlFor="email" className={labelClass}>
+                Email
+              </label>
 
               <input
                 id="email"
                 type="email"
                 value={employee.email || ""}
                 disabled
+                className={inputBase}
               />
             </div>
 
-            <div className="edit-employee-field">
-              <label htmlFor="firstName">First Name</label>
+            <div className={fieldGroupClass}>
+              <label htmlFor="firstName" className={labelClass}>
+                First Name
+              </label>
 
               <input
                 id="firstName"
                 type="text"
                 value={employee.firstName || ""}
                 onChange={(e) => handleChange("firstName", e.target.value)}
-                className={
-                  fieldErrors.firstName ? "edit-employee-field-invalid" : ""
-                }
+                className={`${inputBase} ${
+                  fieldErrors.firstName ? inputInvalid : ""
+                }`}
                 aria-invalid={Boolean(fieldErrors.firstName)}
               />
 
               {fieldErrors.firstName && (
-                <span className="edit-employee-field-error">
+                <span className={errorTextClass}>
                   {fieldErrors.firstName}
                 </span>
               )}
             </div>
 
-            <div className="edit-employee-field">
-              <label htmlFor="lastName">Last Name</label>
+            <div className={fieldGroupClass}>
+              <label htmlFor="lastName" className={labelClass}>
+                Last Name
+              </label>
 
               <input
                 id="lastName"
                 type="text"
                 value={employee.lastName || ""}
                 onChange={(e) => handleChange("lastName", e.target.value)}
-                className={
-                  fieldErrors.lastName ? "edit-employee-field-invalid" : ""
-                }
+                className={`${inputBase} ${
+                  fieldErrors.lastName ? inputInvalid : ""
+                }`}
                 aria-invalid={Boolean(fieldErrors.lastName)}
               />
 
               {fieldErrors.lastName && (
-                <span className="edit-employee-field-error">
+                <span className={errorTextClass}>
                   {fieldErrors.lastName}
                 </span>
               )}
             </div>
 
-            <div className="edit-employee-field">
-              <label htmlFor="phoneNumber">Phone Number</label>
+            <div className={fieldGroupClass}>
+              <label htmlFor="phoneNumber" className={labelClass}>
+                Phone Number
+              </label>
 
               <input
                 id="phoneNumber"
                 type="tel"
                 value={employee.phoneNumber || ""}
                 onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                className={
-                  fieldErrors.phoneNumber ? "edit-employee-field-invalid" : ""
-                }
+                className={`${inputBase} ${
+                  fieldErrors.phoneNumber ? inputInvalid : ""
+                }`}
                 aria-invalid={Boolean(fieldErrors.phoneNumber)}
               />
 
               {fieldErrors.phoneNumber && (
-                <span className="edit-employee-field-error">
+                <span className={errorTextClass}>
                   {fieldErrors.phoneNumber}
                 </span>
               )}
@@ -525,23 +548,25 @@ export default function EditEmployeePage() {
           </div>
         </div>
 
-        <div className="edit-employee-section">
-          <h2>Organization</h2>
+        {/* Organization */}
+        <div className="p-7 border-b border-slate-200 max-[767px]:p-5">
+          <h2 className="m-0 mb-5 text-[17px] font-semibold text-slate-900">
+            Organization
+          </h2>
 
-          <div className="edit-employee-grid">
-            <div className="edit-employee-field">
-              <label htmlFor="role">Role</label>
+          <div className="grid grid-cols-2 gap-5 max-[767px]:grid-cols-1">
+            {/* Role */}
+            <div className={fieldGroupClass}>
+              <label htmlFor="role" className={labelClass}>
+                Role
+              </label>
 
-              <div className="custom-select-wrapper" ref={roleSelectRef}>
+              <div className="relative" ref={roleSelectRef}>
                 <button
                   id="role"
                   type="button"
-                  className={`custom-select-trigger${
-                    fieldErrors.role ? " edit-employee-field-invalid" : ""
-                  }${
-                    employee.role === "Admin" || saving
-                      ? " custom-select-disabled"
-                      : ""
+                  className={`flex items-center justify-between w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 text-left focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 cursor-pointer disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed ${
+                    fieldErrors.role ? inputInvalid : ""
                   }`}
                   disabled={employee.role === "Admin" || saving}
                   onClick={() => {
@@ -551,26 +576,26 @@ export default function EditEmployeePage() {
                   aria-invalid={Boolean(fieldErrors.role)}
                   aria-expanded={roleDropdownOpen}
                 >
-                  <span className="custom-select-value">
+                  <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                     {employee.role || "Select role"}
                   </span>
                   <RxChevronDown
                     size={14}
-                    className={`custom-select-chevron${
-                      roleDropdownOpen ? " custom-select-chevron-open" : ""
+                    className={`text-slate-400 transition-transform duration-150 shrink-0 ml-2 ${
+                      roleDropdownOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
 
                 {roleDropdownOpen && employee.role !== "Admin" && (
-                  <div className="custom-select-dropdown">
+                  <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
                     {["Employee", "Manager"].map((role) => (
                       <button
                         key={role}
                         type="button"
-                        className={`custom-select-option${
+                        className={`flex items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] text-slate-900 cursor-pointer hover:bg-slate-100 ${
                           employee.role === role
-                            ? " custom-select-option-selected"
+                            ? "!bg-blue-50 font-medium"
                             : ""
                         }`}
                         onClick={() => {
@@ -586,25 +611,24 @@ export default function EditEmployeePage() {
               </div>
 
               {fieldErrors.role && (
-                <span className="edit-employee-field-error">
+                <span className={errorTextClass}>
                   {fieldErrors.role}
                 </span>
               )}
             </div>
 
-            <div className="edit-employee-field">
-              <label htmlFor="status">Status</label>
+            {/* Status */}
+            <div className={fieldGroupClass}>
+              <label htmlFor="status" className={labelClass}>
+                Status
+              </label>
 
-              <div className="custom-select-wrapper" ref={statusSelectRef}>
+              <div className="relative" ref={statusSelectRef}>
                 <button
                   id="status"
                   type="button"
-                  className={`custom-select-trigger${
-                    fieldErrors.status ? " edit-employee-field-invalid" : ""
-                  }${
-                    employee.role === "Admin" || saving
-                      ? " custom-select-disabled"
-                      : ""
+                  className={`flex items-center justify-between w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 text-left focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 cursor-pointer disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed ${
+                    fieldErrors.status ? inputInvalid : ""
                   }`}
                   disabled={employee.role === "Admin" || saving}
                   onClick={() => {
@@ -614,19 +638,19 @@ export default function EditEmployeePage() {
                   aria-invalid={Boolean(fieldErrors.status)}
                   aria-expanded={statusDropdownOpen}
                 >
-                  <span className="custom-select-value">
+                  <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                     {employee.status === 1 ? "Active" : "Inactive"}
                   </span>
                   <RxChevronDown
                     size={14}
-                    className={`custom-select-chevron${
-                      statusDropdownOpen ? " custom-select-chevron-open" : ""
+                    className={`text-slate-400 transition-transform duration-150 shrink-0 ml-2 ${
+                      statusDropdownOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
 
                 {statusDropdownOpen && (
-                  <div className="custom-select-dropdown">
+                  <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
                     {[
                       { value: 1, label: "Active" },
                       { value: 2, label: "Inactive" },
@@ -634,9 +658,9 @@ export default function EditEmployeePage() {
                       <button
                         key={opt.value}
                         type="button"
-                        className={`custom-select-option${
+                        className={`flex items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] text-slate-900 cursor-pointer hover:bg-slate-100 ${
                           employee.status === opt.value
-                            ? " custom-select-option-selected"
+                            ? "!bg-blue-50 font-medium"
                             : ""
                         }`}
                         onClick={() => {
@@ -652,16 +676,19 @@ export default function EditEmployeePage() {
               </div>
 
               {fieldErrors.status && (
-                <span className="edit-employee-field-error">
+                <span className={errorTextClass}>
                   {fieldErrors.status}
                 </span>
               )}
             </div>
 
-            <div className="edit-employee-field">
-              <label htmlFor="managerEmployeeCode">Reporting Manager</label>
+            {/* Reporting Manager */}
+            <div className={fieldGroupClass}>
+              <label htmlFor="managerEmployeeCode" className={labelClass}>
+                Reporting Manager
+              </label>
 
-              <div className="manager-select-wrapper" ref={managerSelectRef}>
+              <div className="relative" ref={managerSelectRef}>
                 <input
                   id="managerEmployeeCode"
                   type="text"
@@ -692,19 +719,17 @@ export default function EditEmployeePage() {
                     setSelectedManager(null);
                     handleChange("managerEmployeeCode", "");
                   }}
-                  className={
-                    fieldErrors.managerEmployeeCode
-                      ? "edit-employee-field-invalid"
-                      : ""
-                  }
+                  className={`${inputBase} pr-14 ${
+                    fieldErrors.managerEmployeeCode ? inputInvalid : ""
+                  }`}
                   aria-invalid={Boolean(fieldErrors.managerEmployeeCode)}
                 />
 
-                <div className="manager-input-icons">
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                   {selectedManager && employee.role !== "Admin" && !saving && (
                     <button
                       type="button"
-                      className="manager-clear-btn"
+                      className="flex items-center justify-center p-0.5 bg-transparent border-none text-slate-400 rounded cursor-pointer hover:bg-slate-100 hover:text-slate-600"
                       aria-label="Clear selected manager"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -719,29 +744,29 @@ export default function EditEmployeePage() {
                   {employee.role !== "Admin" && (
                     <RxChevronDown
                       size={14}
-                      className={`manager-chevron${
-                        managerDropdownOpen ? " manager-chevron-open" : ""
+                      className={`text-slate-400 transition-transform duration-150 pointer-events-none ${
+                        managerDropdownOpen ? "rotate-180" : ""
                       }`}
                     />
                   )}
                 </div>
 
                 {managerDropdownOpen && employee.role !== "Admin" && (
-                  <div className="manager-dropdown">
+                  <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
                     {managerLoading && (
-                      <div className="manager-dropdown-message">
+                      <div className="p-3 text-[13px] text-slate-500">
                         Loading managers...
                       </div>
                     )}
                     {!managerLoading && managerError && (
-                      <div className="manager-dropdown-message manager-dropdown-error">
+                      <div className="p-3 text-[13px] text-red-600">
                         {managerError}
                       </div>
                     )}
                     {!managerLoading &&
                       !managerError &&
                       filteredManagers.length === 0 && (
-                        <div className="manager-dropdown-message">
+                        <div className="p-3 text-[13px] text-slate-500">
                           No managers found.
                         </div>
                       )}
@@ -751,10 +776,10 @@ export default function EditEmployeePage() {
                         <button
                           key={manager.employeeCode}
                           type="button"
-                          className={`manager-option${
+                          className={`flex justify-between items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 ${
                             manager.employeeCode ===
                             selectedManager?.employeeCode
-                              ? " manager-option-selected"
+                              ? "!bg-blue-50"
                               : ""
                           }`}
                           onClick={() => {
@@ -769,10 +794,10 @@ export default function EditEmployeePage() {
                             setManagerDropdownOpen(false);
                           }}
                         >
-                          <span className="manager-option-name">
+                          <span className="text-slate-900 font-medium">
                             {manager.fullName}
                           </span>
-                          <span className="manager-option-code">
+                          <span className="text-slate-400 text-xs">
                             {manager.employeeCode}
                           </span>
                         </button>
@@ -782,7 +807,7 @@ export default function EditEmployeePage() {
               </div>
 
               {fieldErrors.managerEmployeeCode && (
-                <span className="edit-employee-field-error">
+                <span className={errorTextClass}>
                   {fieldErrors.managerEmployeeCode}
                 </span>
               )}
@@ -790,10 +815,11 @@ export default function EditEmployeePage() {
           </div>
         </div>
 
-        <div className="edit-employee-actions">
+        {/* Actions */}
+        <div className="flex justify-end gap-3 p-5 px-7 bg-slate-50 rounded-b-xl max-[767px]:flex-col-reverse max-[767px]:p-4">
           <button
             type="button"
-            className="edit-employee-cancel-btn"
+            className="h-10 px-4.5 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-slate-100 disabled:opacity-60 disabled:cursor-not-allowed max-[767px]:w-full"
             onClick={() => attemptNavigate("/admin/employees")}
             disabled={saving}
           >
@@ -802,7 +828,7 @@ export default function EditEmployeePage() {
 
           <button
             type="button"
-            className="edit-employee-save-btn"
+            className="h-10 px-4.5 bg-blue-600 text-white border border-blue-600 rounded-lg text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed max-[767px]:w-full"
             onClick={handleSave}
             disabled={saving || !isDirty}
           >
