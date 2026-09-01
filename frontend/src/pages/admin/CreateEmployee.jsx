@@ -29,6 +29,10 @@ export default function CreateEmployee() {
 
   const managerSelectRef = useRef(null);
 
+  // Role dropdown state
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const roleSelectRef = useRef(null);
+
   useEffect(() => {
     const fetchManagers = async () => {
       try {
@@ -71,6 +75,13 @@ export default function CreateEmployee() {
         !managerSelectRef.current.contains(event.target)
       ) {
         setManagerDropdownOpen(false);
+      }
+
+      if (
+        roleSelectRef.current &&
+        !roleSelectRef.current.contains(event.target)
+      ) {
+        setRoleDropdownOpen(false);
       }
     };
 
@@ -287,23 +298,57 @@ export default function CreateEmployee() {
         <div className="form-group">
           <label htmlFor="role">Role</label>
 
-          <select
-            id="role"
-            value={formData.role}
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                role: e.target.value,
-              });
-            }}
-          >
-            <option value="" disabled>
-              Select role
-            </option>
+          <div className="custom-select-wrapper" ref={roleSelectRef}>
+            <button
+              id="role"
+              type="button"
+              className={`custom-select-trigger${
+                errors.role ? " edit-employee-field-invalid" : ""
+              }`}
+              onClick={() => setRoleDropdownOpen((prev) => !prev)}
+              aria-invalid={Boolean(errors.role)}
+              aria-expanded={roleDropdownOpen}
+            >
+              <span className="custom-select-value">
+                {formData.role === ""
+                  ? "Select role"
+                  : formData.role === ROLES.Manager
+                    ? "Manager"
+                    : "Employee"}
+              </span>
+              <RxChevronDown
+                size={14}
+                className={`custom-select-chevron${
+                  roleDropdownOpen ? " custom-select-chevron-open" : ""
+                }`}
+              />
+            </button>
 
-            <option value={ROLES.Manager}>Manager</option>
-            <option value={ROLES.Employee}>Employee</option>
-          </select>
+            {roleDropdownOpen && (
+              <div className="custom-select-dropdown">
+                {[
+                  { value: ROLES.Manager, label: "Manager" },
+                  { value: ROLES.Employee, label: "Employee" },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    className={`custom-select-option${
+                      formData.role === opt.value
+                        ? " custom-select-option-selected"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setFormData({ ...formData, role: opt.value });
+                      setRoleDropdownOpen(false);
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {errors.role && <span className="form-error">{errors.role}</span>}
         </div>
