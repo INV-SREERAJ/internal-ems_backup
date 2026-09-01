@@ -69,6 +69,14 @@ export default function EditEmployeePage() {
   const selectedManagerRef = useRef(selectedManager);
   const managerSelectRef = useRef(null);
 
+  // Role dropdown state
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const roleSelectRef = useRef(null);
+
+  // Status dropdown state
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const statusSelectRef = useRef(null);
+
   useEffect(() => {
     selectedManagerRef.current = selectedManager;
   }, [selectedManager]);
@@ -164,6 +172,20 @@ export default function EditEmployeePage() {
         } else {
           setManagerSearch("");
         }
+      }
+
+      if (
+        roleSelectRef.current &&
+        !roleSelectRef.current.contains(event.target)
+      ) {
+        setRoleDropdownOpen(false);
+      }
+
+      if (
+        statusSelectRef.current &&
+        !statusSelectRef.current.contains(event.target)
+      ) {
+        setStatusDropdownOpen(false);
       }
     };
 
@@ -510,28 +532,58 @@ export default function EditEmployeePage() {
             <div className="edit-employee-field">
               <label htmlFor="role">Role</label>
 
-              <select
-                id="role"
-                value={employee.role || ""}
-                onChange={(e) => handleChange("role", e.target.value)}
-                disabled={employee.role === "Admin" || saving}
-                className={
-                  fieldErrors.role ? "edit-employee-field-invalid" : ""
-                }
-                aria-invalid={Boolean(fieldErrors.role)}
-              >
-                {employee.role === "Admin" && (
-                  <option value="Admin">Admin</option>
-                )}
+              <div className="custom-select-wrapper" ref={roleSelectRef}>
+                <button
+                  id="role"
+                  type="button"
+                  className={`custom-select-trigger${
+                    fieldErrors.role ? " edit-employee-field-invalid" : ""
+                  }${
+                    employee.role === "Admin" || saving
+                      ? " custom-select-disabled"
+                      : ""
+                  }`}
+                  disabled={employee.role === "Admin" || saving}
+                  onClick={() => {
+                    if (employee.role === "Admin" || saving) return;
+                    setRoleDropdownOpen((prev) => !prev);
+                  }}
+                  aria-invalid={Boolean(fieldErrors.role)}
+                  aria-expanded={roleDropdownOpen}
+                >
+                  <span className="custom-select-value">
+                    {employee.role || "Select role"}
+                  </span>
+                  <RxChevronDown
+                    size={14}
+                    className={`custom-select-chevron${
+                      roleDropdownOpen ? " custom-select-chevron-open" : ""
+                    }`}
+                  />
+                </button>
 
-                {employee.role !== "Admin" && (
-                  <>
-                    <option value="Employee">Employee</option>
-
-                    <option value="Manager">Manager</option>
-                  </>
+                {roleDropdownOpen && employee.role !== "Admin" && (
+                  <div className="custom-select-dropdown">
+                    {["Employee", "Manager"].map((role) => (
+                      <button
+                        key={role}
+                        type="button"
+                        className={`custom-select-option${
+                          employee.role === role
+                            ? " custom-select-option-selected"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          handleChange("role", role);
+                          setRoleDropdownOpen(false);
+                        }}
+                      >
+                        {role}
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </select>
+              </div>
 
               {fieldErrors.role && (
                 <span className="edit-employee-field-error">
@@ -543,19 +595,61 @@ export default function EditEmployeePage() {
             <div className="edit-employee-field">
               <label htmlFor="status">Status</label>
 
-              <select
-                id="status"
-                value={employee.status ?? ""}
-                onChange={(e) => handleChange("status", Number(e.target.value))}
-                disabled={employee.role === "Admin" || saving}
-                className={
-                  fieldErrors.status ? "edit-employee-field-invalid" : ""
-                }
-                aria-invalid={Boolean(fieldErrors.status)}
-              >
-                <option value={1}>Active</option>
-                <option value={2}>Inactive</option>
-              </select>
+              <div className="custom-select-wrapper" ref={statusSelectRef}>
+                <button
+                  id="status"
+                  type="button"
+                  className={`custom-select-trigger${
+                    fieldErrors.status ? " edit-employee-field-invalid" : ""
+                  }${
+                    employee.role === "Admin" || saving
+                      ? " custom-select-disabled"
+                      : ""
+                  }`}
+                  disabled={employee.role === "Admin" || saving}
+                  onClick={() => {
+                    if (employee.role === "Admin" || saving) return;
+                    setStatusDropdownOpen((prev) => !prev);
+                  }}
+                  aria-invalid={Boolean(fieldErrors.status)}
+                  aria-expanded={statusDropdownOpen}
+                >
+                  <span className="custom-select-value">
+                    {employee.status === 1 ? "Active" : "Inactive"}
+                  </span>
+                  <RxChevronDown
+                    size={14}
+                    className={`custom-select-chevron${
+                      statusDropdownOpen ? " custom-select-chevron-open" : ""
+                    }`}
+                  />
+                </button>
+
+                {statusDropdownOpen && (
+                  <div className="custom-select-dropdown">
+                    {[
+                      { value: 1, label: "Active" },
+                      { value: 2, label: "Inactive" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className={`custom-select-option${
+                          employee.status === opt.value
+                            ? " custom-select-option-selected"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          handleChange("status", opt.value);
+                          setStatusDropdownOpen(false);
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {fieldErrors.status && (
                 <span className="edit-employee-field-error">
