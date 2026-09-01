@@ -1,10 +1,18 @@
 import EmployeeTable from "../../components/admin/EmployeeTable";
 import EmployeeViewDialog from "../../components/admin/EmployeeViewDialog";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../../api/axios";
+import { RxChevronDown, RxCheck } from "react-icons/rx";
 
 import { Link } from "react-router-dom";
+
+const ROLE_OPTIONS = [
+  { value: "", label: "All Roles" },
+  { value: "admin", label: "Admin" },
+  { value: "employee", label: "Employee" },
+  { value: "manager", label: "Manager" },
+];
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState([]);
@@ -16,6 +24,10 @@ export default function EmployeesPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
+  const [selectedRole, setSelectedRole] = useState("");
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const roleDropdownRef = useRef(null);
+
   const [sortBy, setSortBy] = useState("");
   const [descending, setDescending] = useState(false);
 
@@ -24,6 +36,23 @@ export default function EmployeesPage() {
 
   // Bumped after a successful delete to force a refetch
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Click outside to close role dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target)
+      ) {
+        setRoleDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   //debouncing for search
   useEffect(() => {
@@ -48,6 +77,7 @@ export default function EmployeesPage() {
             pageNumber,
             pageSize: 10,
             search: debouncedSearch,
+            role: selectedRole || undefined,
             sortBy,
             descending,
           },
@@ -66,6 +96,7 @@ export default function EmployeesPage() {
   }, [
     pageNumber,
     debouncedSearch,
+    selectedRole,
     descending,
     sortBy,
     refreshKey,
@@ -134,6 +165,9 @@ export default function EmployeesPage() {
     return withDots;
   }
 
+  const currentRoleLabel =
+    ROLE_OPTIONS.find((opt) => opt.value === selectedRole)?.label || "All Roles";
+
   return (
     <section className="w-full max-w-[1400px] mx-auto">
       <div className="mb-6 flex items-center justify-between max-[767px]:mb-[18px]">
@@ -148,7 +182,7 @@ export default function EmployeesPage() {
       </div>
 
       <div className="mb-5 flex items-center gap-3 max-[767px]:flex-wrap">
-        <div className="w-full max-w-[420px] max-[767px]:max-w-none">
+        <div className="w-full max-w-[360px] max-[767px]:max-w-none">
           <input
             type="search"
             placeholder="Search employees..."
@@ -159,11 +193,72 @@ export default function EmployeesPage() {
           />
         </div>
 
-        
+        {/* Role Filter Dropdown */}
+        <div
+          className="relative min-w-[160px] max-[767px]:w-full"
+          ref={roleDropdownRef}
+        >
+          <button
+            type="button"
+            onClick={() => setRoleDropdownOpen((prev) => !prev)}
+            aria-expanded={roleDropdownOpen}
+            aria-label="Filter employees by role"
+            className={`w-full box-border px-3.5 py-[11px] bg-white text-slate-800 border rounded-lg font-sans text-sm font-normal flex items-center justify-between cursor-pointer outline-none transition-[border-color,box-shadow] duration-150 ${
+              roleDropdownOpen
+                ? "border-blue-600 ring-[3px] ring-blue-600/15"
+                : "border-slate-300 hover:border-slate-400"
+            }`}
+          >
+            <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
+              <span className="text-slate-400 text-xs font-normal">Role:</span>
+              <span className="text-slate-800 font-normal">
+                {currentRoleLabel}
+              </span>
+            </div>
+            <RxChevronDown
+              size={15}
+              className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${
+                roleDropdownOpen ? "rotate-180 text-blue-600" : ""
+              }`}
+            />
+          </button>
+
+          {roleDropdownOpen && (
+            <div className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[170px] p-1.5 box-border bg-white border border-slate-200 rounded-xl shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12),0_8px_10px_-6px_rgba(15,23,42,0.08)] z-30 flex flex-col gap-0.5">
+              {ROLE_OPTIONS.map((opt) => {
+                const isSelected = selectedRole === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRole(opt.value);
+                      setPageNumber(1);
+                      setRoleDropdownOpen(false);
+                    }}
+                    className={`w-full box-border px-3 py-2 flex items-center justify-between bg-transparent border-none rounded-lg font-sans text-sm font-normal text-left cursor-pointer transition-colors duration-150 ${
+                      isSelected
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <span>{opt.label}</span>
+                    {isSelected && (
+                      <RxCheck
+                        size={16}
+                        className="text-blue-600 shrink-0 ml-2"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         <Link
           to="/admin/employees/create-employee"
-          className="ml-auto inline-flex items-center justify-center px-4 py-[11px] bg-blue-600 text-white border border-blue-600 rounded-lg font-sans text-sm font-semibold no-underline whitespace-nowrap transition-colors duration-150 hover:bg-blue-700 hover:border-blue-700"
+          className="ml-auto inline-flex items-center justify-center px-4 py-[11px] bg-blue-600 text-white border border-blue-600 rounded-lg font-sans text-sm font-semibold no-underline whitespace-nowrap transition-colors duration-150 hover:bg-blue-700 hover:border-blue-700 max-[767px]:ml-0 max-[767px]:w-full"
         >
           + Add Employee
         </Link>
