@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { VALIDATION } from "../../utils/constants";
 import PasswordInput from "../../components/common/PasswordInput";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { HiOutlineUser, HiOutlineLockClosed } from "react-icons/hi2";
 
 export default function ManagerProfilePage() {
@@ -19,6 +20,10 @@ export default function ManagerProfilePage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSuccessMsg, setProfileSuccessMsg] = useState("");
   const [profileErrorMsg, setProfileErrorMsg] = useState("");
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   // Password Change State
   const [passwordData, setPasswordData] = useState({
@@ -73,8 +78,38 @@ export default function ManagerProfilePage() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleProfileSubmit = async (e) => {
+  const hasChanges =
+    formData.firstName !== (profile?.firstName || "") ||
+    formData.lastName !== (profile?.lastName || "") ||
+    formData.phoneNumber !== (profile?.phoneNumber || "");
+
+  const handleSaveIntent = (e) => {
     e.preventDefault();
+    if (!validateProfileForm()) return;
+    setConfirmSaveOpen(true);
+  };
+
+  const cancelEdit = () => {
+    setIsEditingProfile(false);
+    setConfirmCancelOpen(false);
+    setFormData({
+      firstName: profile?.firstName || "",
+      lastName: profile?.lastName || "",
+      phoneNumber: profile?.phoneNumber || "",
+    });
+    setProfileErrors({});
+  };
+
+  const handleCancelIntent = () => {
+    if (hasChanges) {
+      setConfirmCancelOpen(true);
+    } else {
+      cancelEdit();
+    }
+  };
+
+  const handleProfileSubmit = async () => {
+    setConfirmSaveOpen(false);
     setProfileSuccessMsg("");
     setProfileErrorMsg("");
 
@@ -92,6 +127,7 @@ export default function ManagerProfilePage() {
         ...response.data,
       }));
       setProfileSuccessMsg("Profile information updated successfully.");
+      setIsEditingProfile(false);
     } catch (err) {
       setProfileErrorMsg(
         err.response?.data?.message ||
@@ -108,14 +144,31 @@ export default function ManagerProfilePage() {
     if (!passwordData.oldPassword) {
       errs.oldPassword = "Current password is required.";
     }
+    
     if (!passwordData.newPassword) {
       errs.newPassword = "New password is required.";
-    } else if (passwordData.newPassword.length < 6) {
-      errs.newPassword = "Password must be at least 6 characters long.";
+    } else {
+      if (passwordData.newPassword.length < 8) {
+        errs.newPassword = "Password must be at least 8 characters long.";
+      } else if (passwordData.newPassword.length > 72) {
+        errs.newPassword = "Password is too long.";
+      } else if (!/[A-Z]/.test(passwordData.newPassword)) {
+        errs.newPassword = "Password must contain at least one uppercase letter.";
+      } else if (!/[a-z]/.test(passwordData.newPassword)) {
+        errs.newPassword = "Password must contain at least one lowercase letter.";
+      } else if (!/[0-9]/.test(passwordData.newPassword)) {
+        errs.newPassword = "Password must contain at least one number.";
+      } else if (!/[@#$%&*!]/.test(passwordData.newPassword)) {
+        errs.newPassword = "Password must contain at least one special character (@#$%&*!).";
+      }
     }
-    if (passwordData.confirmPassword !== passwordData.newPassword) {
+
+    if (!passwordData.confirmPassword) {
+      errs.confirmPassword = "Confirm password is required.";
+    } else if (passwordData.confirmPassword !== passwordData.newPassword) {
       errs.confirmPassword = "Passwords do not match.";
     }
+    
     setPasswordErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -173,7 +226,7 @@ export default function ManagerProfilePage() {
   }
 
   const inputBase =
-    "w-full box-border px-3.5 py-[11px] bg-white text-slate-900 border border-slate-300 rounded-lg font-sans text-sm outline-none transition-colors duration-150 placeholder:text-slate-400 focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/15";
+    "w-full box-border px-3.5 py-[11px] bg-white text-slate-900 border border-slate-300 rounded-lg font-sans text-sm outline-none transition-colors duration-150 placeholder:text-slate-400 focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/15 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed";
   const inputInvalid = "!border-red-500 focus:!border-red-500 focus:!ring-red-500/15";
   const labelClass = "block mb-1.5 text-slate-700 text-xs font-semibold uppercase tracking-wider";
   const errorClass = "block mt-1 text-xs text-red-600 font-medium";
@@ -193,21 +246,42 @@ export default function ManagerProfilePage() {
       <div className="flex flex-col gap-8">
         {/* Personal Details Card */}
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-          <div className="px-6 py-5 border-b border-slate-200 flex items-center gap-3">
-            <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0">
-              <HiOutlineUser size={18} />
+          <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0">
+                <HiOutlineUser size={18} />
+              </div>
+              <div>
+                <h2 className="m-0 text-slate-900 text-base font-semibold">
+                  Personal Information
+                </h2>
+                <p className="m-0 text-slate-500 text-xs mt-0.5">
+                  Update your name and primary contact number.
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="m-0 text-slate-900 text-base font-semibold">
-                Personal Information
-              </h2>
-              <p className="m-0 text-slate-500 text-xs mt-0.5">
-                Update your name and primary contact number.
-              </p>
-            </div>
+            
+            {!isEditingProfile && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordDialogOpen(true)}
+                  className="px-4 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-100 transition-colors duration-150"
+                >
+                  Change Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingProfile(true)}
+                  className="px-4 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-100 transition-colors duration-150"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
           </div>
 
-          <form onSubmit={handleProfileSubmit} className="p-6">
+          <form onSubmit={handleSaveIntent} className="p-6">
             {profileSuccessMsg && (
               <div className="mb-5 p-3.5 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg">
                 {profileSuccessMsg}
@@ -232,6 +306,7 @@ export default function ManagerProfilePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, firstName: e.target.value })
                   }
+                  disabled={!isEditingProfile}
                   className={`${inputBase} ${
                     profileErrors.firstName ? inputInvalid : ""
                   }`}
@@ -252,6 +327,7 @@ export default function ManagerProfilePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, lastName: e.target.value })
                   }
+                  disabled={!isEditingProfile}
                   className={`${inputBase} ${
                     profileErrors.lastName ? inputInvalid : ""
                   }`}
@@ -286,6 +362,7 @@ export default function ManagerProfilePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, phoneNumber: e.target.value })
                   }
+                  disabled={!isEditingProfile}
                   className={`${inputBase} ${
                     profileErrors.phoneNumber ? inputInvalid : ""
                   }`}
@@ -316,125 +393,187 @@ export default function ManagerProfilePage() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <button
-                type="submit"
-                disabled={savingProfile}
-                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-60"
-              >
-                {savingProfile ? "Saving…" : "Save Changes"}
-              </button>
-            </div>
+            {isEditingProfile && (
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  disabled={savingProfile}
+                  onClick={handleCancelIntent}
+                  className="px-5 py-2.5 bg-white text-slate-700 border border-slate-300 rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingProfile || !hasChanges}
+                  className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {savingProfile ? "Saving…" : "Save Changes"}
+                </button>
+              </div>
+            )}
           </form>
         </div>
 
-        {/* Change Password Card */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04)]">
-          <div className="px-6 py-5 border-b border-slate-200 flex items-center gap-3">
-            <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600 shrink-0">
-              <HiOutlineLockClosed size={18} />
-            </div>
-            <div>
-              <h2 className="m-0 text-slate-900 text-base font-semibold">
-                Change Password
-              </h2>
-              <p className="m-0 text-slate-500 text-xs mt-0.5">
-                Ensure your account is protected with a secure password.
-              </p>
+        {/* Change Password Dialog Overlay */}
+        {isPasswordDialogOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm [animation:employee-view-fade-in_0.2s_ease-out]">
+            <div
+              className="relative w-full max-w-[480px] bg-white rounded-2xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh] [animation:slide-up_0.3s_ease-out_forwards]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 py-5 border-b border-slate-200 flex items-center gap-3 bg-slate-50/50 rounded-t-2xl">
+                <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0">
+                  <HiOutlineLockClosed size={18} />
+                </div>
+                <div>
+                  <h2 className="m-0 text-slate-900 text-base font-semibold">
+                    Change Password
+                  </h2>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto">
+                <form onSubmit={handlePasswordSubmit}>
+                  {passwordSuccessMsg && (
+                    <div className="mb-5 p-3.5 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg">
+                      {passwordSuccessMsg}
+                    </div>
+                  )}
+
+                  {passwordErrorMsg && (
+                    <div className="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+                      {passwordErrorMsg}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-5">
+                    <div>
+                      <label className={labelClass} htmlFor="oldPassword">
+                        Current Password
+                      </label>
+                      <PasswordInput
+                        id="oldPassword"
+                        placeholder="Enter current password"
+                        value={passwordData.oldPassword}
+                        onChange={(e) =>
+                          setPasswordData({
+                            ...passwordData,
+                            oldPassword: e.target.value,
+                          })
+                        }
+                        className={`${inputBase} ${
+                          passwordErrors.oldPassword ? inputInvalid : ""
+                        }`}
+                      />
+                      {passwordErrors.oldPassword && (
+                        <span className={errorClass}>{passwordErrors.oldPassword}</span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className={labelClass} htmlFor="newPassword">
+                        New Password
+                      </label>
+                      <PasswordInput
+                        id="newPassword"
+                        placeholder="Enter new password (min. 8 characters)"
+                        value={passwordData.newPassword}
+                        onChange={(e) =>
+                          setPasswordData({
+                            ...passwordData,
+                            newPassword: e.target.value,
+                          })
+                        }
+                        className={`${inputBase} ${
+                          passwordErrors.newPassword ? inputInvalid : ""
+                        }`}
+                      />
+                      {passwordErrors.newPassword && (
+                        <span className={errorClass}>{passwordErrors.newPassword}</span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className={labelClass} htmlFor="confirmPassword">
+                        Confirm New Password
+                      </label>
+                      <PasswordInput
+                        id="confirmPassword"
+                        placeholder="Re-enter new password"
+                        value={passwordData.confirmPassword}
+                        onChange={(e) =>
+                          setPasswordData({
+                            ...passwordData,
+                            confirmPassword: e.target.value,
+                          })
+                        }
+                        className={`${inputBase} ${
+                          passwordErrors.confirmPassword ? inputInvalid : ""
+                        }`}
+                      />
+                      {passwordErrors.confirmPassword && (
+                        <span className={errorClass}>
+                          {passwordErrors.confirmPassword}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      disabled={savingPassword}
+                      onClick={() => {
+                        setIsPasswordDialogOpen(false);
+                        setPasswordData({
+                          oldPassword: "",
+                          newPassword: "",
+                          confirmPassword: "",
+                        });
+                        setPasswordErrors({});
+                        setPasswordSuccessMsg("");
+                        setPasswordErrorMsg("");
+                      }}
+                      className="px-5 py-2.5 bg-white text-slate-700 border border-slate-300 rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-slate-50 disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={savingPassword}
+                      className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {savingPassword ? "Updating…" : "Update Password"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
+        )}
 
-          <form onSubmit={handlePasswordSubmit} className="p-6">
-            {passwordSuccessMsg && (
-              <div className="mb-5 p-3.5 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg">
-                {passwordSuccessMsg}
-              </div>
-            )}
+        {/* Confirm Save Dialog */}
+        <ConfirmDialog
+          open={confirmSaveOpen}
+          title="Save Changes?"
+          message="Are you sure you want to save the changes to your profile?"
+          confirmLabel="Save Changes"
+          loading={savingProfile}
+          onConfirm={handleProfileSubmit}
+          onCancel={() => setConfirmSaveOpen(false)}
+        />
 
-            {passwordErrorMsg && (
-              <div className="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
-                {passwordErrorMsg}
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 gap-5 max-w-[500px]">
-              <div>
-                <label className={labelClass} htmlFor="oldPassword">
-                  Current Password
-                </label>
-                <PasswordInput
-                  id="oldPassword"
-                  placeholder="Enter current password"
-                  value={passwordData.oldPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      oldPassword: e.target.value,
-                    })
-                  }
-                  hasError={Boolean(passwordErrors.oldPassword)}
-                />
-                {passwordErrors.oldPassword && (
-                  <span className={errorClass}>{passwordErrors.oldPassword}</span>
-                )}
-              </div>
-
-              <div>
-                <label className={labelClass} htmlFor="newPassword">
-                  New Password
-                </label>
-                <PasswordInput
-                  id="newPassword"
-                  placeholder="Enter new password (min. 6 characters)"
-                  value={passwordData.newPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      newPassword: e.target.value,
-                    })
-                  }
-                  hasError={Boolean(passwordErrors.newPassword)}
-                />
-                {passwordErrors.newPassword && (
-                  <span className={errorClass}>{passwordErrors.newPassword}</span>
-                )}
-              </div>
-
-              <div>
-                <label className={labelClass} htmlFor="confirmPassword">
-                  Confirm New Password
-                </label>
-                <PasswordInput
-                  id="confirmPassword"
-                  placeholder="Re-enter new password"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordData({
-                      ...passwordData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  hasError={Boolean(passwordErrors.confirmPassword)}
-                />
-                {passwordErrors.confirmPassword && (
-                  <span className={errorClass}>
-                    {passwordErrors.confirmPassword}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <button
-                type="submit"
-                disabled={savingPassword}
-                className="px-5 py-2.5 bg-amber-600 text-white rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-amber-700 disabled:opacity-60"
-              >
-                {savingPassword ? "Updating…" : "Update Password"}
-              </button>
-            </div>
-          </form>
-        </div>
+        {/* Confirm Cancel Dialog */}
+        <ConfirmDialog
+          open={confirmCancelOpen}
+          title="Discard Changes?"
+          message="You have unsaved changes. Are you sure you want to discard them?"
+          confirmLabel="Discard"
+          danger={true}
+          onConfirm={cancelEdit}
+          onCancel={() => setConfirmCancelOpen(false)}
+        />
       </div>
     </section>
   );
