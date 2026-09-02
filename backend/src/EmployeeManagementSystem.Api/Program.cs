@@ -36,7 +36,7 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();
-    
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -49,6 +49,7 @@ JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 app.UseMiddleware<Exceptions>();
 app.UseSerilogRequestLogging(); // logs one line per HTTP request: method, path, status, duration
 app.UseAuthentication();
+app.UseMiddleware<TokenVersionMiddleware>();
 app.UseMiddleware<MustChangePasswordMiddleware>();
 app.UseAuthorization();
 
