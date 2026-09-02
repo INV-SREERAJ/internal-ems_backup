@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import { Link } from "react-router-dom";
 import {
-  HiOutlinePencilSquare,
+  HiOutlineUser,
   HiOutlineArrowRightOnRectangle,
   HiOutlineBars3,
 } from "react-icons/hi2";
 
-export default function AdminNavbar({ onMenuClick }) {
+export default function ManagerNavbar({ onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const { logout, user } = useAuth();
   const profileRef = useRef(null);
@@ -45,10 +45,15 @@ export default function AdminNavbar({ onMenuClick }) {
         </button>
 
         <Link
-          to="/admin"
-          className="text-white text-xl font-bold tracking-[-0.5px] no-underline max-[767px]:text-lg max-[480px]:text-[17px]"
+          to="/manager"
+          className="flex items-center gap-2 text-white text-xl font-bold tracking-[-0.5px] no-underline max-[767px]:text-lg max-[480px]:text-[17px]"
         >
-          Workforce <span className="text-blue-500">OS</span>
+          <span>
+            Workforce <span className="text-blue-500">OS</span>
+          </span>
+          <span className="text-[11px] font-semibold bg-blue-500/20 text-blue-400 border border-blue-400/30 px-2 py-0.5 rounded-full tracking-normal">
+            Manager
+          </span>
         </Link>
       </div>
 
@@ -59,21 +64,18 @@ export default function AdminNavbar({ onMenuClick }) {
           onClick={() => setProfileOpen((current) => !current)}
           aria-expanded={profileOpen}
         >
-          Profile
+          {user?.firstName ? `${user.firstName}` : "Profile"}
         </button>
 
         {profileOpen && (
           <div className="absolute top-[calc(100%+8px)] right-0 w-[180px] p-1.5 box-border flex flex-col gap-0.5 bg-white border border-slate-200 rounded-xl shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12),0_8px_10px_-6px_rgba(15,23,42,0.08)] z-[200]">
             <Link
-              to={`/admin/employees/edit/${user?.employeeCode}`}
+              to="/manager/profile"
               className={menuItemClass}
               onClick={() => setProfileOpen(false)}
             >
-              <HiOutlinePencilSquare
-                size={17}
-                className="text-slate-500 shrink-0"
-              />
-              <span>Edit Profile</span>
+              <HiOutlineUser size={17} className="text-slate-500 shrink-0" />
+              <span>My Profile</span>
             </Link>
             <button
               type="button"
