@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import ManagerEmployeeViewDialog from "../../components/manager/ManagerEmployeeViewDialog";
-import {
-  STATUS_LABEL,
-  STATUS_CLASS,
-} from "../../utils/constants";
-import { HiOutlineEye } from "react-icons/hi2";
+import EmployeeTable from "../../components/common/EmployeeTable";
 
 export default function ManagerTeamPage() {
   const [employees, setEmployees] = useState([]);
@@ -159,79 +155,14 @@ export default function ManagerTeamPage() {
 
       {!loading && !error && employees.length > 0 && (
         <>
-          <div className="w-full overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-[0_4px_6px_-1px_rgba(0,0,0,0.06),0_2px_4px_-2px_rgba(0,0,0,0.05)]">
-            <table className="w-full min-w-[750px] border-collapse text-sm">
-              <thead>
-                <tr>
-                  <th
-                    className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap cursor-pointer hover:text-slate-900"
-                    onClick={() => handleSort("EmployeeCode")}
-                  >
-                    Employee Code {sortBy === "EmployeeCode" && (descending ? "↓" : "↑")}
-                  </th>
-                  <th
-                    className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap cursor-pointer hover:text-slate-900"
-                    onClick={() => handleSort("FirstName")}
-                  >
-                    Name {sortBy === "FirstName" && (descending ? "↓" : "↑")}
-                  </th>
-                  <th className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap">
-                    Email
-                  </th>
-                  <th className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap">
-                    Phone Number
-                  </th>
-                  <th className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap">
-                    Status
-                  </th>
-                  <th className="px-6 py-3.5 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-center whitespace-nowrap">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="[&>tr:last-child>td]:border-b-0">
-                {employees.map((emp) => (
-                  <tr
-                    key={emp.employeeCode}
-                    className="hover:bg-slate-50/80 transition-colors duration-150"
-                  >
-                    <td className="px-6 py-3.5 border-b border-slate-100 font-medium text-slate-900 whitespace-nowrap">
-                      {emp.employeeCode}
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 whitespace-nowrap font-medium">
-                      {emp.firstName} {emp.lastName}
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-600 whitespace-nowrap">
-                      {emp.email}
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-600 whitespace-nowrap">
-                      {emp.phoneNumber || "—"}
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-[3px] rounded-full text-xs font-semibold ${
-                          STATUS_CLASS[Number(emp.status)] ||
-                          "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        {STATUS_LABEL[emp.status] || emp.status || "—"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-center whitespace-nowrap">
-                      <button
-                        type="button"
-                        onClick={() => setViewingEmployee(emp.employeeCode)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-xs font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-600 hover:text-white hover:border-blue-600"
-                      >
-                        <HiOutlineEye size={15} />
-                        <span>View</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EmployeeTable
+            employees={employees}
+            onSort={handleSort}
+            sortBy={sortBy}
+            descending={descending}
+            onView={(code) => setViewingEmployee(code)}
+            showManager={false}
+          />
 
           {/* Pagination */}
           {totalPages > 1 && (

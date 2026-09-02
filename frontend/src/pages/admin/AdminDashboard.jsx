@@ -7,7 +7,8 @@ import { HiOutlineUsers } from "react-icons/hi2";
 import { LiaUserSolid } from "react-icons/lia";
 import { FaPlus } from "react-icons/fa6";
 import { CiEdit } from "react-icons/ci";
-import { EMPLOYEE_STATUS, STATUS_LABEL } from "../../utils/constants";
+import { EMPLOYEE_STATUS } from "../../utils/constants";
+import RecentEmployeesCard from "../../components/common/RecentEmployeesCard";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -75,19 +76,6 @@ export default function AdminDashboard() {
 
     fetchDashboardData();
   }, []);
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case EMPLOYEE_STATUS.Active:
-        return "bg-green-100 text-green-800";
-      case EMPLOYEE_STATUS.Inactive:
-        return "bg-amber-100 text-amber-800";
-      case EMPLOYEE_STATUS.Deleted:
-        return "bg-red-100 text-red-800";
-      default:
-        return "";
-    }
-  };
 
   if (loading) {
     return (
@@ -175,79 +163,13 @@ export default function AdminDashboard() {
       {/* Body: table + sidebar */}
       <div className="grid grid-cols-[1fr_340px] gap-6 max-[1023px]:grid-cols-1">
         {/* Recent employees */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-5 flex items-center justify-between border-b border-slate-200 max-[767px]:px-[18px] max-[767px]:py-4">
-            <h2 className="m-0 text-slate-900 text-base font-semibold">
-              Recent Employees
-            </h2>
-            <Link
-              to="/admin/employees"
-              className="text-blue-600 text-[13px] font-semibold no-underline hover:text-blue-700"
-            >
-              View all
-            </Link>
-          </div>
-
-          {recentEmployees.length === 0 ? (
-            <div className="px-6 py-10 text-slate-500 text-sm text-center">
-              No employees found.
-            </div>
-          ) : (
-            <div className="w-full overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                      Employee Code
-                    </th>
-                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="[&>tr:last-child>td]:border-b-0">
-                  {recentEmployees.map((emp) => (
-                    <tr
-                      key={emp.employeeCode}
-                      className="hover:bg-slate-50/80 transition-colors duration-150"
-                    >
-                      <td className="px-6 py-3.5 border-b border-slate-100 font-medium text-slate-900 whitespace-nowrap max-[767px]:px-[18px]">
-                        {emp.employeeCode}
-                      </td>
-                      <td className="px-6 py-3.5 border-b border-slate-100 text-slate-800 font-medium whitespace-nowrap max-[767px]:px-[18px]">
-                        {emp.fullName ||
-                          `${emp.firstName || ""} ${emp.lastName || ""}`.trim() ||
-                          "—"}
-                      </td>
-                      <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 whitespace-nowrap max-[767px]:px-[18px]">
-                        {emp.email}
-                      </td>
-                      <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 whitespace-nowrap max-[767px]:px-[18px]">
-                        {emp.role || "—"}
-                      </td>
-                      <td className="px-6 py-3.5 border-b border-slate-100 whitespace-nowrap max-[767px]:px-[18px]">
-                        <span
-                          className={`inline-flex px-2 py-[3px] rounded-full text-xs font-semibold ${getStatusClass(emp.status)}`}
-                        >
-                          {STATUS_LABEL[emp.status] || "—"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <RecentEmployeesCard
+          title="Recent Employees"
+          viewAllLink="/admin/employees"
+          employees={recentEmployees}
+          extraColumn="role"
+          emptyMessage="No employees found."
+        />
 
         {/* Sidebar: Quick actions + Role breakdown */}
         <div className="flex flex-col gap-6">

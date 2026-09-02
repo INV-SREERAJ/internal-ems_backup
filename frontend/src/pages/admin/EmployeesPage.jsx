@@ -1,4 +1,4 @@
-import EmployeeTable from "../../components/admin/EmployeeTable";
+import EmployeeTable from "../../components/common/EmployeeTable";
 import EmployeeViewDialog from "../../components/admin/EmployeeViewDialog";
 
 import { useEffect, useRef, useState } from "react";
