@@ -33,6 +33,7 @@ export default function EmployeeViewDialog({
   // Reset password state
   const [resetting, setResetting] = useState(false);
   const [resetMsg, setResetMsg] = useState(null); // { type: "success"|"error", text }
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
   // Delete confirmation
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -44,6 +45,8 @@ export default function EmployeeViewDialog({
       setEmployee(null);
       setError(null);
       setResetMsg(null);
+      setConfirmResetOpen(false);
+      setConfirmDeleteOpen(false);
       return;
     }
 
@@ -74,11 +77,11 @@ export default function EmployeeViewDialog({
     if (!employeeCode) return;
 
     const handleKeyDown = (e) => {
-      if (e.key === "Escape" && !confirmDeleteOpen) onClose();
+      if (e.key === "Escape" && !confirmDeleteOpen && !confirmResetOpen) onClose();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [employeeCode, onClose, confirmDeleteOpen]);
+  }, [employeeCode, onClose, confirmDeleteOpen, confirmResetOpen]);
 
   if (!employeeCode) return null;
 
@@ -92,7 +95,11 @@ export default function EmployeeViewDialog({
     navigate(`/admin/employees/edit/${employee.employeeCode}`);
   };
 
-  const handleResetPassword = async () => {
+  const handleResetPasswordRequest = () => {
+    setConfirmResetOpen(true);
+  };
+
+  const handleResetPasswordConfirm = async () => {
     setResetting(true);
     setResetMsg(null);
 
@@ -104,14 +111,21 @@ export default function EmployeeViewDialog({
         type: "success",
         text: "Password has been reset. A temporary password has been sent to the employee's email.",
       });
+      setConfirmResetOpen(false);
     } catch (err) {
       setResetMsg({
         type: "error",
         text: err.response?.data?.message || "Failed to reset password.",
       });
+      setConfirmResetOpen(false);
     } finally {
       setResetting(false);
     }
+  };
+
+  const handleResetPasswordCancel = () => {
+    if (resetting) return;
+    setConfirmResetOpen(false);
   };
 
   const handleDeleteRequest = () => {
@@ -229,7 +243,7 @@ export default function EmployeeViewDialog({
                   <button
                     type="button"
                     className={`${actionBtnBase} bg-amber-50 text-amber-600 border-amber-200 hover:not-disabled:bg-amber-600 hover:not-disabled:text-white hover:not-disabled:border-amber-600`}
-                    onClick={handleResetPassword}
+                    onClick={handleResetPasswordRequest}
                     disabled={resetting}
                   >
                     <RiLockPasswordLine size={15} />
@@ -375,6 +389,18 @@ export default function EmployeeViewDialog({
           )}
         </div>
       </div>
+
+      {/* Reset password confirmation — rendered outside the overlay to stack correctly */}
+      <ConfirmDialog
+        open={confirmResetOpen}
+        title="Reset employee password?"
+        message={`Are you sure you want to reset the password for ${employee?.firstName} ${employee?.lastName} (${employee?.employeeCode})? A temporary password will be generated and emailed to ${employee?.email}.`}
+        confirmLabel="Reset Password"
+        cancelLabel="Cancel"
+        loading={resetting}
+        onConfirm={handleResetPasswordConfirm}
+        onCancel={handleResetPasswordCancel}
+      />
 
       {/* Delete confirmation — rendered outside the overlay to stack correctly */}
       <ConfirmDialog
