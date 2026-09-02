@@ -109,7 +109,8 @@ namespace EmployeeManagementSystem.Business.Services
                 Data = employeeDtos,
                 TotalCount = totalCount,
                 PageNumber = employeeQueryParameters.PageNumber,
-                PageSize = employeeQueryParameters.PageSize
+                PageSize = employeeQueryParameters.PageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)employeeQueryParameters.PageSize)
             });
         }
     }
