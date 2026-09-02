@@ -166,7 +166,7 @@ export default function ManagerDashboard() {
                 <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
                   <HiOutlineUsers size={18} />
                 </div>
-                View Direct Reports
+                View Team
               </Link>
 
               <Link
