@@ -193,51 +193,59 @@ export default function AdminDashboard() {
               No employees found.
             </div>
           ) : (
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                    Employee
-                  </th>
-                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="[&>tr:last-child>td]:border-b-0">
-                {recentEmployees.map((emp) => (
-                  <tr key={emp.employeeCode}>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
-                      <div className="font-medium text-slate-900">
-                        {emp.firstName} {emp.lastName}
-                      </div>
-                      <div className="text-slate-500 text-[13px]">
-                        {emp.employeeCode}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
-                      {emp.email}
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
-                      {emp.role || "—"}
-                    </td>
-                    <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 max-[767px]:px-[18px]">
-                      <span
-                        className={`inline-flex px-2 py-[3px] rounded-full text-xs font-semibold ${getStatusClass(emp.status)}`}
-                      >
-                        {STATUS_LABEL[emp.status] || "—"}
-                      </span>
-                    </td>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                      Employee Code
+                    </th>
+                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                      Role
+                    </th>
+                    <th className="px-6 py-3 bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold text-left whitespace-nowrap max-[767px]:px-[18px]">
+                      Status
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="[&>tr:last-child>td]:border-b-0">
+                  {recentEmployees.map((emp) => (
+                    <tr
+                      key={emp.employeeCode}
+                      className="hover:bg-slate-50/80 transition-colors duration-150"
+                    >
+                      <td className="px-6 py-3.5 border-b border-slate-100 font-medium text-slate-900 whitespace-nowrap max-[767px]:px-[18px]">
+                        {emp.employeeCode}
+                      </td>
+                      <td className="px-6 py-3.5 border-b border-slate-100 text-slate-800 font-medium whitespace-nowrap max-[767px]:px-[18px]">
+                        {emp.fullName ||
+                          `${emp.firstName || ""} ${emp.lastName || ""}`.trim() ||
+                          "—"}
+                      </td>
+                      <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 whitespace-nowrap max-[767px]:px-[18px]">
+                        {emp.email}
+                      </td>
+                      <td className="px-6 py-3.5 border-b border-slate-100 text-slate-700 whitespace-nowrap max-[767px]:px-[18px]">
+                        {emp.role || "—"}
+                      </td>
+                      <td className="px-6 py-3.5 border-b border-slate-100 whitespace-nowrap max-[767px]:px-[18px]">
+                        <span
+                          className={`inline-flex px-2 py-[3px] rounded-full text-xs font-semibold ${getStatusClass(emp.status)}`}
+                        >
+                          {STATUS_LABEL[emp.status] || "—"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 

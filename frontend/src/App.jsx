@@ -17,6 +17,14 @@ const EditEmployeesSearchPage = lazy(() =>
   import("./pages/admin/EditEmployeesSearchPage")
 );
 
+// Manager pages
+const ManagerLayout = lazy(() => import("./pages/manager/ManagerLayout"));
+const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
+const ManagerTeamPage = lazy(() => import("./pages/manager/ManagerTeamPage"));
+const ManagerProfilePage = lazy(() =>
+  import("./pages/manager/ManagerProfilePage")
+);
+
 function ProtectedRoute({ children, allowedRoles }) {
   const { status, user } = useAuth();
 
@@ -39,6 +47,8 @@ function getDefaultRoute(user) {
   switch (user?.role) {
     case ROLE_LABEL[ROLES.Admin]:
       return "/admin";
+    case ROLE_LABEL[ROLES.Manager]:
+      return "/manager";
     default:
       return "/unauthorized";
   }
@@ -68,6 +78,7 @@ export default function App() {
 
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
+        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
@@ -89,11 +100,25 @@ export default function App() {
           <Route path="employees/edit" element={<EditEmployeesSearchPage />} />
         </Route>
 
+        {/* Manager Routes */}
+        <Route
+          path="/manager"
+          element={
+            <ProtectedRoute allowedRoles={[ROLE_LABEL[ROLES.Manager]]}>
+              <ManagerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<ManagerDashboard />} />
+          <Route path="team" element={<ManagerTeamPage />} />
+          <Route path="profile" element={<ManagerProfilePage />} />
+        </Route>
+
         <Route
           path="*"
           element={
             <Navigate
-              to={status === AUTH_STATUS.AUTHENTICATED ? "/admin" : "/login"}
+              to={status === AUTH_STATUS.AUTHENTICATED ? defaultRoute : "/login"}
               replace
             />
           }
