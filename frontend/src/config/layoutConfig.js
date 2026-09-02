@@ -18,7 +18,7 @@ export const ROLE_LAYOUT_CONFIG = {
       to: "/admin",
       label: "Workforce",
       highlight: "OS",
-      badge: null,
+      badge: "Admin",
     },
     sidebarNav: [
       {
@@ -72,7 +72,7 @@ export const ROLE_LAYOUT_CONFIG = {
       },
       {
         to: "/manager/team",
-        label: "My Direct Reports",
+        label: "My Team",
         icon: HiOutlineUsers,
         end: true,
       },
