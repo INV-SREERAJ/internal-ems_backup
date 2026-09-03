@@ -19,8 +19,7 @@ namespace EmployeeManagementSystem.DataAccess.Common.Extensions
                     e.EmployeeCode.Contains(search) ||
                     e.FirstName.Contains(search) ||
                     e.LastName.Contains(search) ||
-                    (e.FirstName + " " + e.LastName).Contains(search) ||
-                    e.Email.Contains(search));
+                    (e.FirstName + " " + e.LastName).Contains(search));
             }
 
             if (!string.IsNullOrWhiteSpace(parameters.Role) &&

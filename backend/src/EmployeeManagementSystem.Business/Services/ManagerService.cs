@@ -1,8 +1,10 @@
 using EmployeeManagementSystem.Business.Common;
 using EmployeeManagementSystem.Business.DTOs.Admin;
+using EmployeeManagementSystem.Business.DTOs.Manager;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Interfaces;
+using EmployeeManagementSystem.DataAccess.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace EmployeeManagementSystem.Business.Services
@@ -111,6 +113,24 @@ namespace EmployeeManagementSystem.Business.Services
                 PageNumber = employeeQueryParameters.PageNumber,
                 PageSize = employeeQueryParameters.PageSize,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)employeeQueryParameters.PageSize)
+            });
+        }
+
+        public async Task<Result<ManagerDashboardStatsDto>> GetDashboardStatsAsync(string managerCode)
+        {
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode);
+            if (manager == null)
+            {
+                return Result<ManagerDashboardStatsDto>.Fail(ErrorType.NotFound, "Manager not found.");
+            }
+
+            var stats = await _managerRepository.GetDashboardStatsAsync(manager.Id);
+
+            return Result<ManagerDashboardStatsDto>.Ok(new ManagerDashboardStatsDto
+            {
+                TotalEmployees = stats.Total,
+                ActiveEmployees = stats.Active,
+                InactiveEmployees = stats.Inactive
             });
         }
     }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { RxChevronDown, RxCross2 } from "react-icons/rx";
+import { useManagerSearch } from "../../hooks/useManagerSearch";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
@@ -59,10 +60,8 @@ export default function EditEmployeePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Manager state
-  const [managers, setManagers] = useState([]);
-  const [managerLoading, setManagerLoading] = useState(true);
-  const [managerError, setManagerError] = useState(null);
   const [managerSearch, setManagerSearch] = useState("");
+  const { managers, managerLoading, managerError } = useManagerSearch(managerSearch);
   const [managerDropdownOpen, setManagerDropdownOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
   const selectedManagerRef = useRef(selectedManager);
@@ -71,10 +70,6 @@ export default function EditEmployeePage() {
   // Role dropdown state
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const roleSelectRef = useRef(null);
-
-  // Status dropdown state
-  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const statusSelectRef = useRef(null);
 
   useEffect(() => {
     selectedManagerRef.current = selectedManager;
@@ -120,39 +115,7 @@ export default function EditEmployeePage() {
     fetchEmployee();
   }, [employeeCode]);
 
-  useEffect(() => {
-    const fetchManagers = async () => {
-      try {
-        setManagerLoading(true);
-        setManagerError(null);
-
-        const managerRes = await api.get("/admin/employees", {
-          params: {
-            pageNumber: 1,
-            pageSize: 100,
-            role: "manager",
-          },
-        });
-
-        const adminRes = await api.get("/admin/employees", {
-          params: {
-            pageNumber: 1,
-            pageSize: 100,
-            role: "admin",
-          },
-        });
-
-        const combined = [...adminRes.data.data, ...managerRes.data.data];
-        setManagers(combined);
-      } catch (error) {
-        setManagerError("Failed to load managers.");
-      } finally {
-        setManagerLoading(false);
-      }
-    };
-
-    fetchManagers();
-  }, []);
+  // Role dropdown state
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -179,13 +142,6 @@ export default function EditEmployeePage() {
       ) {
         setRoleDropdownOpen(false);
       }
-
-      if (
-        statusSelectRef.current &&
-        !statusSelectRef.current.contains(event.target)
-      ) {
-        setStatusDropdownOpen(false);
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -193,19 +149,6 @@ export default function EditEmployeePage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const filteredManagers = useMemo(() => {
-    return managers.filter((manager) => {
-      if (manager.employeeCode === employeeCode) return false;
-
-      const search = managerSearch.toLowerCase().trim();
-      if (!search) return true;
-      return (
-        (manager.fullName && manager.fullName.toLowerCase().includes(search)) ||
-        (manager.employeeCode && manager.employeeCode.toLowerCase().includes(search))
-      );
-    });
-  }, [managers, employeeCode, managerSearch]);
 
   const isDirty = useMemo(() => {
     if (!employee || !initialEmployee) {
@@ -304,27 +247,7 @@ export default function EditEmployeePage() {
         return;
       }
 
-      const statusChanged = employee.status !== initialEmployee.status;
 
-      if (statusChanged) {
-        try {
-          await api.patch(
-            `/admin/employees/${encodeURIComponent(employeeCode)}/status`,
-            { status: employee.status },
-          );
-
-          updatedEmployee = { ...updatedEmployee, status: employee.status };
-        } catch (error) {
-          setEmployee(updatedEmployee);
-          setInitialEmployee(updatedEmployee);
-          setSaveError(
-            error.response?.data?.message ||
-              "Details were saved, but the status change failed.",
-          );
-          setSaveSuccess(false);
-          return;
-        }
-      }
 
       const managerChanged =
         (employee.managerEmployeeCode || "") !==
@@ -617,70 +540,7 @@ export default function EditEmployeePage() {
               )}
             </div>
 
-            {/* Status */}
-            <div className={fieldGroupClass}>
-              <label htmlFor="status" className={labelClass}>
-                Status
-              </label>
 
-              <div className="relative" ref={statusSelectRef}>
-                <button
-                  id="status"
-                  type="button"
-                  className={`flex items-center justify-between w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 text-left focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 cursor-pointer disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed ${
-                    fieldErrors.status ? inputInvalid : ""
-                  }`}
-                  disabled={employee.role === "Admin" || saving}
-                  onClick={() => {
-                    if (employee.role === "Admin" || saving) return;
-                    setStatusDropdownOpen((prev) => !prev);
-                  }}
-                  aria-invalid={Boolean(fieldErrors.status)}
-                  aria-expanded={statusDropdownOpen}
-                >
-                  <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {employee.status === 1 ? "Active" : "Inactive"}
-                  </span>
-                  <RxChevronDown
-                    size={14}
-                    className={`text-slate-400 transition-transform duration-150 shrink-0 ml-2 ${
-                      statusDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {statusDropdownOpen && (
-                  <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
-                    {[
-                      { value: 1, label: "Active" },
-                      { value: 2, label: "Inactive" },
-                    ].map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        className={`flex items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] text-slate-900 cursor-pointer hover:bg-slate-100 ${
-                          employee.status === opt.value
-                            ? "!bg-blue-50 font-medium"
-                            : ""
-                        }`}
-                        onClick={() => {
-                          handleChange("status", opt.value);
-                          setStatusDropdownOpen(false);
-                        }}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {fieldErrors.status && (
-                <span className={errorTextClass}>
-                  {fieldErrors.status}
-                </span>
-              )}
-            </div>
 
             {/* Reporting Manager */}
             <div className={fieldGroupClass}>
@@ -753,26 +613,40 @@ export default function EditEmployeePage() {
 
                 {managerDropdownOpen && employee.role !== "Admin" && (
                   <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
-                    {managerLoading && (
+                    {managerSearch.trim().length < 2 && (
                       <div className="p-3 text-[13px] text-slate-500">
-                        Loading managers...
+                        Type at least 2 characters to search...
                       </div>
                     )}
-                    {!managerLoading && managerError && (
+
+                    {managerSearch.trim().length >= 2 && managerLoading && (
+                      <div className="p-3 text-[13px] text-slate-500 flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
+                        Searching...
+                      </div>
+                    )}
+
+                    {managerSearch.trim().length >= 2 && !managerLoading && managerError && (
                       <div className="p-3 text-[13px] text-red-600">
                         {managerError}
                       </div>
                     )}
-                    {!managerLoading &&
+
+                    {managerSearch.trim().length >= 2 &&
+                      !managerLoading &&
                       !managerError &&
-                      filteredManagers.length === 0 && (
+                      managers.length === 0 && (
                         <div className="p-3 text-[13px] text-slate-500">
                           No managers found.
                         </div>
                       )}
-                    {!managerLoading &&
+
+                    {managerSearch.trim().length >= 2 &&
+                      !managerLoading &&
                       !managerError &&
-                      filteredManagers.map((manager) => (
+                    managers
+                      .filter((manager) => manager.employeeCode !== employeeCode)
+                      .map((manager) => (
                         <button
                           key={manager.employeeCode}
                           type="button"

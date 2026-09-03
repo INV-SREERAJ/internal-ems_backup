@@ -59,6 +59,18 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (error.response?.status === 403) {
+      if (
+        error.response.data?.message ===
+        "You must change your password before accessing the application."
+      ) {
+        if (window.location.pathname !== "/change-password") {
+          window.location.href = "/change-password";
+        }
+      }
+      return Promise.reject(error);
+    }
+
     if (!error.response || error.response.status !== 401 || !originalRequest) {
       return Promise.reject(error);
     }

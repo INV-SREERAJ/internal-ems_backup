@@ -329,6 +329,12 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result.Fail(ErrorType.NotFound, "Employee not found.");
             }
 
+            if (employee.Role == Role.Admin)
+            {
+                _logger.LogWarning("Delete failed, cannot delete an Admin.");
+                return Result.Fail(ErrorType.Conflict, "Cannot delete an Admin.");
+            }
+
             if (employee.Role == Role.Manager && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
             {
                 _logger.LogWarning("Manager deletion failed {employeeCode}", employeeCode);
@@ -456,5 +462,19 @@ namespace EmployeeManagementSystem.Business.Services
             _logger.LogInformation("Password resetted for user: {employeeCode}, successfully.", employeeCode);
             return Result.Ok();
         }
-    }
+    
+        public async Task<Result<AdminDashboardStatsDto>> GetDashboardStatsAsync()
+        {
+            var stats = await _adminRepository.GetDashboardStatsAsync();
+            var roleStats = stats.Roles.ToDictionary(k => k.Key.ToString(), v => v.Value);
+            
+            return Result<AdminDashboardStatsDto>.Ok(new AdminDashboardStatsDto
+            {
+                TotalEmployees = stats.Total,
+                ActiveEmployees = stats.Active,
+                InactiveEmployees = stats.Inactive,
+                RoleStats = roleStats
+            });
+        }}
 }
+

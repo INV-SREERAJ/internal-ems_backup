@@ -9,7 +9,7 @@ import {
 } from "../../utils/constants";
 import { CiEdit } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { HiOutlineTrash } from "react-icons/hi2";
+import { HiOutlineTrash, HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2";
 
 /**
  * Full-detail view dialog for a single employee.
@@ -23,6 +23,7 @@ export default function EmployeeViewDialog({
   employeeCode,
   onClose,
   onDeleted,
+  onStatusChanged,
 }) {
   const navigate = useNavigate();
 
@@ -39,6 +40,10 @@ export default function EmployeeViewDialog({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Status confirmation
+  const [confirmStatusOpen, setConfirmStatusOpen] = useState(false);
+  const [statusChanging, setStatusChanging] = useState(false);
+
   // Fetch employee details when employeeCode changes
   useEffect(() => {
     if (!employeeCode) {
@@ -47,6 +52,7 @@ export default function EmployeeViewDialog({
       setResetMsg(null);
       setConfirmResetOpen(false);
       setConfirmDeleteOpen(false);
+      setConfirmStatusOpen(false);
       return;
     }
 
@@ -77,11 +83,11 @@ export default function EmployeeViewDialog({
     if (!employeeCode) return;
 
     const handleKeyDown = (e) => {
-      if (e.key === "Escape" && !confirmDeleteOpen && !confirmResetOpen) onClose();
+      if (e.key === "Escape" && !confirmDeleteOpen && !confirmResetOpen && !confirmStatusOpen) onClose();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [employeeCode, onClose, confirmDeleteOpen, confirmResetOpen]);
+  }, [employeeCode, onClose, confirmDeleteOpen, confirmResetOpen, confirmStatusOpen]);
 
   if (!employeeCode) return null;
 
@@ -156,6 +162,44 @@ export default function EmployeeViewDialog({
   const handleDeleteCancel = () => {
     if (deleting) return;
     setConfirmDeleteOpen(false);
+  };
+
+  const handleStatusRequest = () => {
+    setConfirmStatusOpen(true);
+  };
+
+  const handleStatusConfirm = async () => {
+    setStatusChanging(true);
+    const newStatus =
+      employee.status === EMPLOYEE_STATUS.Active
+        ? EMPLOYEE_STATUS.Inactive
+        : EMPLOYEE_STATUS.Active;
+
+    try {
+      await api.patch(`/admin/employees/${encodeURIComponent(employee.employeeCode)}/status`, {
+        status: newStatus,
+      });
+      setEmployee({ ...employee, status: newStatus });
+      setConfirmStatusOpen(false);
+      setResetMsg({
+        type: "success",
+        text: `Employee has been ${newStatus === EMPLOYEE_STATUS.Active ? "activated" : "deactivated"} successfully.`,
+      });
+      if (onStatusChanged) onStatusChanged();
+    } catch (err) {
+      setResetMsg({
+        type: "error",
+        text: err.response?.data?.message || "Failed to change status.",
+      });
+      setConfirmStatusOpen(false);
+    } finally {
+      setStatusChanging(false);
+    }
+  };
+
+  const handleStatusCancel = () => {
+    if (statusChanging) return;
+    setConfirmStatusOpen(false);
   };
 
   const formatDate = (dateStr) => {
@@ -248,6 +292,29 @@ export default function EmployeeViewDialog({
                   >
                     <RiLockPasswordLine size={15} />
                     {resetting ? "Resetting…" : "Reset Password"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`${actionBtnBase} ${
+                      employee.status === EMPLOYEE_STATUS.Active
+                        ? "bg-slate-50 text-slate-600 border-slate-200 hover:not-disabled:bg-slate-600 hover:not-disabled:text-white hover:not-disabled:border-slate-600"
+                        : "bg-green-50 text-green-600 border-green-200 hover:not-disabled:bg-green-600 hover:not-disabled:text-white hover:not-disabled:border-green-600"
+                    }`}
+                    onClick={handleStatusRequest}
+                    disabled={statusChanging}
+                  >
+                    {employee.status === EMPLOYEE_STATUS.Active ? (
+                      <>
+                        <HiOutlineXCircle size={15} />
+                        Deactivate
+                      </>
+                    ) : (
+                      <>
+                        <HiOutlineCheckCircle size={15} />
+                        Activate
+                      </>
+                    )}
                   </button>
 
                   <button
@@ -405,14 +472,28 @@ export default function EmployeeViewDialog({
       {/* Delete confirmation — rendered outside the overlay to stack correctly */}
       <ConfirmDialog
         open={confirmDeleteOpen}
-        title="Delete employee?"
-        message="This will permanently remove this employee from the system. This action can't be undone."
-        confirmLabel="Delete"
+        title="Delete Employee"
+        message={`Are you sure you want to delete ${employee?.firstName} ${employee?.lastName}? This action cannot be undone.`}
+        confirmLabel={deleting ? "Deleting…" : "Delete"}
         cancelLabel="Cancel"
-        danger
-        loading={deleting}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        danger
+        loading={deleting}
+      />
+
+      <ConfirmDialog
+        open={confirmStatusOpen}
+        title={`${employee?.status === EMPLOYEE_STATUS.Active ? "Deactivate" : "Activate"} Employee`}
+        message={`Are you sure you want to ${
+          employee?.status === EMPLOYEE_STATUS.Active ? "deactivate" : "activate"
+        } ${employee?.firstName} ${employee?.lastName}?`}
+        confirmLabel={statusChanging ? "Changing…" : "Yes, change status"}
+        cancelLabel="Cancel"
+        onConfirm={handleStatusConfirm}
+        onCancel={handleStatusCancel}
+        danger={employee?.status === EMPLOYEE_STATUS.Active}
+        loading={statusChanging}
       />
     </>
   );

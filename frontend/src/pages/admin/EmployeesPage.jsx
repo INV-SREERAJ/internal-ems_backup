@@ -134,6 +134,10 @@ export default function EmployeesPage() {
     }
   };
 
+  const handleStatusChanged = () => {
+    setRefreshKey((key) => key + 1);
+  };
+
 
 
   const currentRoleLabel =
@@ -278,6 +282,7 @@ export default function EmployeesPage() {
         employeeCode={viewingEmployee}
         onClose={() => setViewingEmployee(null)}
         onDeleted={handleDeleted}
+        onStatusChanged={handleStatusChanged}
       />
     </section>
   );

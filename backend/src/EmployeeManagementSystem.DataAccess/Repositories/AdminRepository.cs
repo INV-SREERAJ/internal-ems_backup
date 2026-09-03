@@ -1,4 +1,4 @@
-﻿
+
 using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Common.Extensions;
 using EmployeeManagementSystem.DataAccess.Context;
@@ -42,6 +42,22 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 parameters.PageSize);
         }
 
+
+        
+        public async Task<(int Total, int Active, int Inactive, Dictionary<Role, int> Roles)> GetDashboardStatsAsync()
+        {
+            var query = _context.Employees.Where(e => e.Status != EmployeeStatus.Deleted);
+            
+            var total = await query.CountAsync();
+            var active = await query.CountAsync(e => e.Status == EmployeeStatus.Active);
+            var inactive = await query.CountAsync(e => e.Status == EmployeeStatus.Inactive);
+            
+            var roles = await query.GroupBy(e => e.Role)
+                                   .Select(g => new { Role = g.Key, Count = g.Count() })
+                                   .ToDictionaryAsync(x => x.Role, x => x.Count);
+                                   
+            return (total, active, inactive, roles);
+        }
 
         public async Task<string?> GetLastEmployeeCodeAsync(int year)
         {

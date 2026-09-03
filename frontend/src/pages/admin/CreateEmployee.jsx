@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import api from "../../api/axios";
 import { ROLES, VALIDATION } from "../../utils/constants";
 import { RxChevronDown, RxCross2 } from "react-icons/rx";
+import { useManagerSearch } from "../../hooks/useManagerSearch";
 
 export default function CreateEmployee() {
   const navigate = useNavigate();
@@ -18,11 +19,9 @@ export default function CreateEmployee() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const [managers, setManagers] = useState([]);
-  const [managerLoading, setManagerLoading] = useState(true);
-  const [managerError, setManagerError] = useState(null);
-
   const [managerSearch, setManagerSearch] = useState("");
+  const { managers, managerLoading, managerError } = useManagerSearch(managerSearch);
+
   const [managerDropdownOpen, setManagerDropdownOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
 
@@ -32,40 +31,7 @@ export default function CreateEmployee() {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const roleSelectRef = useRef(null);
 
-  useEffect(() => {
-    const fetchManagers = async () => {
-      try {
-        setManagerLoading(true);
-        setManagerError(null);
-
-        const managerRes = await api.get("/admin/employees", {
-          params: {
-            pageNumber: 1,
-            pageSize: 100,
-            role: "manager",
-          },
-        });
-
-        const adminRes = await api.get("/admin/employees", {
-          params: {
-            pageNumber: 1,
-            pageSize: 100,
-            role: "admin",
-          },
-        });
-
-        const combined = [...adminRes.data.data, ...managerRes.data.data];
-        setManagers(combined);
-      } catch (error) {
-        console.error("Failed to fetch managers:", error);
-        setManagerError("Failed to load managers.");
-      } finally {
-        setManagerLoading(false);
-      }
-    };
-
-    fetchManagers();
-  }, []);
+  // Role dropdown state
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -91,18 +57,7 @@ export default function CreateEmployee() {
     };
   }, []);
 
-  const filteredManagers = managers.filter((manager) => {
-    const search = managerSearch.toLowerCase().trim();
-
-    if (!search) {
-      return true;
-    }
-
-    return (
-      manager.fullName.toLowerCase().includes(search) ||
-      manager.employeeCode.toLowerCase().includes(search)
-    );
-  });
+  // (filteredManagers removed since backend does search now)
 
   const validateForm = () => {
     const newErrors = {};
@@ -442,29 +397,38 @@ export default function CreateEmployee() {
 
             {managerDropdownOpen && (
               <div className="absolute top-[calc(100%+4px)] inset-x-0 z-20 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-[0_8px_20px_rgba(15,23,42,0.1)]">
-                {managerLoading && (
+                {managerSearch.trim().length < 2 && (
                   <div className="p-3 text-[13px] text-slate-500">
-                    Loading managers...
+                    Type at least 2 characters to search...
                   </div>
                 )}
 
-                {!managerLoading && managerError && (
+                {managerSearch.trim().length >= 2 && managerLoading && (
+                  <div className="p-3 text-[13px] text-slate-500 flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
+                    Searching...
+                  </div>
+                )}
+
+                {managerSearch.trim().length >= 2 && !managerLoading && managerError && (
                   <div className="p-3 text-[13px] text-red-600">
                     {managerError}
                   </div>
                 )}
 
-                {!managerLoading &&
+                {managerSearch.trim().length >= 2 &&
+                  !managerLoading &&
                   !managerError &&
-                  filteredManagers.length === 0 && (
+                  managers.length === 0 && (
                     <div className="p-3 text-[13px] text-slate-500">
                       No managers found.
                     </div>
                   )}
 
-                {!managerLoading &&
+                {managerSearch.trim().length >= 2 &&
+                  !managerLoading &&
                   !managerError &&
-                  filteredManagers.map((manager) => (
+                  managers.map((manager) => (
                     <button
                       key={manager.employeeCode}
                       type="button"
