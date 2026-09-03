@@ -44,7 +44,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
 
 
         
-        public async Task<(int Total, int Active, int Inactive, System.Collections.Generic.Dictionary<EmployeeManagementSystem.DataAccess.Entities.Enums.Role, int> Roles)> GetDashboardStatsAsync()
+        public async Task<(int Total, int Active, int Inactive, Dictionary<Role, int> Roles)> GetDashboardStatsAsync()
         {
             var query = _context.Employees.Where(e => e.Status != EmployeeStatus.Deleted);
             

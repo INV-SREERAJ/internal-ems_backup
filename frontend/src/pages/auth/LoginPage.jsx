@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { FaShieldAlt } from "react-icons/fa";
 import { FaBuilding, FaUsers, FaKey } from "react-icons/fa6";
 import PasswordInput from "../../components/common/PasswordInput";
 import { AUTH_STATUS } from "../../utils/authStatus";
+import { getDefaultRoute } from "../../App";
 
 export default function LoginPage() {
   const { login, status, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,10 +24,8 @@ export default function LoginPage() {
     if (status === AUTH_STATUS.AUTHENTICATED) {
       if (user?.mustChangePassword) {
         navigate("/change-password", { replace: true });
-      } else if (user?.role === "Admin") {
-        navigate("/admin", { replace: true });
       } else {
-        navigate("/employee/dashboard", { replace: true });
+        navigate(getDefaultRoute(user), { replace: true });
       }
     }
   }, [status, user, navigate]);
@@ -67,10 +67,8 @@ export default function LoginPage() {
 
       if (loggedInUser?.mustChangePassword) {
         navigate("/change-password", { replace: true });
-      } else if (loggedInUser?.role === "Admin") {
-        navigate("/admin", { replace: true });
       } else {
-        navigate("/employee/dashboard", { replace: true });
+        navigate(getDefaultRoute(loggedInUser), { replace: true });
       }
     } catch (err) {
       const message =
@@ -143,6 +141,12 @@ export default function LoginPage() {
                 Access your enterprise workforce account
               </p>
             </div>
+
+            {location.state?.message && !apiError && (
+              <div className="p-3 bg-green-50 border border-green-300 rounded-lg text-green-700 text-sm text-center">
+                {location.state.message}
+              </div>
+            )}
 
             {apiError && (
               <div className="p-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm text-center">
