@@ -28,6 +28,22 @@ namespace EmployeeManagementSystem.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        
+        //get dashboard stats
+        [HttpGet("stats")]
+        [ProducesResponseType(typeof(AdminDashboardStatsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            _logger.LogInformation("Inside GetDashboardStats.");
+            var result = await _adminService.GetDashboardStatsAsync();
+
+            if (!result.Success)
+                return this.ToErrorActionResult(result);
+
+            return Ok(result.Value);
+        }
+
         public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeRequest request)
         {
             _logger.LogInformation("Inside CreateEmployee for creation request.");
@@ -194,5 +210,8 @@ namespace EmployeeManagementSystem.Api.Controllers
 
             return Ok("The password for the user has been reset.");
         }
+
     }
 }
+
+

@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.DataAccess.Common;
+using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Common.Extensions;
 using EmployeeManagementSystem.DataAccess.Context;
 using EmployeeManagementSystem.DataAccess.Entities;
@@ -59,8 +59,19 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         }
 
 
-        public async Task<bool> HasActiveDirectReportsAsync(
-            int managerId)
+        
+        public async Task<(int Total, int Active, int Inactive)> GetDashboardStatsAsync(int managerId)
+        {
+            var query = _context.Employees.Where(e => e.ManagerId == managerId && e.Status != EmployeeStatus.Deleted);
+            
+            var total = await query.CountAsync();
+            var active = await query.CountAsync(e => e.Status == EmployeeStatus.Active);
+            var inactive = await query.CountAsync(e => e.Status == EmployeeStatus.Inactive);
+            
+            return (total, active, inactive);
+        }
+
+        public async Task<bool> HasActiveDirectReportsAsync(int managerId)
         {
             return await _context.Employees.AnyAsync(e =>
                 e.ManagerId == managerId &&

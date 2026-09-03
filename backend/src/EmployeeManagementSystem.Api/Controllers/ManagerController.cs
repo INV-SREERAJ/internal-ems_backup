@@ -52,5 +52,29 @@ namespace EmployeeManagementSystem.Api.Controllers
 
             return Ok(result.Value);
         }
-    }
+    
+        //get dashboard stats
+        [HttpGet("stats")]
+        [ProducesResponseType(typeof(EmployeeManagementSystem.Business.DTOs.Manager.ManagerDashboardStatsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            var managerCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(managerCode))
+            {
+                _logger.LogWarning("Manager Dashboard stats failed, manager code is missing in token.");
+                return Unauthorized(new { message = "Manager code is missing." });
+            }
+            
+            _logger.LogInformation("Inside GetDashboardStats for {managerCode}.", managerCode);
+            var result = await _managerService.GetDashboardStatsAsync(managerCode);
+
+            if (!result.Success)
+                return this.ToErrorActionResult(result);
+
+            return Ok(result.Value);
+        }}
 }
+
+

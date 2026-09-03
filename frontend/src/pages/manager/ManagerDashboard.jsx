@@ -21,34 +21,25 @@ export default function ManagerDashboard() {
       setError(null);
 
       try {
-        const response = await api.get("/manager/employees", {
-          params: {
-            pageNumber: 1,
-            pageSize: 100,
-          },
-        });
-
-        const allEmployees = response.data.data || [];
-
-        const totalEmployees = allEmployees.filter(
-          (e) => e.status !== EMPLOYEE_STATUS.Deleted
-        ).length;
-
-        const activeCount = allEmployees.filter(
-          (e) => e.status === EMPLOYEE_STATUS.Active
-        ).length;
-
-        const inactiveCount = allEmployees.filter(
-          (e) => e.status === EMPLOYEE_STATUS.Inactive
-        ).length;
+        const [statsRes, recentRes] = await Promise.all([
+          api.get("/manager/stats"),
+          api.get("/manager/employees", {
+            params: {
+              pageNumber: 1,
+              pageSize: 8,
+              sortBy: "CreatedAt",
+              descending: true,
+            },
+          }),
+        ]);
 
         setStats({
-          total: totalEmployees,
-          active: activeCount,
-          inactive: inactiveCount,
+          total: statsRes.data.totalEmployees,
+          active: statsRes.data.activeEmployees,
+          inactive: statsRes.data.inactiveEmployees,
         });
 
-        setRecentEmployees(allEmployees.slice(0, 6));
+        setRecentEmployees(recentRes.data.data);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load dashboard data.");
       } finally {

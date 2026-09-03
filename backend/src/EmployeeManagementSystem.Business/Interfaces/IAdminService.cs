@@ -1,7 +1,8 @@
-﻿using EmployeeManagementSystem.Business.Common;
+using EmployeeManagementSystem.Business.Common;
 using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
+
 
 namespace EmployeeManagementSystem.Business.Interfaces
 {
@@ -10,6 +11,7 @@ namespace EmployeeManagementSystem.Business.Interfaces
         Task<Result<CreateEmployeeResponse>> CreateEmployeeAsync(CreateEmployeeRequest request);
 
         Task<Result<PagedResponse<EmployeeListDto>>> GetEmployeesAsync(EmployeeQueryParameters parameters);
+        Task<Result<AdminDashboardStatsDto>> GetDashboardStatsAsync();
         Task<Result<bool>> UpdateEmployeeStatusAsync(string employeeCode, EmployeeStatus status, string currentEmployeeCode);
 
         Task<Result<EmployeeDetailsResponseDto>> GetEmployeeDetailsAsync(string employeeCode);
@@ -23,3 +25,4 @@ namespace EmployeeManagementSystem.Business.Interfaces
         Task<Result> ResetUserPasswordAsync(string employeeCode);
     }
 }
+

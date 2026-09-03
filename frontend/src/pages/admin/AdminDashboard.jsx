@@ -23,50 +23,26 @@ export default function AdminDashboard() {
       setError(null);
 
       try {
-        // Fetch first page of employees to derive dashboard stats
-        const response = await api.get("/admin/employees", {
-          params: {
-            pageNumber: 1,
-            pageSize: 100,
-          },
-        });
-
-        const allEmployees = response.data.data || [];
-
-        // Compute stats from the data
-        const totalEmployees = allEmployees.filter(
-          (e) => e.status !== EMPLOYEE_STATUS.Deleted,
-        ).length;
-
-        const activeCount = allEmployees.filter(
-          (e) => e.status === EMPLOYEE_STATUS.Active,
-        ).length;
-
-        const inactiveCount = allEmployees.filter(
-          (e) => e.status === EMPLOYEE_STATUS.Inactive,
-        ).length;
-
-        // Count roles by string value (API returns role as a display string)
-        const roleCounts = {};
-        for (const e of allEmployees) {
-          if (e.status !== EMPLOYEE_STATUS.Deleted && e.role) {
-            roleCounts[e.role] = (roleCounts[e.role] || 0) + 1;
-          }
-        }
+        const [statsRes, recentRes] = await Promise.all([
+          api.get("/admin/stats"),
+          api.get("/admin/employees", {
+            params: {
+              pageNumber: 1,
+              pageSize: 8,
+              sortBy: "CreatedAt",
+              descending: true,
+            },
+          }),
+        ]);
 
         setStats({
-          total: totalEmployees,
-          active: activeCount,
-          inactive: inactiveCount,
-          roles: roleCounts,
+          total: statsRes.data.totalEmployees,
+          active: statsRes.data.activeEmployees,
+          inactive: statsRes.data.inactiveEmployees,
+          roles: statsRes.data.roleStats,
         });
 
-        // Get the 5 most recent (non-deleted) for the table
-        const recent = allEmployees
-          .filter((e) => e.status !== EMPLOYEE_STATUS.Deleted)
-          .slice(-8);
-
-        setRecentEmployees(recent);
+        setRecentEmployees(recentRes.data.data);
       } catch {
         setError("Failed to load dashboard data.");
       } finally {
