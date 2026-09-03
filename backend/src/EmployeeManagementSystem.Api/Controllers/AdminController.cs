@@ -28,7 +28,20 @@ namespace EmployeeManagementSystem.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        
+        public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeRequest request)
+        {
+            _logger.LogInformation("Inside CreateEmployee for creation request.");
+            var response = await _adminService.CreateEmployeeAsync(request);
+
+            if (!response.Success)
+                return this.ToErrorActionResult(response);
+
+            return CreatedAtAction(
+                nameof(CreateEmployee),
+                new { employeeCode = response.Value?.EmployeeCode },
+                response.Value);
+        }
+
         //get dashboard stats
         [HttpGet("stats")]
         [ProducesResponseType(typeof(AdminDashboardStatsDto), StatusCodes.Status200OK)]
@@ -44,19 +57,7 @@ namespace EmployeeManagementSystem.Api.Controllers
             return Ok(result.Value);
         }
 
-        public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeRequest request)
-        {
-            _logger.LogInformation("Inside CreateEmployee for creation request.");
-            var response = await _adminService.CreateEmployeeAsync(request);
-
-            if (!response.Success)
-                return this.ToErrorActionResult(response);
-
-            return CreatedAtAction(
-                nameof(CreateEmployee),
-                new { employeeCode = response.Value?.EmployeeCode },
-                response.Value);
-        }
+        
 
         //get all available employees
         [HttpGet("employees")]
