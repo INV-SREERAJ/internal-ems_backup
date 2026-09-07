@@ -72,5 +72,23 @@ namespace EmployeeManagementSystem.Api.Controllers
                 Message = "Password changed successfully."
             });
         }
+
+
+        //get manager details
+        [HttpGet("my-manager")]
+        [ProducesResponseType(typeof(ReportingManagerResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetManager()
+        {
+            _logger.LogInformation("Inside getmanager in controller to get details.");
+            var result = await _profileService.GetAssignedManagerAsync(User);
+            if (!result.Success)
+            {
+                return this.ToErrorActionResult(result);
+            }
+            return Ok(result.Value);
+        }
     }
 }

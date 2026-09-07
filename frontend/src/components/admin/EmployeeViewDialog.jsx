@@ -171,7 +171,7 @@ export default function EmployeeViewDialog({
   const handleStatusConfirm = async () => {
     setStatusChanging(true);
     const newStatus =
-      employee.status === EMPLOYEE_STATUS.Active
+      Number(employee.status) === EMPLOYEE_STATUS.Active
         ? EMPLOYEE_STATUS.Inactive
         : EMPLOYEE_STATUS.Active;
 
@@ -297,14 +297,14 @@ export default function EmployeeViewDialog({
                   <button
                     type="button"
                     className={`${actionBtnBase} ${
-                      employee.status === EMPLOYEE_STATUS.Active
+                      Number(employee.status) === EMPLOYEE_STATUS.Active
                         ? "bg-slate-50 text-slate-600 border-slate-200 hover:not-disabled:bg-slate-600 hover:not-disabled:text-white hover:not-disabled:border-slate-600"
                         : "bg-green-50 text-green-600 border-green-200 hover:not-disabled:bg-green-600 hover:not-disabled:text-white hover:not-disabled:border-green-600"
                     }`}
                     onClick={handleStatusRequest}
                     disabled={statusChanging}
                   >
-                    {employee.status === EMPLOYEE_STATUS.Active ? (
+                    {Number(employee.status) === EMPLOYEE_STATUS.Active ? (
                       <>
                         <HiOutlineXCircle size={15} />
                         Deactivate
@@ -402,7 +402,7 @@ export default function EmployeeViewDialog({
                         className={`inline-flex w-fit px-2 py-[3px] rounded-full text-xs font-semibold ${STATUS_CLASS[Number(employee.status)] || "bg-red-100 text-red-800"
                           }`}
                       >
-                        {STATUS_LABEL[employee.status] || "—"}
+                        {STATUS_LABEL[Number(employee.status)] || "—"}
                       </span>
                     </div>
 
@@ -484,15 +484,15 @@ export default function EmployeeViewDialog({
 
       <ConfirmDialog
         open={confirmStatusOpen}
-        title={`${employee?.status === EMPLOYEE_STATUS.Active ? "Deactivate" : "Activate"} Employee`}
+        title={`${Number(employee?.status) === EMPLOYEE_STATUS.Active ? "Deactivate" : "Activate"} Employee`}
         message={`Are you sure you want to ${
-          employee?.status === EMPLOYEE_STATUS.Active ? "deactivate" : "activate"
+          Number(employee?.status) === EMPLOYEE_STATUS.Active ? "deactivate" : "activate"
         } ${employee?.firstName} ${employee?.lastName}?`}
         confirmLabel={statusChanging ? "Changing…" : "Yes, change status"}
         cancelLabel="Cancel"
         onConfirm={handleStatusConfirm}
         onCancel={handleStatusCancel}
-        danger={employee?.status === EMPLOYEE_STATUS.Active}
+        danger={Number(employee?.status) === EMPLOYEE_STATUS.Active}
         loading={statusChanging}
       />
     </>
