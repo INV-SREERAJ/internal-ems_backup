@@ -87,6 +87,7 @@ namespace EmployeeManagementSystem.Business.Services
                 new Claim("EmployeeCode", employee.EmployeeCode),
                 new Claim("TokenVersion", employee.TokenVersion.ToString()),
                 new Claim("TokenType", "Access"),
+                new Claim("firstName", employee.FirstName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

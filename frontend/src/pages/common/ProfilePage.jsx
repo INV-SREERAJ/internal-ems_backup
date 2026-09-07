@@ -4,8 +4,9 @@ import { VALIDATION } from "../../utils/constants";
 import PasswordInput from "../../components/common/PasswordInput";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { HiOutlineUser, HiOutlineLockClosed } from "react-icons/hi2";
+import { ROLES, ROLE_LABEL } from "../../utils/constants";
 
-export default function ManagerProfilePage() {
+export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -386,7 +387,7 @@ export default function ManagerProfilePage() {
                 <label className={labelClass}>Role</label>
                 <input
                   type="text"
-                  value={profile?.role ? "Manager" : "Manager"}
+                  value={ROLE_LABEL[profile?.role]}
                   disabled
                   className="w-full box-border px-3.5 py-[11px] bg-slate-50 text-slate-500 border border-slate-200 rounded-lg font-sans text-sm cursor-not-allowed"
                 />

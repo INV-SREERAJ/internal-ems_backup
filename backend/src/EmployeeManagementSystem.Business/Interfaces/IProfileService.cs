@@ -10,5 +10,6 @@ namespace EmployeeManagementSystem.Business.Interfaces
         Task<Result<ProfileResponseDto>> GetProfileAsync(ClaimsPrincipal user);
         Task<Result<ProfileResponseDto>> UpdateProfileAsync(ClaimsPrincipal user, UpdateProfileRequestDto request);
         Task<Result> ChangePasswordAsync(ClaimsPrincipal user, ChangePasswordRequestDto request);
+        Task<Result<ReportingManagerResponseDto>> GetAssignedManagerAsync(ClaimsPrincipal user);
     }
 }

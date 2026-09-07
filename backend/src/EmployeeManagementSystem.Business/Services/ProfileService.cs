@@ -4,6 +4,7 @@ using EmployeeManagementSystem.Business.DTOs.ProfileResponseDto;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.DataAccess.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using System.Security.Claims;
 
 namespace EmployeeManagementSystem.Business.Services
@@ -70,6 +71,32 @@ namespace EmployeeManagementSystem.Business.Services
             return Result.Ok();
         }
 
+        public async Task<Result<ReportingManagerResponseDto>> GetAssignedManagerAsync(ClaimsPrincipal user)
+        {
+            _logger.LogInformation("Inside GetAssignedManagerAsync");
+            var employeeCode = user.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(employeeCode))
+            {
+                _logger.LogWarning("Invalid employee code : {employeeCode}", employeeCode);
+                return Result<ReportingManagerResponseDto>.Fail(ErrorType.Unauthorized, "Invalid user.");
+            }
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+
+            if (employee == null)
+            {
+                return Result<ReportingManagerResponseDto>.Fail(ErrorType.NotFound, "Employee not found.");
+            }
+
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(employee.Manager?.EmployeeCode);
+            return Result<ReportingManagerResponseDto>.Ok(new ReportingManagerResponseDto
+            {
+                ManagerEmployeeCode = manager.EmployeeCode,
+                ManagerEmail = manager.Email,
+                ManagerName = (manager.FirstName + " " + manager.LastName),
+                ManagerPhonenumber = manager.PhoneNumber
+            });
+        }
+
         // Get profile details
         public async Task<Result<ProfileResponseDto>> GetProfileAsync(ClaimsPrincipal user)
         {
@@ -79,7 +106,7 @@ namespace EmployeeManagementSystem.Business.Services
             {
                 return Result<ProfileResponseDto>.Fail(ErrorType.Unauthorized, "Invalid user.");
             }
-
+            
             var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
 
             if (employee == null)

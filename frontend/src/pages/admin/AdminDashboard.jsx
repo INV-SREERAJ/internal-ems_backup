@@ -84,7 +84,7 @@ export default function AdminDashboard() {
           Dashboard
         </h1>
         <p className="mt-1.5 mb-0 text-slate-500 text-sm">
-          Welcome back{user?.email ? `, ${user.email}` : ""}. Here's an overview
+          Welcome back{user?.firstName ? `, ${user.firstName}` : ""}. Here's an overview
           of your organization.
         </p>
       </div>

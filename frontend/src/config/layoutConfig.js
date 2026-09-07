@@ -90,8 +90,38 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
       },
     ],
-    getProfileButtonText: (user) =>
-      user?.firstName ? `${user.firstName}` : "Profile",
+    getProfileButtonText: () => "Profile",
+  },
+
+  [ROLE_LABEL[ROLES.Employee]]: {
+    brand: {
+      to: "/employee",
+      label: "Workforce",
+      highlight: "OS",
+      badge: "Employee",
+    },
+    sidebarNav: [
+      {
+        to: "/employee",
+        label: "Dashboard",
+        icon: HiOutlineSquares2X2,
+        end: true,
+      },
+      {
+        to: "/employee/profile",
+        label: "My Profile",
+        icon: HiOutlineUser,
+        end: true,
+      },
+    ],
+    profileMenu: () => [
+      {
+        to: "/employee/profile",
+        label: "My Profile",
+        icon: HiOutlineUser,
+      },
+    ],
+    getProfileButtonText: () => "Profile",
   },
 };
 

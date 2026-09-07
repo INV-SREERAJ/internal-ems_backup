@@ -22,9 +22,13 @@ const EditEmployeesSearchPage = lazy(() =>
 const ManagerLayout = lazy(() => import("./pages/manager/ManagerLayout"));
 const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
 const ManagerTeamPage = lazy(() => import("./pages/manager/ManagerTeamPage"));
-const ManagerProfilePage = lazy(() =>
-  import("./pages/manager/ManagerProfilePage")
-);
+
+// Employee pages
+const EmployeeLayout = lazy(() => import("./pages/employee/EmployeeLayout"));
+const EmployeeDashboard = lazy(() => import("./pages/employee/EmployeeDashboard"));
+
+// Common pages
+const ProfilePage = lazy(() => import("./pages/common/ProfilePage"));
 
 function ProtectedRoute({ children, allowedRoles, checkPasswordChange = true }) {
   const { status, user } = useAuth();
@@ -54,6 +58,8 @@ export function getDefaultRoute(user) {
       return "/admin";
     case ROLE_LABEL[ROLES.Manager]:
       return "/manager";
+    case ROLE_LABEL[ROLES.Employee]:
+      return "/employee";
     default:
       return "/unauthorized";
   }
@@ -125,7 +131,20 @@ export default function App() {
         >
           <Route index element={<ManagerDashboard />} />
           <Route path="team" element={<ManagerTeamPage />} />
-          <Route path="profile" element={<ManagerProfilePage />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* Employee Routes */}
+        <Route
+          path="/employee"
+          element={
+            <ProtectedRoute allowedRoles={[ROLE_LABEL[ROLES.Employee]]}>
+              <EmployeeLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<EmployeeDashboard />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         <Route

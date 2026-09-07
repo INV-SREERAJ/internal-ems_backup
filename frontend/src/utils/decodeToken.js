@@ -19,6 +19,7 @@ export function decodeToken(token) {
         ] ||
         decoded.role ||
         decoded.Role,
+      firstName: decoded.firstName,
     };
   } catch {
     return null;
