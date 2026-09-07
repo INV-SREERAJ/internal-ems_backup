@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { HiOutlineUserGroup, HiOutlineEnvelope, HiOutlinePhone, HiOutlineUser } from "react-icons/hi2";
 
-export default function EmployeeDashboard() {
+export default function ManagerMyManagerPage() {
   const [manager, setManager] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,6 @@ export default function EmployeeDashboard() {
     const fetchManager = async () => {
       try {
         setLoading(true);
-        // Using the new endpoint created by the user
         const response = await api.get("/profile/my-manager");
         setManager(response.data);
         setError(null);
@@ -19,7 +18,7 @@ export default function EmployeeDashboard() {
         // If 404, it might mean no manager is assigned
         if (err.response?.status === 404) {
           setManager(null);
-          setError("No reporting manager is currently assigned to you. New features will be accessible to you soon!");
+          setError("No reporting manager is currently assigned to you.");
         } else {
           setError(err.response?.data?.message || "Failed to load manager details.");
         }
@@ -35,10 +34,10 @@ export default function EmployeeDashboard() {
     <section className="w-full max-w-[1400px] mx-auto min-h-[calc(100vh-120px)] flex flex-col items-center pt-8">
       <div className="mb-8 text-center w-full">
         <h1 className="m-0 text-slate-900 text-[28px] font-bold tracking-[-0.5px] max-[767px]:text-2xl">
-          Dashboard
+          My Manager
         </h1>
         <p className="mt-1.5 mb-0 text-slate-500 text-sm max-[767px]:text-[13px]">
-          Welcome to the Employee Portal.
+          View your reporting manager details.
         </p>
       </div>
 

@@ -4,6 +4,7 @@ import {
   HiOutlineUserPlus,
   HiOutlinePencilSquare,
   HiOutlineUser,
+  HiOutlineUserGroup,
 } from "react-icons/hi2";
 import { ROLES, ROLE_LABEL } from "../utils/constants";
 
@@ -77,11 +78,18 @@ export const ROLE_LAYOUT_CONFIG = {
         end: true,
       },
       {
+        to: "/manager/my-manager",
+        label: "My Manager",
+        icon: HiOutlineUserGroup,
+        end: true,
+      },
+      {
         to: "/manager/profile",
         label: "My Profile",
         icon: HiOutlineUser,
         end: true,
       },
+
     ],
     profileMenu: () => [
       {
