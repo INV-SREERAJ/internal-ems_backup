@@ -6,7 +6,7 @@ import api from "../../api/axios";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { ROLES, VALIDATION } from "../../utils/constants";
 
-function validateEmployee(employee) {
+function validateEmployee(employee, managerSearch = "") {
   const errors = {};
 
   if (!employee.firstName?.trim()) {
@@ -39,6 +39,9 @@ function validateEmployee(employee) {
   ) {
     errors.managerEmployeeCode =
       "Manager employee code must be in the format EMPXXXXXXXX.";
+  } else if (!employee.managerEmployeeCode?.trim() && managerSearch.trim()) {
+    errors.managerEmployeeCode =
+      "Please select a manager from the dropdown or clear the search.";
   }
 
   return errors;
@@ -208,7 +211,7 @@ export default function EditEmployeePage() {
       return;
     }
 
-    const errors = validateEmployee(employee);
+    const errors = validateEmployee(employee, managerSearch);
 
     setFieldErrors(errors);
 

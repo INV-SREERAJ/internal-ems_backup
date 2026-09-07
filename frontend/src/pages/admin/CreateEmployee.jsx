@@ -24,6 +24,11 @@ export default function CreateEmployee() {
 
   const [managerDropdownOpen, setManagerDropdownOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
+  const selectedManagerRef = useRef(null);
+
+  useEffect(() => {
+    selectedManagerRef.current = selectedManager;
+  }, [selectedManager]);
 
   const managerSelectRef = useRef(null);
 
@@ -40,6 +45,16 @@ export default function CreateEmployee() {
         !managerSelectRef.current.contains(event.target)
       ) {
         setManagerDropdownOpen(false);
+        const currentSelected = selectedManagerRef.current;
+        if (currentSelected) {
+          setManagerSearch(
+            currentSelected.fullName
+              ? `${currentSelected.fullName} — ${currentSelected.employeeCode}`
+              : currentSelected.employeeCode
+          );
+        } else {
+          setManagerSearch("");
+        }
       }
 
       if (
@@ -102,6 +117,8 @@ export default function CreateEmployee() {
     ) {
       newErrors.managerEmployeeCode =
         "Manager employee code must be in the format EMPXXXXXXXX.";
+    } else if (!formData.managerEmployeeCode.trim() && managerSearch.trim()) {
+      newErrors.managerEmployeeCode = "Please select a manager from the dropdown or clear the search.";
     }
 
     setErrors(newErrors);
