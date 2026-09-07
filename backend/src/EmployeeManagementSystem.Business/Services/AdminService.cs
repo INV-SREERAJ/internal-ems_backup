@@ -104,16 +104,10 @@ namespace EmployeeManagementSystem.Business.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
+            var codeResult = await _employeeCodeGenerator.GenerateEmployeeCodeAsync(request.Role);
+            employee.EmployeeCode = codeResult.Value;
             await _employeeRepository.AddEmployeeAsync(employee);
 
-            var codeResult = await _employeeCodeGenerator.GenerateEmployeeCodeAsync(request.Role);
-            if (!codeResult.Success || codeResult.Value == null)
-            {
-                return Result<CreateEmployeeResponse>.Fail(codeResult.ErrorType, codeResult.Error ?? "Failed to generate employee code.");
-            }
-            employee.EmployeeCode = codeResult.Value;
-
-            await _employeeRepository.UpdateAsync(employee);
 
             //successful creation
             _logger.LogInformation("Employee {EmployeeCode} created successfully.", employee.EmployeeCode);
