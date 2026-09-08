@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="src/EmployeeManagementSystem.Api/EmployeeManagementSystem.Api.csproj" Id="3eb12b2d-79f3-44a0-9504-6242ca50b3be" />
+  <Project Path="src/EmployeeManagementSystem.Business/EmployeeManagementSystem.Business.csproj" />
+  <Project Path="src/EmployeeManagementSystem.DataAccess/EmployeeManagementSystem.DataAccess.csproj" />
+</Solution>
