@@ -22,6 +22,7 @@ const EditEmployeesSearchPage = lazy(() =>
 const ManagerLayout = lazy(() => import("./pages/manager/ManagerLayout"));
 const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
 const ManagerTeamPage = lazy(() => import("./pages/manager/ManagerTeamPage"));
+const ManagerMyManagerPage = lazy(() => import("./pages/manager/ManagerMyManagerPage"));
 
 // Employee pages
 const EmployeeLayout = lazy(() => import("./pages/employee/EmployeeLayout"));
@@ -131,6 +132,7 @@ export default function App() {
         >
           <Route index element={<ManagerDashboard />} />
           <Route path="team" element={<ManagerTeamPage />} />
+          <Route path="my-manager" element={<ManagerMyManagerPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
 
