@@ -30,20 +30,14 @@ export const ROLE_LAYOUT_CONFIG = {
       },
       {
         to: "/admin/employees",
-        label: "View Employees",
+        label: "Employees",
         icon: HiOutlineUsers,
         end: true,
       },
       {
         to: "/admin/employees/create-employee",
-        label: "Create Employee",
+        label: "Add Employee",
         icon: HiOutlineUserPlus,
-        end: true,
-      },
-      {
-        to: "/admin/employees/edit",
-        label: "Edit Employees",
-        icon: HiOutlinePencilSquare,
         end: true,
       },
     ],

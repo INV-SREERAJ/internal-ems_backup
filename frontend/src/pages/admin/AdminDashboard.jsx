@@ -7,7 +7,6 @@ import { HiOutlineUsers } from "react-icons/hi2";
 import { LiaUserSolid } from "react-icons/lia";
 import { FaPlus } from "react-icons/fa6";
 import { CiEdit } from "react-icons/ci";
-import { EMPLOYEE_STATUS } from "../../utils/constants";
 import RecentEmployeesCard from "../../components/common/RecentEmployeesCard";
 
 export default function AdminDashboard() {
@@ -164,7 +163,7 @@ export default function AdminDashboard() {
                 <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
                   <FaPlus size={18} />
                 </div>
-                Create Employee
+                Add Employee
               </Link>
 
               <Link
@@ -174,17 +173,7 @@ export default function AdminDashboard() {
                 <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
                   <HiOutlineUsers size={18} />
                 </div>
-                View All Employees
-              </Link>
-
-              <Link
-                to="/admin/employees/edit"
-                className="p-3 flex items-center gap-3 rounded-lg text-slate-700 text-sm font-medium no-underline transition-colors duration-150 hover:bg-slate-50"
-              >
-                <div className="w-9 h-9 flex items-center justify-center bg-blue-50 rounded-lg text-blue-600 shrink-0">
-                  <CiEdit size={18} />
-                </div>
-                Edit Employees
+                Employees
               </Link>
             </div>
           </div>

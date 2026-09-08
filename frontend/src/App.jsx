@@ -14,9 +14,6 @@ const EditEmployeePage = lazy(() => import("./pages/admin/EditEmployeePage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ChangePasswordPage = lazy(() => import("./pages/auth/ChangePasswordPage"));
 const CreateEmployee = lazy(() => import("./pages/admin/CreateEmployee"));
-const EditEmployeesSearchPage = lazy(() =>
-  import("./pages/admin/EditEmployeesSearchPage")
-);
 
 // Manager pages
 const ManagerLayout = lazy(() => import("./pages/manager/ManagerLayout"));
@@ -118,7 +115,6 @@ export default function App() {
             path="employees/edit/:employeeCode"
             element={<EditEmployeePage />}
           />
-          <Route path="employees/edit" element={<EditEmployeesSearchPage />} />
         </Route>
 
         {/* Manager Routes */}
