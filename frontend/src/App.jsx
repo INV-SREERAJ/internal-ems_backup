@@ -26,6 +26,7 @@ const EmployeeLayout = lazy(() => import("./pages/employee/EmployeeLayout"));
 const EmployeeDashboard = lazy(() => import("./pages/employee/EmployeeDashboard"));
 
 // Common pages
+const AppLayout = lazy(() => import("./components/common/AppLayout"));
 const ProfilePage = lazy(() => import("./pages/common/ProfilePage"));
 
 function ProtectedRoute({ children, allowedRoles, checkPasswordChange = true }) {
@@ -91,10 +92,12 @@ export default function App() {
           path="/change-password"
           element={
             <ProtectedRoute checkPasswordChange={false}>
-              <ChangePasswordPage />
+              <AppLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<ChangePasswordPage />} />
+        </Route>
 
         {/* Admin Routes */}
         <Route

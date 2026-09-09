@@ -95,16 +95,8 @@ export default function ChangePasswordPage() {
   const errorClass = "block text-red-500 text-[13px] font-medium mt-1.5";
 
   return (
-    <div className="login-gradient-bg min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      <div className="absolute top-6 left-8 flex items-center gap-2 text-white text-[22px] font-bold tracking-[-0.5px] z-20">
-        <span>
-          WorkForce <span className="text-blue-500">OS</span>
-        </span>
-      </div>
-
-      <div
-        className="relative w-full max-w-[480px] bg-white rounded-2xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] flex flex-col max-h-[90vh] [animation:slide-up_0.3s_ease-out_forwards]"
-      >
+    <section className="w-full max-w-[500px] mx-auto pt-20 font-sans">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col">
         <div className="px-6 py-5 border-b border-slate-200 flex items-center gap-3 bg-slate-50/50 rounded-t-2xl">
           <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0">
             <HiOutlineLockClosed size={18} />
@@ -210,6 +202,6 @@ export default function ChangePasswordPage() {
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
