@@ -53,7 +53,8 @@ namespace EmployeeManagementSystem.Api.Middleware
             var allowedEndpoints = new[]
             {
                 "/api/profile/change-password",
-                "/api/auth/refresh"
+                "/api/auth/refresh",
+                "/api/auth/logout"
             };
 
             if (allowedEndpoints.Contains(path))

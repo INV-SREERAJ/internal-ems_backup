@@ -88,6 +88,11 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
             var manager = await _employeeRepository.GetByEmployeeCodeAsync(employee.Manager?.EmployeeCode);
+            if(manager == null)
+            {
+                _logger.LogWarning("Manager not found for employee " + employeeCode + " and handled at service layer GetAssignedManagerAsync");
+                return Result<ReportingManagerResponseDto>.Fail(ErrorType.NotFound, "Manager not found.");
+            }
             return Result<ReportingManagerResponseDto>.Ok(new ReportingManagerResponseDto
             {
                 ManagerEmployeeCode = manager.EmployeeCode,
