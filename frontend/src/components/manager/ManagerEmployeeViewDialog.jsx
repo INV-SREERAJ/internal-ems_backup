@@ -64,13 +64,15 @@ export default function ManagerEmployeeViewDialog({
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "—";
-    const date = new Date(dateStr);
+    const normalizedDate = dateStr.endsWith("Z") ? dateStr : `${dateStr}Z`;
+    const date = new Date(normalizedDate);
     return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Asia/Kolkata",
     });
   };
 

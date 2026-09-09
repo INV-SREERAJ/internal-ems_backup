@@ -13,6 +13,10 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
 
             builder.HasKey(u => u.Id);
 
+            builder.HasIndex(u => u.EmployeeCode)
+                .IsUnique();
+
+
             builder.HasIndex(u => u.Email)
                    .IsUnique();
 
