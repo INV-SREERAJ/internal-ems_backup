@@ -28,6 +28,7 @@ const EmployeeDashboard = lazy(() => import("./pages/employee/EmployeeDashboard"
 // Common pages
 const AppLayout = lazy(() => import("./components/common/AppLayout"));
 const ProfilePage = lazy(() => import("./pages/common/ProfilePage"));
+const NotFoundPage = lazy(() => import("./pages/common/NotFoundPage"));
 
 function ProtectedRoute({ children, allowedRoles, checkPasswordChange = true }) {
   const { status, user } = useAuth();
@@ -45,7 +46,7 @@ function ProtectedRoute({ children, allowedRoles, checkPasswordChange = true }) 
   }
 
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/not-found" replace />;
   }
 
   return children;
@@ -149,14 +150,14 @@ export default function App() {
         </Route>
 
         <Route
-          path="*"
           element={
-            <Navigate
-              to={status === AUTH_STATUS.AUTHENTICATED ? defaultRoute : "/login"}
-              replace
-            />
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
           }
-        />
+        >
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Routes>
     </Suspense>
   );
