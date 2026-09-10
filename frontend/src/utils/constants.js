@@ -43,4 +43,5 @@ export const VALIDATION = {
   /** Indian 10-digit mobile: starts with 6-9 */
   PHONE_REGEX: /^[6-9]\d{9}$/,
   EMPLOYEE_CODE_REGEX: /^EMP\d{8}$/,
+  NAME_REGEX: /^[^\d]+$/,
 };

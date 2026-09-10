@@ -11,10 +11,14 @@ function validateEmployee(employee, hasUnresolvedManagerSearch = false) {
 
   if (!employee.firstName?.trim()) {
     errors.firstName = "First name is required.";
+  } else if (!VALIDATION.NAME_REGEX.test(employee.firstName.trim())) {
+    errors.firstName = "First name cannot contain numbers.";
   }
 
   if (!employee.lastName?.trim()) {
     errors.lastName = "Last name is required.";
+  } else if (!VALIDATION.NAME_REGEX.test(employee.lastName.trim())) {
+    errors.lastName = "Last name cannot contain numbers.";
   }
 
   if (!employee.email?.trim()) {

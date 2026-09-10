@@ -11,13 +11,17 @@ namespace EmployeeManagementSystem.Business.Validators.Admin
                 .NotEmpty()
                 .WithMessage("First name is required.")
                 .Length(2, 50)
-                .WithMessage("First name must be between 2 and 50 characters.");
+                .WithMessage("First name must be between 2 and 50 characters.")
+                .Matches(@"^[a-zA-Z]+$")
+                .WithMessage("First name can contain only letters.");
 
             RuleFor(x => x.LastName)
                 .NotEmpty()
                 .WithMessage("Last name is required.")
                 .Length(1, 50)
-                .WithMessage("Last name must be between 1 and 50 characters.");
+                .WithMessage("Last name must be between 1 and 50 characters.")
+                .Matches(@"^[a-zA-Z]+$")
+                .WithMessage("Last name can contain only letters.");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
