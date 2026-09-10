@@ -6,7 +6,7 @@ import api from "../../api/axios";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { ROLES, VALIDATION } from "../../utils/constants";
 
-function validateEmployee(employee, managerSearch = "") {
+function validateEmployee(employee, hasUnresolvedManagerSearch = false) {
   const errors = {};
 
   if (!employee.firstName?.trim()) {
@@ -39,12 +39,43 @@ function validateEmployee(employee, managerSearch = "") {
   ) {
     errors.managerEmployeeCode =
       "Manager employee code must be in the format EMPXXXXXXXX.";
-  } else if (!employee.managerEmployeeCode?.trim() && managerSearch.trim()) {
-    errors.managerEmployeeCode =
-      "Please select a manager from the dropdown or clear the search.";
+  } else if (
+    !employee.managerEmployeeCode?.trim() &&
+    hasUnresolvedManagerSearch
+  ) {
+    // The user typed something into the manager search box but never
+    // actually picked a result (or "None / Unassigned") from the list.
+    errors.managerEmployeeCode = "Please select a valid manager.";
   }
 
   return errors;
+}
+
+// Derives the manager dropdown's display state (selected option + search text)
+// from an employee record. Used both when an employee is first loaded and
+// when we need to resync the UI back to the server's actual saved state
+// (e.g. after a manager-change request fails).
+function buildManagerDisplayState(data) {
+  if (!data?.managerEmployeeCode) {
+    if (data?.role === "Admin") {
+      return { selectedManager: null, managerSearch: "" };
+    }
+    
+    return {
+      selectedManager: { isNone: true, fullName: "None / Unassigned", employeeCode: "" },
+      managerSearch: "None / Unassigned",
+    };
+  }
+
+  return {
+    selectedManager: {
+      employeeCode: data.managerEmployeeCode,
+      fullName: data.managerName || data.managerEmployeeCode,
+    },
+    managerSearch: data.managerName
+      ? `${data.managerName} — ${data.managerEmployeeCode}`
+      : data.managerEmployeeCode,
+  };
 }
 
 export default function EditEmployeePage() {
@@ -93,21 +124,10 @@ export default function EditEmployeePage() {
         setEmployee(response.data);
         setInitialEmployee(response.data);
 
-        if (response.data.managerEmployeeCode) {
-          const mgr = {
-            employeeCode: response.data.managerEmployeeCode,
-            fullName: response.data.managerName || response.data.managerEmployeeCode,
-          };
-          setSelectedManager(mgr);
-          setManagerSearch(
-            response.data.managerName
-              ? `${response.data.managerName} — ${response.data.managerEmployeeCode}`
-              : response.data.managerEmployeeCode
-          );
-        } else {
-          setSelectedManager(null);
-          setManagerSearch("");
-        }
+        const { selectedManager: mgr, managerSearch: mgrSearch } =
+          buildManagerDisplayState(response.data);
+        setSelectedManager(mgr);
+        setManagerSearch(mgrSearch);
       } catch (error) {
         setError(error.response?.data?.message || "Failed to load employee.");
       } finally {
@@ -118,8 +138,6 @@ export default function EditEmployeePage() {
     fetchEmployee();
   }, [employeeCode]);
 
-  // Role dropdown state
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -129,13 +147,15 @@ export default function EditEmployeePage() {
         setManagerDropdownOpen(false);
         const currentSelected = selectedManagerRef.current;
         if (currentSelected) {
-          setManagerSearch(
-            currentSelected.fullName
-              ? `${currentSelected.fullName} — ${currentSelected.employeeCode}`
-              : currentSelected.employeeCode
-          );
-        } else {
-          setManagerSearch("");
+          if (currentSelected.isNone) {
+            setManagerSearch(currentSelected.fullName);
+          } else {
+            setManagerSearch(
+              currentSelected.fullName
+                ? `${currentSelected.fullName} — ${currentSelected.employeeCode}`
+                : currentSelected.employeeCode
+            );
+          }
         }
       }
 
@@ -211,7 +231,17 @@ export default function EditEmployeePage() {
       return;
     }
 
-    const errors = validateEmployee(employee, managerSearch);
+    // "Unresolved" means the user typed into the manager search box but
+    // never actually selected a result (or explicitly chose
+    // "None / Unassigned"). We key this off selectedManager rather than
+    // comparing managerSearch text against a hardcoded label, so it keeps
+    // working even if that label ever changes.
+    const hasUnresolvedManagerSearch =
+      employee.role !== "Admin" &&
+      !selectedManager &&
+      managerSearch.trim().length > 0;
+
+    const errors = validateEmployee(employee, hasUnresolvedManagerSearch);
 
     setFieldErrors(errors);
 
@@ -250,8 +280,6 @@ export default function EditEmployeePage() {
         return;
       }
 
-
-
       const managerChanged =
         (employee.managerEmployeeCode || "") !==
         (initialEmployee.managerEmployeeCode || "");
@@ -263,17 +291,33 @@ export default function EditEmployeePage() {
             { managerEmployeeCode: employee.managerEmployeeCode?.trim() || null },
           );
 
+          // "None / Unassigned" is a real selection but not a real manager —
+          // make sure we store null, not the placeholder label text.
+          const isRealManagerSelected = selectedManager && !selectedManager.isNone;
+
           updatedEmployee = {
             ...updatedEmployee,
             managerEmployeeCode: employee.managerEmployeeCode || null,
-            managerName: selectedManager ? selectedManager.fullName : null,
+            managerName: isRealManagerSelected ? selectedManager.fullName : null,
           };
         } catch (error) {
+          // The detail PUT succeeded but the manager change didn't. Reset the
+          // form back to what's actually saved on the server (from the PUT
+          // response, which never touched the manager), AND resync the
+          // manager dropdown's visual state to match it — otherwise the
+          // dropdown keeps showing the failed selection while the real data
+          // underneath is unchanged.
           setEmployee(updatedEmployee);
           setInitialEmployee(updatedEmployee);
+
+          const { selectedManager: mgr, managerSearch: mgrSearch } =
+            buildManagerDisplayState(updatedEmployee);
+          setSelectedManager(mgr);
+          setManagerSearch(mgrSearch);
+
           setSaveError(
             error.response?.data?.message ||
-              "Details were saved, but changing reporting manager failed.",
+            "Details were saved, but changing reporting manager failed.",
           );
           setSaveSuccess(false);
           return;
@@ -413,9 +457,8 @@ export default function EditEmployeePage() {
                 type="text"
                 value={employee.firstName || ""}
                 onChange={(e) => handleChange("firstName", e.target.value)}
-                className={`${inputBase} ${
-                  fieldErrors.firstName ? inputInvalid : ""
-                }`}
+                className={`${inputBase} ${fieldErrors.firstName ? inputInvalid : ""
+                  }`}
                 aria-invalid={Boolean(fieldErrors.firstName)}
               />
 
@@ -436,9 +479,8 @@ export default function EditEmployeePage() {
                 type="text"
                 value={employee.lastName || ""}
                 onChange={(e) => handleChange("lastName", e.target.value)}
-                className={`${inputBase} ${
-                  fieldErrors.lastName ? inputInvalid : ""
-                }`}
+                className={`${inputBase} ${fieldErrors.lastName ? inputInvalid : ""
+                  }`}
                 aria-invalid={Boolean(fieldErrors.lastName)}
               />
 
@@ -459,9 +501,8 @@ export default function EditEmployeePage() {
                 type="tel"
                 value={employee.phoneNumber || ""}
                 onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                className={`${inputBase} ${
-                  fieldErrors.phoneNumber ? inputInvalid : ""
-                }`}
+                className={`${inputBase} ${fieldErrors.phoneNumber ? inputInvalid : ""
+                  }`}
                 aria-invalid={Boolean(fieldErrors.phoneNumber)}
               />
 
@@ -491,9 +532,8 @@ export default function EditEmployeePage() {
                 <button
                   id="role"
                   type="button"
-                  className={`flex items-center justify-between w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 text-left focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 cursor-pointer disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed ${
-                    fieldErrors.role ? inputInvalid : ""
-                  }`}
+                  className={`flex items-center justify-between w-full h-[42px] px-3 box-border border border-slate-300 rounded-lg bg-white text-slate-900 font-sans text-sm outline-none transition-[border-color,box-shadow] duration-150 text-left focus:border-blue-600 focus:ring-[3px] focus:ring-blue-600/10 cursor-pointer disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed ${fieldErrors.role ? inputInvalid : ""
+                    }`}
                   disabled={employee.role === "Admin" || saving}
                   onClick={() => {
                     if (employee.role === "Admin" || saving) return;
@@ -507,9 +547,8 @@ export default function EditEmployeePage() {
                   </span>
                   <RxChevronDown
                     size={14}
-                    className={`text-slate-400 transition-transform duration-150 shrink-0 ml-2 ${
-                      roleDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`text-slate-400 transition-transform duration-150 shrink-0 ml-2 ${roleDropdownOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -519,11 +558,10 @@ export default function EditEmployeePage() {
                       <button
                         key={role}
                         type="button"
-                        className={`flex items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] text-slate-900 cursor-pointer hover:bg-slate-100 ${
-                          employee.role === role
+                        className={`flex items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] text-slate-900 cursor-pointer hover:bg-slate-100 ${employee.role === role
                             ? "!bg-blue-50 font-medium"
                             : ""
-                        }`}
+                          }`}
                         onClick={() => {
                           handleChange("role", role);
                           setRoleDropdownOpen(false);
@@ -542,8 +580,6 @@ export default function EditEmployeePage() {
                 </span>
               )}
             </div>
-
-
 
             {/* Reporting Manager */}
             <div className={fieldGroupClass}>
@@ -582,9 +618,8 @@ export default function EditEmployeePage() {
                     setSelectedManager(null);
                     handleChange("managerEmployeeCode", "");
                   }}
-                  className={`${inputBase} pr-14 ${
-                    fieldErrors.managerEmployeeCode ? inputInvalid : ""
-                  }`}
+                  className={`${inputBase} pr-14 ${fieldErrors.managerEmployeeCode ? inputInvalid : ""
+                    }`}
                   aria-invalid={Boolean(fieldErrors.managerEmployeeCode)}
                 />
 
@@ -607,15 +642,32 @@ export default function EditEmployeePage() {
                   {employee.role !== "Admin" && (
                     <RxChevronDown
                       size={14}
-                      className={`text-slate-400 transition-transform duration-150 pointer-events-none ${
-                        managerDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`text-slate-400 transition-transform duration-150 pointer-events-none ${managerDropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
                   )}
                 </div>
 
                 {managerDropdownOpen && employee.role !== "Admin" && (
                   <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
+                    <button
+                      type="button"
+                      className={`flex justify-between items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 border-b border-slate-100 ${(!selectedManager && !managerSearch.trim()) || selectedManager?.isNone
+                          ? "!bg-blue-50"
+                          : ""
+                        }`}
+                      onClick={() => {
+                        setSelectedManager({ isNone: true, fullName: "None / Unassigned", employeeCode: "" });
+                        setManagerSearch("None / Unassigned");
+                        handleChange("managerEmployeeCode", "");
+                        setManagerDropdownOpen(false);
+                      }}
+                    >
+                      <span className="text-slate-700 font-medium italic">
+                        None / Unassigned
+                      </span>
+                    </button>
+
                     {managerSearch.trim().length < 2 && (
                       <div className="p-3 text-[13px] text-slate-500">
                         Type at least 2 characters to search...
@@ -647,38 +699,37 @@ export default function EditEmployeePage() {
                     {managerSearch.trim().length >= 2 &&
                       !managerLoading &&
                       !managerError &&
-                    managers
-                      .filter((manager) => manager.employeeCode !== employeeCode)
-                      .map((manager) => (
-                        <button
-                          key={manager.employeeCode}
-                          type="button"
-                          className={`flex justify-between items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 ${
-                            manager.employeeCode ===
-                            selectedManager?.employeeCode
-                              ? "!bg-blue-50"
-                              : ""
-                          }`}
-                          onClick={() => {
-                            setSelectedManager(manager);
-                            setManagerSearch(
-                              `${manager.fullName} — ${manager.employeeCode}`,
-                            );
-                            handleChange(
-                              "managerEmployeeCode",
-                              manager.employeeCode,
-                            );
-                            setManagerDropdownOpen(false);
-                          }}
-                        >
-                          <span className="text-slate-900 font-medium">
-                            {manager.fullName}
-                          </span>
-                          <span className="text-slate-400 text-xs">
-                            {manager.employeeCode}
-                          </span>
-                        </button>
-                      ))}
+                      managers
+                        .filter((manager) => manager.employeeCode !== employeeCode)
+                        .map((manager) => (
+                          <button
+                            key={manager.employeeCode}
+                            type="button"
+                            className={`flex justify-between items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 ${manager.employeeCode ===
+                                selectedManager?.employeeCode
+                                ? "!bg-blue-50"
+                                : ""
+                              }`}
+                            onClick={() => {
+                              setSelectedManager(manager);
+                              setManagerSearch(
+                                `${manager.fullName} — ${manager.employeeCode}`,
+                              );
+                              handleChange(
+                                "managerEmployeeCode",
+                                manager.employeeCode,
+                              );
+                              setManagerDropdownOpen(false);
+                            }}
+                          >
+                            <span className="text-slate-900 font-medium">
+                              {manager.fullName}
+                            </span>
+                            <span className="text-slate-400 text-xs">
+                              {manager.employeeCode}
+                            </span>
+                          </button>
+                        ))}
                   </div>
                 )}
               </div>
