@@ -415,7 +415,9 @@ export default function EmployeeViewDialog({
                       <span className={fieldValueClass}>
                         {employee.managerName
                           ? `${employee.managerName} (${employee.managerEmployeeCode})`
-                          : "—"}
+                          : employee.role === "Admin"
+                            ? "N/A (Admin)"
+                            : "None / Unassigned"}
                       </span>
                     </div>
                   </div>
