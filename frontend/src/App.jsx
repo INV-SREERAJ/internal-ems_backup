@@ -77,6 +77,17 @@ export default function App() {
     <Suspense fallback={<SplashScreen />}>
       <Routes>
         <Route
+          path="/"
+          element={
+            status === AUTH_STATUS.AUTHENTICATED ? (
+              <Navigate to={defaultRoute} replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
           path="/login"
           element={
             status === AUTH_STATUS.AUTHENTICATED ? (

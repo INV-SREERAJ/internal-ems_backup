@@ -5,8 +5,10 @@ import PasswordInput from "../../components/common/PasswordInput";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { HiOutlineUser, HiOutlineLockClosed } from "react-icons/hi2";
 import { ROLES, ROLE_LABEL } from "../../utils/constants";
+import useAuth from "../../hooks/useAuth";
 
 export default function ProfilePage() {
+  const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -188,13 +190,11 @@ export default function ProfilePage() {
         newPassword: passwordData.newPassword,
         confirmPassword: passwordData.confirmPassword,
       });
-      setPasswordSuccessMsg("Password changed successfully.");
-      setPasswordData({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-      setPasswordErrors({});
+      setPasswordSuccessMsg("Password changed successfully. Logging out...");
+      
+      setTimeout(() => {
+        logout();
+      }, 1500);
     } catch (err) {
       setPasswordErrorMsg(
         err.response?.data?.message ||
