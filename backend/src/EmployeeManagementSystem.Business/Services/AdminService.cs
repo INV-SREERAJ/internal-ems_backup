@@ -262,6 +262,7 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Cant change role of admin.");
             }
 
+            //changing manager to employee
             if (employee.Role != Role.Employee && request.Role == Role.Employee && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
             {
                 _logger.LogWarning("Update employee failed for {employeeCode} since manager has active employees reporting", employeeCode);
@@ -269,7 +270,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
 
-            if (request.Role == Role.Admin)
+            if (employee.Role != Role.Admin && request.Role == Role.Admin)
             {
                 _logger.LogWarning("cant change an employee to admin");
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Cant change role of admin.");
