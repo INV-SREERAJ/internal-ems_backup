@@ -126,6 +126,7 @@ export default function App() {
             path="employees/create-employee"
             element={<CreateEmployee />}
           />
+          <Route path="profile" element={<ProfilePage  />} />
           <Route
             path="employees/edit/:employeeCode"
             element={<EditEmployeePage />}

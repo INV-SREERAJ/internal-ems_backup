@@ -43,8 +43,8 @@ export const ROLE_LAYOUT_CONFIG = {
     ],
     profileMenu: (user) => [
       {
-        to: `/admin/employees/edit/${user?.employeeCode}`,
-        label: "Edit Profile",
+        to: `/admin/profile`,
+        label: "My Profile",
         icon: HiOutlinePencilSquare,
       },
     ],

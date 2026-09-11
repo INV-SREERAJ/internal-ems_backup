@@ -71,7 +71,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             return (total, active, inactive);
         }
 
-        public async Task<bool> HasActiveDirectReportsAsync(int managerId)
+        public async Task<bool> HasDirectReportsAsync(int managerId)
         {
             return await _context.Employees.AnyAsync(e =>
                 e.ManagerId == managerId &&

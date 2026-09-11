@@ -4,6 +4,7 @@ using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using EmployeeManagementSystem.DataAccess.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
@@ -142,21 +143,33 @@ namespace EmployeeManagementSystem.Business.Services
             // Revoke all previous refresh tokens
             _logger.LogInformation("Revoking previous refresh tokens for {EmployeeCode}", employee.EmployeeCode);
             employee.TokenVersion++;
-            await _employeeRepository.UpdateAsync(employee);
+            try{
+                await _employeeRepository.UpdateAsync(employee);
 
-            // Login successful
-            var tokens = _jwtService.GenerateTokenPair(employee, request.RememberMe);
+                // Login successful
+                var tokens = _jwtService.GenerateTokenPair(employee, request.RememberMe);
 
-            SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt, request.RememberMe);
+                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt, request.RememberMe);
 
-            return new LoginResponseDto
+                return new LoginResponseDto
+                {
+                    Success = true,
+                    Message = "Login successful.",
+                    MustChangePassword = employee.MustChangePassword,
+                    AccessToken = tokens.AccessToken,
+                    ExpiresAt = tokens.AccessTokenExpiresAt
+                };
+            }
+            catch (DbUpdateConcurrencyException)
             {
-                Success = true,
-                Message = "Login successful.",
-                MustChangePassword = employee.MustChangePassword,
-                AccessToken = tokens.AccessToken,
-                ExpiresAt = tokens.AccessTokenExpiresAt
-            };
+                _logger.LogWarning("Concurrency conflict during login for {EmployeeCode}", employee.EmployeeCode);
+                return new LoginResponseDto
+                {
+                    Success = false,
+                    Message = "A concurrency conflict occurred. Please try logging in again.",
+                    MustChangePassword = false
+                };
+            }
         }
 
         //refresh access token
@@ -313,7 +326,20 @@ namespace EmployeeManagementSystem.Business.Services
                     _logger.LogInformation("Refresh token rotated for {EmployeeCode}.", employee.EmployeeCode);
                     employee.TokenVersion++;
 
-                    await _employeeRepository.UpdateAsync(employee);
+                    try
+                    {
+                        await _employeeRepository.UpdateAsync(employee);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        _logger.LogWarning("Concurrency conflict during token refresh for {EmployeeCode}", employee.EmployeeCode);
+                        ClearRefreshTokenCookie();
+                        return new LoginResponseDto
+                        {
+                            Success = false,
+                            Message = "A concurrency conflict occurred. Please log in again."
+                        };
+                    }
 
                     var isRememberMe = bool.TryParse(principal.FindFirst("RememberMe")?.Value, out var rm) && rm;
 
@@ -381,6 +407,10 @@ namespace EmployeeManagementSystem.Business.Services
                             }
                         }
                     }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // Ignore concurrency exceptions on logout
                 }
                 catch (Exception ex)
                 {
