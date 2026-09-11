@@ -79,6 +79,17 @@ namespace EmployeeManagementSystem.Business.Services
                     return Result<CreateEmployeeResponse>.Fail(ErrorType.Conflict, "Specified manager role is invalid.");
                 }
 
+                if (request.Role == Role.Manager)
+                {
+                    if (manager.Role == Role.Manager)
+                    {
+                        if (manager.Manager != null && manager.Manager.Role != Role.Admin)
+                        {
+                            return Result<CreateEmployeeResponse>.Fail(ErrorType.Conflict, "Hierarchy limit exceeded: A manager can only report to a manager who reports directly to an Admin.");
+                        }
+                    }
+                }
+
                 managerId = manager.Id;
             }
 
@@ -290,6 +301,10 @@ namespace EmployeeManagementSystem.Business.Services
             employee.LastName = request.LastName;
             employee.PhoneNumber = request.PhoneNumber;
             employee.Role = request.Role;
+            if(employee.Role != request.Role)
+            {
+                employee.TokenVersion++;
+            }
 
             employee.UpdatedAt = DateTime.UtcNow;
 
@@ -365,8 +380,8 @@ namespace EmployeeManagementSystem.Business.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
-                return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employeeCode);
+                return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
             }
         }
 
@@ -409,6 +424,23 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result.Fail(ErrorType.Conflict, "Selected manager is inactive.");
             }
 
+            if (employee.Role == Role.Manager)
+            {
+                if (manager.Role == Role.Manager)
+                {
+                    if (manager.Manager != null && manager.Manager.Role != Role.Admin)
+                    {
+                        return Result.Fail(ErrorType.Conflict, "Hierarchy limit exceeded: A manager can only report to a manager who reports directly to an Admin.");
+                    }
+                }
+
+                bool hasSubordinateManagers = await _managerRepository.HasSubordinateManagersAsync(employee.Id);
+                if (hasSubordinateManagers && manager.Role != Role.Admin)
+                {
+                    return Result.Fail(ErrorType.Conflict, "This manager already supervises other managers and must report directly to an Admin.");
+                }
+            }
+
 
             if (manager.ManagerId == employee.Id)
             {
@@ -439,8 +471,8 @@ namespace EmployeeManagementSystem.Business.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
-                return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employee.EmployeeCode);
+                return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
             }
         }
 

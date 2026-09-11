@@ -77,5 +77,11 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 e.ManagerId == managerId &&
                 e.Status != EmployeeStatus.Deleted);
         }
+
+        public async Task<bool> HasSubordinateManagersAsync(int managerId)
+        {
+            return await _context.Employees
+                .AnyAsync(e => e.ManagerId == managerId && e.Role == Role.Manager && e.Status != EmployeeStatus.Deleted);
+        }
     }
 }
