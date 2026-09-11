@@ -330,10 +330,10 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result.Fail(ErrorType.Conflict, "Cannot delete an Admin.");
             }
 
-            if (employee.Role == Role.Manager && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
+            if (employee.Role == Role.Manager && await _managerRepository.HasDirectReportsAsync(employee.Id))
             {
                 _logger.LogWarning("Manager deletion failed {employeeCode}", employeeCode);
-                return Result.Fail(ErrorType.Conflict, "Manager with active reporting employees cant be deleted, please change the reporting manager and try again");
+                return Result.Fail(ErrorType.Conflict, "Manager with employees reporting cant be deleted, please change the reporting manager and try again");
             }
 
             employee.Status = EmployeeStatus.Deleted;

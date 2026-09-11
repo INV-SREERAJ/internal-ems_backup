@@ -7,7 +7,7 @@ namespace EmployeeManagementSystem.DataAccess.Interfaces
     {
         Task<(IEnumerable<Employee> Employees, int TotalCount)> GetAssignedEmployeesAsync(int managerId, EmployeeQueryParameters parameters);
         Task<Employee?> GetAssignedEmployeeAsync(int managerId, string employeeCode);
-        Task<bool> HasActiveDirectReportsAsync(int managerId);
+        Task<bool> HasDirectReportsAsync(int managerId);
         Task<(int Total, int Active, int Inactive)> GetDashboardStatsAsync(int managerId);
     }
 }
