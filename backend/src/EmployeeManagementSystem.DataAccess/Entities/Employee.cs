@@ -27,6 +27,11 @@ namespace EmployeeManagementSystem.DataAccess.Entities
 
         //self referencing Foriegn key
         public Employee? Manager { get; set; }
+
+
+        //row version for concurrency habdling
+        public byte[] RowVersion { get; set; }
+
         public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     }
 }

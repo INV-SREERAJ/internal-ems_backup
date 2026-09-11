@@ -1,10 +1,13 @@
 using EmployeeManagementSystem.Business.Common;
+using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Business.DTOs.Profile;
 using EmployeeManagementSystem.Business.DTOs.ProfileResponseDto;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.DataAccess.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using System.Data;
 using System.Security.Claims;
 
 namespace EmployeeManagementSystem.Business.Services
@@ -65,7 +68,14 @@ namespace EmployeeManagementSystem.Business.Services
             employee.PasswordHash = passwordHash;
             employee.TokenVersion++;
             employee.MustChangePassword = false;
-            await _employeeRepository.UpdateAsync(employee);
+            try{
+                await _employeeRepository.UpdateAsync(employee);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+            }
 
             _logger.LogInformation("Changed password for user: {employeeCode}, successfully.", employeeCode);
             return Result.Ok();
@@ -163,7 +173,14 @@ namespace EmployeeManagementSystem.Business.Services
             employee.LastName = request.LastName;
             employee.PhoneNumber = request.PhoneNumber;
 
-            await _employeeRepository.UpdateAsync(employee);
+            try{ 
+                await _employeeRepository.UpdateAsync(employee);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                return Result<ProfileResponseDto>.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+            }
 
             _logger.LogInformation(
                 "Profile updated successfully for employee {EmployeeCode}",
