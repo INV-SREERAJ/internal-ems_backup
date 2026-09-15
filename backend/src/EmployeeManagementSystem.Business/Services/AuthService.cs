@@ -352,7 +352,8 @@ namespace EmployeeManagementSystem.Business.Services
                         Success = true,
                         Message = "Token refreshed successfully.",
                         AccessToken = tokens.AccessToken,
-                        ExpiresAt = tokens.AccessTokenExpiresAt
+                        ExpiresAt = tokens.AccessTokenExpiresAt,
+                        MustChangePassword = employee.MustChangePassword
                     };
                 }
                 else
@@ -365,7 +366,8 @@ namespace EmployeeManagementSystem.Business.Services
                         Success = true,
                         Message = "Token refreshed successfully.",
                         AccessToken = tokens.AccessToken,
-                        ExpiresAt = tokens.AccessTokenExpiresAt
+                        ExpiresAt = tokens.AccessTokenExpiresAt,
+                        MustChangePassword = employee.MustChangePassword
                     };
                 }
 
