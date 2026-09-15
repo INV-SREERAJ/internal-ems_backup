@@ -37,7 +37,7 @@ namespace EmployeeManagementSystem.Api.Controllers
                 return this.ToErrorActionResult(response);
 
             return CreatedAtAction(
-                nameof(CreateEmployee),
+                nameof(GetEmployee),
                 new { employeeCode = response.Value?.EmployeeCode },
                 response.Value);
         }

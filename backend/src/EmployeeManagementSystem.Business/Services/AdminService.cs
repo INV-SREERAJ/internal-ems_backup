@@ -333,7 +333,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employeeCode);
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
             }
         }
@@ -513,7 +513,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employeeCode);
                 return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
             }
             try

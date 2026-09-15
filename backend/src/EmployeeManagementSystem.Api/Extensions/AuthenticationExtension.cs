@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.Business.Configuration;
+using EmployeeManagementSystem.Business.Configuration;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.Business.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,6 +44,19 @@ public static class AuthenticationExtensions
                         Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
                     ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var tokenType = context.Principal?.FindFirst("TokenType")?.Value;
+                        if (tokenType != "Access")
+                        {
+                            context.Fail("Invalid token type. Only access tokens are allowed.");
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

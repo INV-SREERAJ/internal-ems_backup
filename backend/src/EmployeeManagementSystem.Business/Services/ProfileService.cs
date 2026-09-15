@@ -71,7 +71,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employeeCode);
                 return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
             }
 
@@ -95,7 +95,7 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result<ReportingManagerResponseDto>.Fail(ErrorType.NotFound, "Employee not found.");
             }
 
-            var manager = await _employeeRepository.GetByEmployeeCodeAsync(employee.Manager?.EmployeeCode);
+            var manager = employee.Manager;
             if (manager == null)
             {
                 _logger.LogWarning("Manager not found for employee " + employeeCode + " and handled at service layer GetAssignedManagerAsync");
@@ -176,7 +176,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employee.EmployeeCode);
                 return Result<ProfileResponseDto>.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
             }
 

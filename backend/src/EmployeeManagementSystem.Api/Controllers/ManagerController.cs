@@ -30,6 +30,11 @@ namespace EmployeeManagementSystem.Api.Controllers
         {
             _logger.LogInformation("Inside GetAllEmployees in ManagerController");
             var managerCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(managerCode))
+            {
+                return Unauthorized(new { message = "Manager code is missing." });
+            }
+
             var result = await _managerService.GetAssignedEmployeesAsync(managerCode, parameters);
             if (!result.Success)
                 return this.ToErrorActionResult(result);
@@ -46,6 +51,11 @@ namespace EmployeeManagementSystem.Api.Controllers
         {
             _logger.LogInformation("Inside GetAssignedEmployee in ManagerController");
             var managerCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(managerCode))
+            {
+                return Unauthorized(new { message = "Manager code is missing." });
+            }
+
             var result = await _managerService.GetAssignedEmployeeAsync(managerCode, employeeCode);
             if (!result.Success)
                 return this.ToErrorActionResult(result);
