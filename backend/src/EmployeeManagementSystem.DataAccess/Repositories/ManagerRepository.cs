@@ -71,11 +71,17 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             return (total, active, inactive);
         }
 
-        public async Task<bool> HasActiveDirectReportsAsync(int managerId)
+        public async Task<bool> HasDirectReportsAsync(int managerId)
         {
             return await _context.Employees.AnyAsync(e =>
                 e.ManagerId == managerId &&
                 e.Status != EmployeeStatus.Deleted);
+        }
+
+        public async Task<bool> HasSubordinateManagersAsync(int managerId)
+        {
+            return await _context.Employees
+                .AnyAsync(e => e.ManagerId == managerId && e.Role == Role.Manager && e.Status != EmployeeStatus.Deleted);
         }
     }
 }

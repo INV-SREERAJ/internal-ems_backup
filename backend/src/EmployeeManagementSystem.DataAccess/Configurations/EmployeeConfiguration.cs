@@ -60,6 +60,10 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
                    .HasForeignKey(u => u.ManagerId)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            //configuration of rowVersion
+            builder.Property(e => e.RowVersion)
+                .IsRowVersion();    
+
 
         }
     }

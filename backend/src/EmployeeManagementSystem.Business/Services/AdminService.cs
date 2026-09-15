@@ -5,6 +5,7 @@ using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Entities;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using EmployeeManagementSystem.DataAccess.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace EmployeeManagementSystem.Business.Services
@@ -76,6 +77,17 @@ namespace EmployeeManagementSystem.Business.Services
                 {
                     _logger.LogWarning("Employee creation failed because an employee cannot be a manager. manager code: {ManagerEmployeeCode}", request.ManagerEmployeeCode);
                     return Result<CreateEmployeeResponse>.Fail(ErrorType.Conflict, "Specified manager role is invalid.");
+                }
+
+                if (request.Role == Role.Manager)
+                {
+                    if (manager.Role == Role.Manager)
+                    {
+                        if (manager.Manager != null && manager.Manager.Role != Role.Admin)
+                        {
+                            return Result<CreateEmployeeResponse>.Fail(ErrorType.Conflict, "Hierarchy limit exceeded: A manager can only report to a manager who reports directly to an Admin.");
+                        }
+                    }
                 }
 
                 managerId = manager.Id;
@@ -185,7 +197,7 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result<bool>.Fail(ErrorType.Conflict, "Cant disable your own account.");
             }
 
-            if (status != EmployeeStatus.Active && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
+            if (status != EmployeeStatus.Active && await _managerRepository.HasDirectReportsAsync(employee.Id))
             {
                 _logger.LogInformation("Tried to disable manager {employeeCode} but has active reporting employees thereby failed the action.", employeeCode);
                 return Result<bool>.Fail(ErrorType.Conflict, "Cant disable manager with active direct reports.");
@@ -202,12 +214,21 @@ namespace EmployeeManagementSystem.Business.Services
             if (status != EmployeeStatus.Active)
                 employee.TokenVersion++;
 
-            await _employeeRepository.UpdateAsync(employee);
-            _logger.LogInformation(
-                "Employee {EmployeeCode} status changed to {Status}",
-                employee.EmployeeCode,
-                employee.Status);
-            return Result<bool>.Ok(true);
+            try{
+                await _employeeRepository.UpdateAsync(employee);
+                _logger.LogInformation(
+                    "Employee {EmployeeCode} status changed to {Status}",
+                    employee.EmployeeCode,
+                    employee.Status);
+                return Result<bool>.Ok(true);
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Employee {EmployeeCode} couldnt been updated as the row version has been changed and concurrency exception is caught.", employee.EmployeeCode);
+                return Result<bool>.Fail(ErrorType.Conflict, "Update failed as a concurrent update detected, please reload and try again.");
+
+            }
+           
         }
 
         // get a single employee
@@ -263,7 +284,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
             //changing manager to employee
-            if (employee.Role != Role.Employee && request.Role == Role.Employee && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
+            if (employee.Role != Role.Employee && request.Role == Role.Employee && await _managerRepository.HasDirectReportsAsync(employee.Id))
             {
                 _logger.LogWarning("Update employee failed for {employeeCode} since manager has active employees reporting", employeeCode);
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Cant change the role, as manager has active employees reporting. Please change the reporting manager and try again.");
@@ -280,29 +301,40 @@ namespace EmployeeManagementSystem.Business.Services
             employee.LastName = request.LastName;
             employee.PhoneNumber = request.PhoneNumber;
             employee.Role = request.Role;
+            if(employee.Role != request.Role)
+            {
+                employee.TokenVersion++;
+            }
 
             employee.UpdatedAt = DateTime.UtcNow;
 
-            await _employeeRepository.UpdateAsync(employee);
+            try{
+                await _employeeRepository.UpdateAsync(employee);
 
-            _logger.LogInformation("Employee {EmployeeCode} updated successfully.", employeeCode);
+                _logger.LogInformation("Employee {EmployeeCode} updated successfully.", employeeCode);
 
-            return Result<EmployeeDetailsResponseDto>.Ok(new EmployeeDetailsResponseDto
+                return Result<EmployeeDetailsResponseDto>.Ok(new EmployeeDetailsResponseDto
+                {
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName,
+                    Email = employee.Email,
+                    EmployeeCode = employee.EmployeeCode,
+                    PhoneNumber = employee.PhoneNumber,
+                    Role = employee.Role.ToString(),
+                    ManagerEmployeeCode = employee.Manager?.EmployeeCode,
+                    ManagerName = employee.Manager != null
+                        ? $"{employee.Manager.FirstName} {employee.Manager.LastName}"
+                        : null,
+                    Status = employee.Status,
+                    CreatedAt = employee.CreatedAt,
+                    UpdatedAt = employee.UpdatedAt
+                });
+            }
+            catch (DbUpdateConcurrencyException)
             {
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                Email = employee.Email,
-                EmployeeCode = employee.EmployeeCode,
-                PhoneNumber = employee.PhoneNumber,
-                Role = employee.Role.ToString(),
-                ManagerEmployeeCode = employee.Manager?.EmployeeCode,
-                ManagerName = employee.Manager != null
-                    ? $"{employee.Manager.FirstName} {employee.Manager.LastName}"
-                    : null,
-                Status = employee.Status,
-                CreatedAt = employee.CreatedAt,
-                UpdatedAt = employee.UpdatedAt
-            });
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+            }
         }
 
         //soft delete
@@ -330,20 +362,27 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result.Fail(ErrorType.Conflict, "Cannot delete an Admin.");
             }
 
-            if (employee.Role == Role.Manager && await _managerRepository.HasActiveDirectReportsAsync(employee.Id))
+            if (employee.Role == Role.Manager && await _managerRepository.HasDirectReportsAsync(employee.Id))
             {
                 _logger.LogWarning("Manager deletion failed {employeeCode}", employeeCode);
-                return Result.Fail(ErrorType.Conflict, "Manager with active reporting employees cant be deleted, please change the reporting manager and try again");
+                return Result.Fail(ErrorType.Conflict, "Manager with employees reporting cant be deleted, please change the reporting manager and try again");
             }
 
             employee.Status = EmployeeStatus.Deleted;
             employee.UpdatedAt = DateTime.UtcNow;
             employee.TokenVersion++;
 
-            await _employeeRepository.UpdateAsync(employee);
-            _logger.LogInformation("Successfully deleted {employeeCode}", employeeCode);
+            try{
+                await _employeeRepository.UpdateAsync(employee);
+                _logger.LogInformation("Successfully deleted {employeeCode}", employeeCode);
 
-            return Result.Ok();
+                return Result.Ok();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employeeCode);
+                return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+            }
         }
 
         // change manager
@@ -385,6 +424,23 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result.Fail(ErrorType.Conflict, "Selected manager is inactive.");
             }
 
+            if (employee.Role == Role.Manager)
+            {
+                if (manager.Role == Role.Manager)
+                {
+                    if (manager.Manager != null && manager.Manager.Role != Role.Admin)
+                    {
+                        return Result.Fail(ErrorType.Conflict, "Hierarchy limit exceeded: A manager can only report to a manager who reports directly to an Admin.");
+                    }
+                }
+
+                bool hasSubordinateManagers = await _managerRepository.HasSubordinateManagersAsync(employee.Id);
+                if (hasSubordinateManagers && manager.Role != Role.Admin)
+                {
+                    return Result.Fail(ErrorType.Conflict, "This manager already supervises other managers and must report directly to an Admin.");
+                }
+            }
+
 
             if (manager.ManagerId == employee.Id)
             {
@@ -407,10 +463,17 @@ namespace EmployeeManagementSystem.Business.Services
             employee.ManagerId = manager.Id;
             employee.UpdatedAt = DateTime.UtcNow;
 
-            await _employeeRepository.UpdateAsync(employee);
-            _logger.LogInformation("Employee {EmployeeCode} assigned to manager {ManagerCode}", employee.EmployeeCode, manager.EmployeeCode);
+            try{
+                await _employeeRepository.UpdateAsync(employee);
+                _logger.LogInformation("Employee {EmployeeCode} assigned to manager {ManagerCode}", employee.EmployeeCode, manager.EmployeeCode);
 
-            return Result.Ok();
+                return Result.Ok();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.", employee.EmployeeCode);
+                return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+            }
         }
 
         //reset a users password
@@ -444,7 +507,14 @@ namespace EmployeeManagementSystem.Business.Services
             employee.MustChangePassword = true;
             employee.TokenVersion++;
 
-            await _employeeRepository.UpdateAsync(employee);
+            try{
+                await _employeeRepository.UpdateAsync(employee); 
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _logger.LogWarning("Employee {EmployeeCode} updation failed as the rowversion is already updated by a concurrent update request.");
+                return Result.Fail(ErrorType.Conflict, "Updation failed as a concurrent update detected, please reload and try again");
+            }
             try
             {
                 await _emailService.ResetPasswordEmailAsync(employee.Email, $"{employee.FirstName} {employee.LastName}", temp);
