@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace EmployeeManagementSystem.Business.DTOs.Admin
 {
     public class AdminDashboardStatsDto

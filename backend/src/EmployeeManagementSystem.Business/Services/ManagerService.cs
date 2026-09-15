@@ -4,7 +4,6 @@ using EmployeeManagementSystem.Business.DTOs.Manager;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.DataAccess.Common;
 using EmployeeManagementSystem.DataAccess.Interfaces;
-using EmployeeManagementSystem.DataAccess.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace EmployeeManagementSystem.Business.Services

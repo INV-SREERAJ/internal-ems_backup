@@ -57,7 +57,7 @@ namespace EmployeeManagementSystem.Api.Controllers
             return Ok(result.Value);
         }
 
-        
+
 
         //get all available employees
         [HttpGet("employees")]

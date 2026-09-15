@@ -4,7 +4,6 @@ using EmployeeManagementSystem.Business.DTOs.ProfileResponseDto;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.DataAccess.Interfaces;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using System.Security.Claims;
 
 namespace EmployeeManagementSystem.Business.Services
@@ -88,7 +87,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
             var manager = await _employeeRepository.GetByEmployeeCodeAsync(employee.Manager?.EmployeeCode);
-            if(manager == null)
+            if (manager == null)
             {
                 _logger.LogWarning("Manager not found for employee " + employeeCode + " and handled at service layer GetAssignedManagerAsync");
                 return Result<ReportingManagerResponseDto>.Fail(ErrorType.NotFound, "Manager not found.");
@@ -111,7 +110,7 @@ namespace EmployeeManagementSystem.Business.Services
             {
                 return Result<ProfileResponseDto>.Fail(ErrorType.Unauthorized, "Invalid user.");
             }
-            
+
             var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
 
             if (employee == null)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EmployeeManagementSystem.Business.DTOs.Admin
+﻿namespace EmployeeManagementSystem.Business.DTOs.Admin
 {
     public class ChangeReportingManagerRequest
     {

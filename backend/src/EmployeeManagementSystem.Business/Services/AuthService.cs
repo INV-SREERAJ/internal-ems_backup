@@ -50,7 +50,7 @@ namespace EmployeeManagementSystem.Business.Services
                 Secure = !isDev,
                 SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
                 IsEssential = true,
-                Expires = rememberMe? expiresAt : null
+                Expires = rememberMe ? expiresAt : null
             };
 
             httpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);

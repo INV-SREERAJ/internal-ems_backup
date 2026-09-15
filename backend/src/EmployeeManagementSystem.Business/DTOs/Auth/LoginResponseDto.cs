@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace EmployeeManagementSystem.Business.DTOs.Auth
 {
     public class LoginResponseDto

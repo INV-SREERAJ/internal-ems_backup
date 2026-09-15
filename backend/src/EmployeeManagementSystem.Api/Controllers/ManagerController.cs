@@ -52,7 +52,7 @@ namespace EmployeeManagementSystem.Api.Controllers
 
             return Ok(result.Value);
         }
-    
+
         //get dashboard stats
         [HttpGet("stats")]
         [ProducesResponseType(typeof(EmployeeManagementSystem.Business.DTOs.Manager.ManagerDashboardStatsDto), StatusCodes.Status200OK)]
@@ -66,7 +66,7 @@ namespace EmployeeManagementSystem.Api.Controllers
                 _logger.LogWarning("Manager Dashboard stats failed, manager code is missing in token.");
                 return Unauthorized(new { message = "Manager code is missing." });
             }
-            
+
             _logger.LogInformation("Inside GetDashboardStats for {managerCode}.", managerCode);
             var result = await _managerService.GetDashboardStatsAsync(managerCode);
 
@@ -74,7 +74,8 @@ namespace EmployeeManagementSystem.Api.Controllers
                 return this.ToErrorActionResult(result);
 
             return Ok(result.Value);
-        }}
+        }
+    }
 }
 
 

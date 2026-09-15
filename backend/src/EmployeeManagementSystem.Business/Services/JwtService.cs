@@ -20,7 +20,7 @@ namespace EmployeeManagementSystem.Business.Services
         }
 
         // generate access and refresh token
-        public TokenResponseDto GenerateTokenPair(Employee employee, bool rememberMe=false)
+        public TokenResponseDto GenerateTokenPair(Employee employee, bool rememberMe = false)
         {
             var accessTokenExpiry = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpiryMinutes);
             var refreshTokenExpiry = rememberMe ? DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDays) : DateTime.UtcNow.AddDays(1);

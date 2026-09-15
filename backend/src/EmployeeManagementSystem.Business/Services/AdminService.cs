@@ -217,7 +217,7 @@ namespace EmployeeManagementSystem.Business.Services
             if (employee == null)
             {
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.NotFound, "Employee doesnt exist check the employee code.");
-            }   
+            }
 
             return Result<EmployeeDetailsResponseDto>.Ok(new EmployeeDetailsResponseDto
             {
@@ -457,12 +457,12 @@ namespace EmployeeManagementSystem.Business.Services
             _logger.LogInformation("Password resetted for user: {employeeCode}, successfully.", employeeCode);
             return Result.Ok();
         }
-    
+
         public async Task<Result<AdminDashboardStatsDto>> GetDashboardStatsAsync()
         {
             var stats = await _adminRepository.GetDashboardStatsAsync();
             var roleStats = stats.Roles.ToDictionary(k => k.Key.ToString(), v => v.Value);
-            
+
             return Result<AdminDashboardStatsDto>.Ok(new AdminDashboardStatsDto
             {
                 TotalEmployees = stats.Total,
@@ -470,6 +470,7 @@ namespace EmployeeManagementSystem.Business.Services
                 InactiveEmployees = stats.Inactive,
                 RoleStats = roleStats
             });
-        }}
+        }
+    }
 }
 

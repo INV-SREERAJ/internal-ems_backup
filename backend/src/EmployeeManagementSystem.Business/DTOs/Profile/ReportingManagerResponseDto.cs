@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EmployeeManagementSystem.Business.DTOs.Profile
+﻿namespace EmployeeManagementSystem.Business.DTOs.Profile
 {
     public class ReportingManagerResponseDto
     {
