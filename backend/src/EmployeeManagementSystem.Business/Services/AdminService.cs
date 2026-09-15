@@ -300,11 +300,12 @@ namespace EmployeeManagementSystem.Business.Services
             employee.FirstName = request.FirstName;
             employee.LastName = request.LastName;
             employee.PhoneNumber = request.PhoneNumber;
-            employee.Role = request.Role;
-            if(employee.Role != request.Role)
+            if (employee.Role != request.Role)
             {
                 employee.TokenVersion++;
             }
+            employee.Role = request.Role;
+            
 
             employee.UpdatedAt = DateTime.UtcNow;
 
