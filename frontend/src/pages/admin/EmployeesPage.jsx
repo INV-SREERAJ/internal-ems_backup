@@ -103,13 +103,6 @@ export default function EmployeesPage() {
     refreshKey,
   ]);
 
-  const handlePrevious = () => {
-    setPageNumber((current) => current - 1);
-  };
-
-  const handleNext = () => {
-    setPageNumber((current) => current + 1);
-  };
 
   const handleSort = (field) => {
     if (sortBy !== field) {
@@ -270,8 +263,6 @@ export default function EmployeesPage() {
           <Pagination
             pageNumber={pageNumber}
             totalPages={totalPages}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
             onPageClick={setPageNumber}
           />
         </>
