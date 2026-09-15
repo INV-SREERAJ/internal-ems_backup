@@ -68,13 +68,13 @@ export const ROLE_LAYOUT_CONFIG = {
       {
         to: "/manager/team",
         label: "My Team",
-        icon: HiOutlineUsers,
+        icon: HiOutlineUserGroup,
         end: true,
       },
       {
         to: "/manager/my-manager",
         label: "My Manager",
-        icon: HiOutlineUserGroup,
+        icon: HiOutlineUsers,
         end: true,
       },
       {

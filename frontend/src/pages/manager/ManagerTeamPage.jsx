@@ -59,8 +59,6 @@ export default function ManagerTeamPage() {
     fetchTeam();
   }, [pageNumber, debouncedSearch, sortBy, descending]);
 
-  const handlePrevious = () => setPageNumber((current) => current - 1);
-  const handleNext = () => setPageNumber((current) => current + 1);
 
   const handleSort = (field) => {
     if (sortBy !== field) {
@@ -140,8 +138,6 @@ export default function ManagerTeamPage() {
           <Pagination
             pageNumber={pageNumber}
             totalPages={totalPages}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
             onPageClick={setPageNumber}
           />
         </>
