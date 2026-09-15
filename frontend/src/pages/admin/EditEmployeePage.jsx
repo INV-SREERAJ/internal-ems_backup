@@ -628,21 +628,6 @@ export default function EditEmployeePage() {
                 />
 
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                  {selectedManager && employee.role !== "Admin" && !saving && (
-                    <button
-                      type="button"
-                      className="flex items-center justify-center p-0.5 bg-transparent border-none text-slate-400 rounded cursor-pointer hover:bg-slate-100 hover:text-slate-600"
-                      aria-label="Clear selected manager"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedManager(null);
-                        setManagerSearch("");
-                        handleChange("managerEmployeeCode", "");
-                      }}
-                    >
-                      <RxCross2 size={14} />
-                    </button>
-                  )}
                   {employee.role !== "Admin" && (
                     <RxChevronDown
                       size={14}
@@ -654,23 +639,6 @@ export default function EditEmployeePage() {
 
                 {managerDropdownOpen && employee.role !== "Admin" && (
                   <div className="absolute top-[calc(100%+4px)] inset-x-0 z-50 max-h-60 overflow-y-auto bg-white border border-slate-300 rounded-lg shadow-[0_8px_20px_rgba(17,24,39,0.12)]">
-                    <button
-                      type="button"
-                      className={`flex justify-between items-center w-full px-3 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 border-b border-slate-100 ${(!selectedManager && !managerSearch.trim()) || selectedManager?.isNone
-                          ? "!bg-blue-50"
-                          : ""
-                        }`}
-                      onClick={() => {
-                        setSelectedManager({ isNone: true, fullName: "None / Unassigned", employeeCode: "" });
-                        setManagerSearch("None / Unassigned");
-                        handleChange("managerEmployeeCode", "");
-                        setManagerDropdownOpen(false);
-                      }}
-                    >
-                      <span className="text-slate-700 font-medium italic">
-                        None / Unassigned
-                      </span>
-                    </button>
 
                     {managerSearch.trim().length < 2 && (
                       <div className="p-3 text-[13px] text-slate-500">
