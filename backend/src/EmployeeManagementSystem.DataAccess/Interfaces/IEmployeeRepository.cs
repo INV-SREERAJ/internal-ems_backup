@@ -1,13 +1,13 @@
-﻿using EmployeeManagementSystem.DataAccess.Entities;
+using EmployeeManagementSystem.DataAccess.Entities;
 
 namespace EmployeeManagementSystem.DataAccess.Interfaces
 {
     public interface IEmployeeRepository
     {
-        Task<Employee?> GetByEmployeeCodeAsync(string employeeCode);
-        Task<Employee?> GetByEmailAsync(string email);
+        Task<Employee?> GetByEmployeeCodeAsync(string employeeCode, bool trackChanges = true);
+        Task<Employee?> GetByEmailAsync(string email, bool trackChanges = true);
 
-        Task<Employee?> GetByIdAsync(int id);
+        Task<Employee?> GetByIdAsync(int id, bool trackChanges = true);
 
         Task UpdateAsync(Employee employee);
 

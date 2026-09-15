@@ -29,33 +29,37 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 .AnyAsync(e => e.Email == email && e.Status != EmployeeStatus.Deleted);
         }
 
-        public async Task<Employee?> GetByEmailAsync(string email)
+        public async Task<Employee?> GetByEmailAsync(string email, bool trackChanges = true)
         {
-            return await _context.Employees
-                .FirstOrDefaultAsync(e =>
+            var query = _context.Employees.AsQueryable();
+            if (!trackChanges) query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync(e =>
                     e.Email == email &&
                     e.Status != EmployeeStatus.Deleted);
         }
 
-        public async Task<Employee?> GetByEmployeeCodeAsync(string employeeCode)
+        public async Task<Employee?> GetByEmployeeCodeAsync(string employeeCode, bool trackChanges = true)
         {
-            return await _context.Employees
-                .Include(e => e.Manager)
-                .FirstOrDefaultAsync(e =>
+            var query = _context.Employees.Include(e => e.Manager).AsQueryable();
+            if (!trackChanges) query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync(e =>
                     e.EmployeeCode == employeeCode && e.Status != EmployeeStatus.Deleted);
         }
 
-        public async Task<Employee?> GetByIdAsync(int id)
+        public async Task<Employee?> GetByIdAsync(int id, bool trackChanges = true)
         {
-            return await _context.Employees
-                .FirstOrDefaultAsync(e =>
+            var query = _context.Employees.AsQueryable();
+            if (!trackChanges) query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync(e =>
                     e.Id == id &&
                     e.Status != EmployeeStatus.Deleted);
         }
 
         public async Task UpdateAsync(Employee employee)
         {
-            _context.Employees.Update(employee);
             await _context.SaveChangesAsync();
         }
     }

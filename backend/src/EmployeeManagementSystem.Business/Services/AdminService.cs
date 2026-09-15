@@ -57,7 +57,7 @@ namespace EmployeeManagementSystem.Business.Services
 
             if (!string.IsNullOrWhiteSpace(request.ManagerEmployeeCode))
             {
-                var manager = await _employeeRepository.GetByEmployeeCodeAsync(request.ManagerEmployeeCode);
+                var manager = await _employeeRepository.GetByEmployeeCodeAsync(request.ManagerEmployeeCode, trackChanges: false);
 
                 if (manager == null)
                 {
@@ -234,7 +234,7 @@ namespace EmployeeManagementSystem.Business.Services
         // get a single employee
         public async Task<Result<EmployeeDetailsResponseDto>> GetEmployeeDetailsAsync(string employeeCode)
         {
-            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode, trackChanges: false);
             if (employee == null)
             {
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.NotFound, "Employee doesnt exist check the employee code.");

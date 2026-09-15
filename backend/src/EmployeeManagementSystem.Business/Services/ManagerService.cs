@@ -25,14 +25,14 @@ namespace EmployeeManagementSystem.Business.Services
         public async Task<Result<EmployeeDetailsResponseDto>> GetAssignedEmployeeAsync(string managerCode, string employeeCode)
         {
             _logger.LogInformation("Getting an assigned employee {employeeCode} for manager {managerCode}", employeeCode, managerCode);
-            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode);
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode, trackChanges: false);
             if (manager == null)
             {
                 _logger.LogWarning("The given manager code is incorrect please check it : {managerCode}", managerCode);
                 return Result<EmployeeDetailsResponseDto>.Fail(ErrorType.NotFound, "Manager not found!");
             }
 
-            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode, trackChanges: false);
             if (employee == null)
             {
                 _logger.LogWarning("Getting employee for the manager failed as no employee exist for given employeeCOde : {employeeCode}", employeeCode);
@@ -71,7 +71,7 @@ namespace EmployeeManagementSystem.Business.Services
                 "Getting employees assigned under manager: {managerCode}",
                 managerCode);
 
-            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode);
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode, trackChanges: false);
 
             if (manager == null)
             {
@@ -117,7 +117,7 @@ namespace EmployeeManagementSystem.Business.Services
 
         public async Task<Result<ManagerDashboardStatsDto>> GetDashboardStatsAsync(string managerCode)
         {
-            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode);
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(managerCode, trackChanges: false);
             if (manager == null)
             {
                 return Result<ManagerDashboardStatsDto>.Fail(ErrorType.NotFound, "Manager not found.");

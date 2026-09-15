@@ -88,7 +88,7 @@ namespace EmployeeManagementSystem.Business.Services
                 _logger.LogWarning("Invalid employee code : {employeeCode}", employeeCode);
                 return Result<ReportingManagerResponseDto>.Fail(ErrorType.Unauthorized, "Invalid user.");
             }
-            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode, trackChanges: false);
 
             if (employee == null)
             {
@@ -120,7 +120,7 @@ namespace EmployeeManagementSystem.Business.Services
                 return Result<ProfileResponseDto>.Fail(ErrorType.Unauthorized, "Invalid user.");
             }
 
-            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(employeeCode, trackChanges: false);
 
             if (employee == null)
             {
