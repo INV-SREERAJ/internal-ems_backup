@@ -29,45 +29,96 @@ namespace EmployeeManagementSystem.Api.Middleware
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, IEmployeeRepository employeeRepository)
+        public async Task InvokeAsync(
+            HttpContext context,
+            IEmployeeRepository employeeRepository)
         {
-            // allowing unauthenticated requests (login, refresh and such anonymous)
+            // Allow anonymous requests
             if (!(context.User.Identity?.IsAuthenticated ?? false))
             {
                 await _next(context);
                 return;
             }
 
+            // Read claims from JWT
             var employeeCode = context.User.FindFirst("EmployeeCode")?.Value;
             var tokenVersionClaim = context.User.FindFirst("TokenVersion")?.Value;
 
-            if (string.IsNullOrWhiteSpace(employeeCode) || !int.TryParse(tokenVersionClaim, out var tokenVersion))
+            if (string.IsNullOrWhiteSpace(employeeCode) ||
+                !int.TryParse(tokenVersionClaim, out var tokenVersion))
             {
-                await Reject(context, "Invalid session. Please log in again.");
+                await Reject(
+                    context,
+                    StatusCodes.Status401Unauthorized,
+                    "Invalid session. Please log in again.");
+
                 return;
             }
 
-            var employee = await employeeRepository.GetByEmployeeCodeAsync(employeeCode);
+            // Fetch employee ONCE
+            var employee =
+                await employeeRepository.GetByEmployeeCodeAsync(employeeCode);
 
-            if (employee == null || employee.Status != EmployeeStatus.Active)
+            // Account must exist and be active
+            if (employee == null ||
+                employee.Status != EmployeeStatus.Active)
             {
-                await Reject(context, "Your account is no longer active. Please log in again.");
+                await Reject(
+                    context,
+                    StatusCodes.Status401Unauthorized,
+                    "Your account is no longer active. Please log in again.");
+
                 return;
             }
 
+            // Token must belong to the current session/version
             if (employee.TokenVersion != tokenVersion)
             {
-                await Reject(context, "Your session is no longer valid. Please log in again.");
+                await Reject(
+                    context,
+                    StatusCodes.Status401Unauthorized,
+                    "Your session is no longer valid. Please log in again.");
+
                 return;
+            }
+
+            // User has been given/reset to a temporary password
+            if (employee.MustChangePassword)
+            {
+                var path = context.Request.Path.Value?.ToLowerInvariant();
+
+                var allowedEndpoints = new[]
+                {
+                    "/api/profile/change-password",
+                    "/api/auth/refresh",
+                    "/api/auth/logout"
+                };
+
+                if (!allowedEndpoints.Contains(path))
+                {
+                    await Reject(
+                        context,
+                        StatusCodes.Status403Forbidden,
+                        "You must change your password before accessing the application.");
+
+                    return;
+                }
             }
 
             await _next(context);
         }
 
-        private static async Task Reject(HttpContext context, string message)
+        private static async Task Reject(
+            HttpContext context,
+            int statusCode,
+            string message)
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsJsonAsync(new { Message = message });
+            context.Response.StatusCode = statusCode;
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                Message = message
+            });
         }
     }
 }
