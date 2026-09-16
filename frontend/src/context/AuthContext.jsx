@@ -122,7 +122,8 @@ export function AuthProvider({ children }) {
 
   const refresh = useCallback(async () => {
     try {
-      const response = await refreshApi();
+      const minWait = new Promise((resolve) => setTimeout(resolve, 800));
+      const [response] = await Promise.all([refreshApi(), minWait]);
       const data = response?.data || response;
       const accessToken = data?.accessToken || data?.value?.accessToken;
       const mustChangePassword =

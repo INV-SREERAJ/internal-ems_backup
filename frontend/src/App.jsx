@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import useAuth from "./hooks/useAuth";
 import { AUTH_STATUS } from "./utils/authStatus";
-import SplashScreen from "./pages/Loading/SplashScreen";
+import SplashScreen from "./pages/Loading/Splashscreen";
 import { ROLES, ROLE_LABEL } from "./utils/constants";
 
 // LazyLoading pages
