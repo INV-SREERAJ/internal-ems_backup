@@ -50,7 +50,6 @@ app.UseMiddleware<Exceptions>();
 app.UseSerilogRequestLogging(); // logs one line per HTTP request: method, path, status, duration
 app.UseAuthentication();
 app.UseMiddleware<TokenVersionMiddleware>();
-app.UseMiddleware<MustChangePasswordMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
