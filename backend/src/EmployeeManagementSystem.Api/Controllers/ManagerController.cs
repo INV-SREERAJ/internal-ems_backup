@@ -17,7 +17,7 @@ namespace EmployeeManagementSystem.Api.Controllers
 
         public ManagerController(IManagerService managerService, ILogger<ManagerController> logger)
         {
-            _managerService = managerService;
+            _managerService = managerService;   
             _logger = logger;
         }
 

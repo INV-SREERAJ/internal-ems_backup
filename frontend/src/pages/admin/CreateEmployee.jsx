@@ -215,6 +215,9 @@ export default function CreateEmployee() {
                 ...formData,
                 firstName: e.target.value,
               });
+              if (errors.firstName) {
+                setErrors((prev) => ({ ...prev, firstName: "" }));
+              }
             }}
             className={`${inputBase} ${errors.firstName ? inputInvalid : ""}`}
           />
@@ -240,6 +243,9 @@ export default function CreateEmployee() {
                 ...formData,
                 lastName: e.target.value,
               });
+              if (errors.lastName) {
+                setErrors((prev) => ({ ...prev, lastName: "" }));
+              }
             }}
             className={`${inputBase} ${errors.lastName ? inputInvalid : ""}`}
           />
@@ -265,6 +271,9 @@ export default function CreateEmployee() {
                 ...formData,
                 email: e.target.value,
               });
+              if (errors.email) {
+                setErrors((prev) => ({ ...prev, email: "" }));
+              }
             }}
             className={`${inputBase} ${errors.email ? inputInvalid : ""}`}
           />
@@ -288,6 +297,9 @@ export default function CreateEmployee() {
                 ...formData,
                 phoneNumber: e.target.value,
               });
+              if (errors.phoneNumber) {
+                setErrors((prev) => ({ ...prev, phoneNumber: "" }));
+              }
             }}
             className={`${inputBase} ${errors.phoneNumber ? inputInvalid : ""}`}
           />
@@ -346,6 +358,9 @@ export default function CreateEmployee() {
                     onClick={() => {
                       setFormData({ ...formData, role: opt.value });
                       setRoleDropdownOpen(false);
+                      if (errors.role) {
+                        setErrors((prev) => ({ ...prev, role: "" }));
+                      }
                     }}
                   >
                     {opt.label}
@@ -386,6 +401,9 @@ export default function CreateEmployee() {
                   ...formData,
                   managerEmployeeCode: "",
                 });
+                if (errors.managerEmployeeCode) {
+                  setErrors((prev) => ({ ...prev, managerEmployeeCode: "" }));
+                }
               }}
               className={`${inputBase} pr-14 ${
                 errors.managerEmployeeCode ? inputInvalid : ""
@@ -471,6 +489,9 @@ export default function CreateEmployee() {
                         });
 
                         setManagerDropdownOpen(false);
+                        if (errors.managerEmployeeCode) {
+                          setErrors((prev) => ({ ...prev, managerEmployeeCode: "" }));
+                        }
                       }}
                     >
                       <span className="text-slate-900 font-medium">

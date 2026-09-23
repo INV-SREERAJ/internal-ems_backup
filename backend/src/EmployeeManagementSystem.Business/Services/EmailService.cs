@@ -39,8 +39,6 @@ namespace EmployeeManagementSystem.Business.Services
 
             <p>Your account has been created successfully.</p>
 
-            <p><strong>Email:</strong> {email}</p>
-
             <p><strong>Temporary Password:</strong> {tempPassword}</p>
 
             <p>Please login and change your password immediately.</p>
@@ -48,7 +46,7 @@ namespace EmployeeManagementSystem.Business.Services
             <br/>
 
             <p>Regards,</p>
-            <p>Employee Management System</p>"
+            <p>Workforce OS</p>"
             };
 
             using var smtp = new SmtpClient();

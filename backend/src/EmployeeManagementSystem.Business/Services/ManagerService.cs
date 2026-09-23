@@ -59,6 +59,8 @@ namespace EmployeeManagementSystem.Business.Services
                 PhoneNumber = response.PhoneNumber,
                 Role = response.Role.ToString(),
                 Status = response.Status,
+                ManagerEmployeeCode = managerCode,
+                ManagerName = manager.FirstName + manager.LastName,
                 CreatedAt = response.CreatedAt,
                 UpdatedAt = response.UpdatedAt
             });
