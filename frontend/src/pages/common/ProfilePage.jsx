@@ -267,14 +267,14 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setIsPasswordDialogOpen(true)}
-                  className="px-4 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-100 transition-colors duration-150"
+                  className="px-4 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors duration-150"
                 >
                   Change Password
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditingProfile(true)}
-                  className="px-4 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-100 transition-colors duration-150"
+                  className="px-4 py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors duration-150"
                 >
                   Edit Profile
                 </button>
