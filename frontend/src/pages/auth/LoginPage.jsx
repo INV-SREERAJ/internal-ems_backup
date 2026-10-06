@@ -164,7 +164,7 @@ export default function LoginPage() {
                   className="text-slate-600 text-[13px] font-semibold"
                   htmlFor="email"
                 >
-                  Email Address
+                  Email Address <span className="text-red-500">*</span>
                 </label>
 
                 <input
@@ -192,7 +192,7 @@ export default function LoginPage() {
                   className="text-slate-600 text-[13px] font-semibold"
                   htmlFor="password"
                 >
-                  Password
+                  Password <span className="text-red-500">*</span>
                 </label>
 
                 <PasswordInput

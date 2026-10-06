@@ -122,7 +122,7 @@ export default function ChangePasswordPage() {
             <div className="flex flex-col gap-5">
               <div>
                 <label className={labelClass} htmlFor="oldPassword">
-                  Current Password
+                  Current Password <span className="text-red-500">*</span>
                 </label>
                 <PasswordInput
                   id="oldPassword"
@@ -143,7 +143,7 @@ export default function ChangePasswordPage() {
 
               <div>
                 <label className={labelClass} htmlFor="newPassword">
-                  New Password
+                  New Password <span className="text-red-500">*</span>
                 </label>
                 <PasswordInput
                   id="newPassword"
@@ -164,7 +164,7 @@ export default function ChangePasswordPage() {
 
               <div>
                 <label className={labelClass} htmlFor="confirmPassword">
-                  Confirm New Password
+                  Confirm New Password <span className="text-red-500">*</span>
                 </label>
                 <PasswordInput
                   id="confirmPassword"

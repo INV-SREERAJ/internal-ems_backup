@@ -71,8 +71,9 @@ export default function ProfilePage() {
     if (!formData.lastName.trim()) {
       errs.lastName = "Last name is required.";
     }
-    if (
-      formData.phoneNumber &&
+    if (!formData.phoneNumber.trim()) {
+      errs.phoneNumber = "Phone number is required.";
+    } else if (
       !VALIDATION.PHONE_REGEX.test(formData.phoneNumber.trim())
     ) {
       errs.phoneNumber = "Phone number must be a valid 10-digit number.";
@@ -298,7 +299,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-5 max-[767px]:grid-cols-1">
               <div>
                 <label className={labelClass} htmlFor="profileFirstName">
-                  First Name
+                  First Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="profileFirstName"
@@ -319,7 +320,7 @@ export default function ProfilePage() {
 
               <div>
                 <label className={labelClass} htmlFor="profileLastName">
-                  Last Name
+                  Last Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="profileLastName"
@@ -353,7 +354,7 @@ export default function ProfilePage() {
 
               <div>
                 <label className={labelClass} htmlFor="profilePhone">
-                  Phone Number
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="profilePhone"
@@ -451,7 +452,7 @@ export default function ProfilePage() {
                   <div className="flex flex-col gap-5">
                     <div>
                       <label className={labelClass} htmlFor="oldPassword">
-                        Current Password
+                        Current Password <span className="text-red-500">*</span>
                       </label>
                       <PasswordInput
                         id="oldPassword"
@@ -474,7 +475,7 @@ export default function ProfilePage() {
 
                     <div>
                       <label className={labelClass} htmlFor="newPassword">
-                        New Password
+                        New Password <span className="text-red-500">*</span>
                       </label>
                       <PasswordInput
                         id="newPassword"
@@ -497,7 +498,7 @@ export default function ProfilePage() {
 
                     <div>
                       <label className={labelClass} htmlFor="confirmPassword">
-                        Confirm New Password
+                        Confirm New Password <span className="text-red-500">*</span>
                       </label>
                       <PasswordInput
                         id="confirmPassword"

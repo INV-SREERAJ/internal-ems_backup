@@ -202,7 +202,7 @@ export default function CreateEmployee() {
         {/* First Name */}
         <div className={formGroupClass}>
           <label htmlFor="firstName" className={labelClass}>
-            First Name
+            First Name <span className="text-red-500">*</span>
           </label>
 
           <input
@@ -230,7 +230,7 @@ export default function CreateEmployee() {
         {/* Last Name */}
         <div className={formGroupClass}>
           <label htmlFor="lastName" className={labelClass}>
-            Last Name
+            Last Name <span className="text-red-500">*</span>
           </label>
 
           <input
@@ -258,12 +258,12 @@ export default function CreateEmployee() {
         {/* Email - full width on desktop */}
         <div className={`${formGroupClass} col-span-2 max-[767px]:col-span-1`}>
           <label htmlFor="email" className={labelClass}>
-            Email
+            Email <span className="text-red-500">*</span>
           </label>
 
           <input
             id="email"
-            type="email"
+            type="text"
             placeholder="Enter email address"
             value={formData.email}
             onChange={(e) => {
@@ -284,7 +284,7 @@ export default function CreateEmployee() {
         {/* Phone Number */}
         <div className={formGroupClass}>
           <label htmlFor="phoneNumber" className={labelClass}>
-            Phone Number
+            Phone Number <span className="text-red-500">*</span>
           </label>
 
           <input
@@ -312,7 +312,7 @@ export default function CreateEmployee() {
         {/* Role */}
         <div className={formGroupClass}>
           <label htmlFor="role" className={labelClass}>
-            Role
+            Role <span className="text-red-500">*</span>
           </label>
 
           <div className="relative" ref={roleSelectRef}>

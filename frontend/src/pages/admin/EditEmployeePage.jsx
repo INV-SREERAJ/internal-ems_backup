@@ -453,7 +453,7 @@ export default function EditEmployeePage() {
 
             <div className={fieldGroupClass}>
               <label htmlFor="firstName" className={labelClass}>
-                First Name
+                First Name <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -475,7 +475,7 @@ export default function EditEmployeePage() {
 
             <div className={fieldGroupClass}>
               <label htmlFor="lastName" className={labelClass}>
-                Last Name
+                Last Name <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -497,7 +497,7 @@ export default function EditEmployeePage() {
 
             <div className={fieldGroupClass}>
               <label htmlFor="phoneNumber" className={labelClass}>
-                Phone Number
+                Phone Number <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -529,7 +529,7 @@ export default function EditEmployeePage() {
             {/* Role */}
             <div className={fieldGroupClass}>
               <label htmlFor="role" className={labelClass}>
-                Role
+                Role <span className="text-red-500">*</span>
               </label>
 
               <div className="relative" ref={roleSelectRef}>
