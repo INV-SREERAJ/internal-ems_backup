@@ -97,7 +97,8 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Status] <> 9");
 
                     b.HasIndex("EmployeeCode")
                         .IsUnique();

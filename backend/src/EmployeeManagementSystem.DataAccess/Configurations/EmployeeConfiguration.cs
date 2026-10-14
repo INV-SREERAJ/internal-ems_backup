@@ -18,7 +18,8 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
 
 
             builder.HasIndex(u => u.Email)
-                   .IsUnique();
+                   .IsUnique()
+                   .HasFilter("[Status] <> 9");
 
             builder.Property(u => u.EmployeeCode)
                    .IsRequired()
