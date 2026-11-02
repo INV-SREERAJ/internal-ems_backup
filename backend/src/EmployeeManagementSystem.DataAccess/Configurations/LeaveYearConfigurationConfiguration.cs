@@ -22,9 +22,6 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
                 .WithMany(x => x.YearConfigurations)
                 .HasForeignKey(x => x.LeaveTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Property(x => x.RowVersion)
-                .IsRowVersion();
         }
     }
 }

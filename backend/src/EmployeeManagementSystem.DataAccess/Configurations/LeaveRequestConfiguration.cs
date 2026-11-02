@@ -40,13 +40,14 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
 
             // overlap check and "my requests" list
             builder.HasIndex(x => new { x.EmployeeId, x.FromDate, x.ToDate });
-            builder.HasIndex(x => new { x.EmployeeId, x.Year, x.Status });
 
             // manager / admin lists filtered by status
-            builder.HasIndex(x => x.Status);
-
-            builder.Property(x => x.RowVersion)
-                .IsRowVersion();
+            builder.HasIndex(x => new
+            {
+                x.Status,
+                x.FromDate,
+                x.ToDate
+            });
         }
     }
 }

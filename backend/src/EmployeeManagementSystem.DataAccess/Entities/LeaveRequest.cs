@@ -12,9 +12,6 @@ namespace EmployeeManagementSystem.DataAccess.Entities
         public int LeaveTypeId { get; set; }
         public LeaveType LeaveType { get; set; } = null!;
 
-        // year of FromDate (a request cannot cross a year boundary)
-        public int Year { get; set; }
-
         public DateOnly FromDate { get; set; }
         public DateOnly ToDate { get; set; }
 
@@ -35,9 +32,6 @@ namespace EmployeeManagementSystem.DataAccess.Entities
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-
-        // row version for concurrency handling
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
         public ICollection<LeaveRequestHistory> History { get; set; } = new List<LeaveRequestHistory>();
 

@@ -1,9 +1,6 @@
 ﻿using EmployeeManagementSystem.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EmployeeManagementSystem.DataAccess.Configurations
 {
@@ -15,13 +12,12 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
             {
                 table.HasCheckConstraint(
                     "CK_EmployeeLeaveBalances_Days",
-                    "[AllocatedDays] >= 0 AND [UsedDays] >= 0 AND [PendingDays] >= 0 " +
-                    "AND [UsedDays] + [PendingDays] <= [AllocatedDays]");
+                    "[AllocatedDays] >= 0 ");
             });
             builder.HasKey(x => x.Id);
 
             // one balance per employee per leave type per year
-            builder.HasIndex(x => new { x.EmployeeId, x.LeaveTypeId, x.Year })
+            builder.HasIndex(x => new { x.EmployeeId, x.LeaveYearConfigurationId })
                 .IsUnique();
 
             builder.HasOne(x => x.Employee)
@@ -29,16 +25,10 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
                 .HasForeignKey(x => x.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(x => x.LeaveType)
+            builder.HasOne(x => x.LeaveYearConfiguration)
                 .WithMany(x => x.Balances)
-                .HasForeignKey(x => x.LeaveTypeId)
+                .HasForeignKey(x => x.LeaveYearConfigurationId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // calculated in code, not a column
-            builder.Ignore(x => x.AvailableDays);
-
-            builder.Property(x => x.RowVersion)
-                .IsRowVersion();
         }
     }
 }

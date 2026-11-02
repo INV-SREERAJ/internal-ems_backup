@@ -26,8 +26,6 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
             builder.HasIndex(x => x.Name).IsUnique();
             builder.HasIndex(x => x.Code).IsUnique();
 
-            builder.Property(x => x.RowVersion)
-                .IsRowVersion();
         }
     }
 }

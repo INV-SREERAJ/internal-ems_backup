@@ -63,7 +63,7 @@ namespace EmployeeManagementSystem.DataAccess.Configurations
 
             //configuration of rowVersion
             builder.Property(e => e.RowVersion)
-                .IsRowVersion();    
+                .IsRowVersion();
 
 
         }

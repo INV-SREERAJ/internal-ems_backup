@@ -14,8 +14,6 @@ namespace EmployeeManagementSystem.DataAccess.Entities
         public LeaveStatus? PreviousStatus { get; set; }
         public LeaveStatus NewStatus { get; set; }
 
-        public LeaveAction Action { get; set; }
-
         public int PerformedById { get; set; }
         public Employee PerformedBy { get; set; } = null!;
 

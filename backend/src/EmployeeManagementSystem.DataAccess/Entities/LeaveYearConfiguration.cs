@@ -9,7 +9,7 @@ namespace EmployeeManagementSystem.DataAccess.Entities
         public int Id { get; set; }
 
         public int LeaveTypeId { get; set; }
-        public LeaveType LeaveType { get; set; }
+        public LeaveType LeaveType { get; set; } = null!;
         public int Year {  get; set; }
         public int AllocatedDays { get; set; }
         public bool IsActive { get; set; } = true;
@@ -17,6 +17,6 @@ namespace EmployeeManagementSystem.DataAccess.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        public ICollection<EmployeeLeaveBalance> Balances { get; set; } = new List<EmployeeLeaveBalance>();
     }
 }

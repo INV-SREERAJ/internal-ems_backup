@@ -125,37 +125,22 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LeaveTypeId")
+                    b.Property<int>("LeaveYearConfigurationId")
                         .HasColumnType("int");
-
-                    b.Property<int>("PendingDays")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UsedDays")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("LeaveTypeId");
+                    b.HasIndex("LeaveYearConfigurationId");
 
-                    b.HasIndex("EmployeeId", "LeaveTypeId", "Year")
+                    b.HasIndex("EmployeeId", "LeaveYearConfigurationId")
                         .IsUnique();
 
                     b.ToTable("EmployeeLeaveBalances", null, t =>
                         {
-                            t.HasCheckConstraint("CK_EmployeeLeaveBalances_Days", "[AllocatedDays] >= 0 AND [UsedDays] >= 0 AND [PendingDays] >= 0 AND [UsedDays] + [PendingDays] <= [AllocatedDays]");
+                            t.HasCheckConstraint("CK_EmployeeLeaveBalances_Days", "[AllocatedDays] >= 0 ");
                         });
                 });
 
@@ -197,12 +182,6 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                     b.Property<int?>("ReviewedById")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -212,20 +191,15 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LeaveTypeId");
 
                     b.HasIndex("ReviewedById");
 
-                    b.HasIndex("Status");
-
                     b.HasIndex("EmployeeId", "FromDate", "ToDate");
 
-                    b.HasIndex("EmployeeId", "Year", "Status");
+                    b.HasIndex("Status", "FromDate", "ToDate");
 
                     b.ToTable("LeaveRequests", null, t =>
                         {
@@ -242,9 +216,6 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Action")
-                        .HasColumnType("int");
 
                     b.Property<string>("Comments")
                         .HasMaxLength(500)
@@ -302,12 +273,6 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -341,12 +306,6 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
 
                     b.Property<int>("LeaveTypeId")
                         .HasColumnType("int");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -383,15 +342,15 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("EmployeeManagementSystem.DataAccess.Entities.LeaveType", "LeaveType")
+                    b.HasOne("EmployeeManagementSystem.DataAccess.Entities.LeaveYearConfiguration", "LeaveYearConfiguration")
                         .WithMany("Balances")
-                        .HasForeignKey("LeaveTypeId")
+                        .HasForeignKey("LeaveYearConfigurationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Employee");
 
-                    b.Navigation("LeaveType");
+                    b.Navigation("LeaveYearConfiguration");
                 });
 
             modelBuilder.Entity("EmployeeManagementSystem.DataAccess.Entities.LeaveRequest", b =>
@@ -462,11 +421,14 @@ namespace EmployeeManagementSystem.DataAccess.Migrations
 
             modelBuilder.Entity("EmployeeManagementSystem.DataAccess.Entities.LeaveType", b =>
                 {
-                    b.Navigation("Balances");
-
                     b.Navigation("LeaveRequests");
 
                     b.Navigation("YearConfigurations");
+                });
+
+            modelBuilder.Entity("EmployeeManagementSystem.DataAccess.Entities.LeaveYearConfiguration", b =>
+                {
+                    b.Navigation("Balances");
                 });
 #pragma warning restore 612, 618
         }
