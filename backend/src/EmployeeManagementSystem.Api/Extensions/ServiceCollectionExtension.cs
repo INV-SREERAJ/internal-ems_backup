@@ -17,6 +17,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAdminRepository, AdminRepository>();
         services.AddScoped<IManagerRepository, ManagerRepository>();
         services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
+        services.AddScoped<ILeaveYearConfigurationRepository, LeaveYearConfigurationRepository>();
+        services.AddScoped<IEmployeeLeaveBalanceRepository, EmployeeLeaveBalanceRepository>();
 
         services.AddHttpContextAccessor();
 
@@ -29,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IManagerService, ManagerService>();
         services.AddScoped<ILeaveTypeService, LeaveTypeService>();
+        services.AddScoped<ILeaveYearConfigurationService, LeaveYearConfigurationService>();
 
         services.Configure<EmailSettings>(
             configuration.GetSection("EmailSettings"));

@@ -18,7 +18,6 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
             await _context.Employees.AddAsync(employee);
-            await _context.SaveChangesAsync();
 
             return employee;
         }
@@ -62,5 +61,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> SaveChangesAsync() => await _context.SaveChangesAsync() > 0;
     }
 }
