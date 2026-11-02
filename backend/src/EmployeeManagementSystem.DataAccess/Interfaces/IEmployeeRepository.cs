@@ -14,5 +14,7 @@ namespace EmployeeManagementSystem.DataAccess.Interfaces
         Task<bool> EmailExistsAsync(string email);
 
         Task<Employee> AddEmployeeAsync(Employee employee);
+
+        Task<bool> SaveChangesAsync();
     }
 }

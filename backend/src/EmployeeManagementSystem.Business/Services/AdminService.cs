@@ -19,8 +19,10 @@ namespace EmployeeManagementSystem.Business.Services
         private readonly IEmployeeCodeGenerator _employeeCodeGenerator;
         private readonly ILogger<AdminService> _logger;
         private readonly IManagerRepository _managerRepository;
+        private readonly ILeaveYearConfigurationRepository _leaveYearConfigurationRepository;
+        private readonly IEmployeeLeaveBalanceRepository _employeeLeaveBalanceRepository;
 
-        public AdminService(IEmployeeRepository employeeRepository, IPasswordService passwordService, IEmailService emailService, IAdminRepository adminRepository, IEmployeeCodeGenerator employeeCodeGenerator, ILogger<AdminService> logger, IManagerRepository managerRepository)
+        public AdminService(IEmployeeRepository employeeRepository, IPasswordService passwordService, IEmailService emailService, IAdminRepository adminRepository, IEmployeeCodeGenerator employeeCodeGenerator, ILogger<AdminService> logger, IManagerRepository managerRepository, IEmployeeLeaveBalanceRepository employeeLeaveBalanceRepository, ILeaveYearConfigurationRepository leaveYearConfigurationRepository)
         {
             _employeeRepository = employeeRepository;
             _passwordService = passwordService;
@@ -29,6 +31,8 @@ namespace EmployeeManagementSystem.Business.Services
             _employeeCodeGenerator = employeeCodeGenerator;
             _logger = logger;
             _managerRepository = managerRepository;
+            _leaveYearConfigurationRepository = leaveYearConfigurationRepository;
+            _employeeLeaveBalanceRepository = employeeLeaveBalanceRepository;
         }
 
         //create employee
@@ -120,9 +124,26 @@ namespace EmployeeManagementSystem.Business.Services
             employee.EmployeeCode = codeResult.Value;
             await _employeeRepository.AddEmployeeAsync(employee);
 
+            // leave balances for current and future active configurations
+            var configurations = await _leaveYearConfigurationRepository.GetActiveFromYearAsync(DateTime.UtcNow.Year);
+            var now = DateTime.UtcNow;
+            var balances = configurations.Select(c => new EmployeeLeaveBalance
+            {
+                Employee = employee,                    // new, unsaved: use the navigation, not an id
+                LeaveYearConfigurationId = c.Id,
+                AllocatedDays = c.AllocatedDays,
+                CreatedAt = now,
+                UpdatedAt = now
+            }).ToList();
 
-            //successful creation
-            _logger.LogInformation("Employee {EmployeeCode} created successfully.", employee.EmployeeCode);
+            await _employeeLeaveBalanceRepository.AddRangeAsync(balances);
+
+            // one save: employee and all balances commit together or not at all
+            //only works bc every repo is in one context (single scope)
+            await _employeeRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Employee {EmployeeCode} created successfully with {Count} leave balances.",
+                employee.EmployeeCode, balances.Count);
 
             try
             {
