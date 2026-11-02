@@ -6,7 +6,7 @@ using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmployeeManagementSystem.Api.Controllers
+namespace EmployeeManagementSystem.Api.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin")]

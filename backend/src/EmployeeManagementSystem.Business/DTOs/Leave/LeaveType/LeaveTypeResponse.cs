@@ -1,4 +1,4 @@
-﻿namespace EmployeeManagementSystem.Business.DTOs.Leave
+﻿namespace EmployeeManagementSystem.Business.DTOs.Leave.LeaveType
 {
     public class LeaveTypeResponse
     {

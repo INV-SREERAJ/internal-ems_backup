@@ -12,6 +12,7 @@ public static class ValidationExtensions
 
         services.AddValidatorsFromAssemblyContaining<CreateEmployeeRequestValidator>();
         services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateLeaveTypeRequestValidator>();
 
         return services;
     }
