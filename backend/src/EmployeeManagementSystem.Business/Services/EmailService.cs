@@ -118,5 +118,67 @@ namespace EmployeeManagementSystem.Business.Services
 
             await smtp.DisconnectAsync(true);
         }
+
+        // leave application notification to manager
+        public async Task SendLeaveApplicationNotificationAsync(
+            string managerEmail,
+            string managerName,
+            string employeeName,
+            string leaveTypeName,
+            DateOnly fromDate,
+            DateOnly toDate,
+            int numberOfDays,
+            string reason,
+            string reviewUrl)
+        {
+            var message = new MimeMessage();
+
+            message.From.Add(new MailboxAddress(
+                _emailSettings.FromName,
+                _emailSettings.FromEmail));
+
+            message.To.Add(MailboxAddress.Parse(managerEmail));
+
+            message.Subject = $"New Leave Request - {employeeName}";
+
+            message.Body = new TextPart("html")
+            {
+                Text = $@"
+            <h2>Hello, {managerName}!</h2>
+
+            <p><strong>{employeeName}</strong> has submitted a new leave request for your review.</p>
+
+            <table style=""border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;"">
+                <tr><td style=""padding: 5px 15px 5px 0;""><strong>Leave Type:</strong></td><td>{leaveTypeName}</td></tr>
+                <tr><td style=""padding: 5px 15px 5px 0;""><strong>Duration:</strong></td><td>{fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd} ({numberOfDays} working day{(numberOfDays > 1 ? "s" : "")})</td></tr>
+                <tr><td style=""padding: 5px 15px 5px 0;""><strong>Reason:</strong></td><td>{reason}</td></tr>
+            </table>
+
+            <p><a href=""{reviewUrl}"" style=""background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;"">Review Request</a></p>
+
+            <br/>
+
+            <p>Regards,</p>
+            <p>Employee Management System</p>"
+            };
+
+            using var smtp = new SmtpClient();
+
+            _logger.LogInformation("Sending leave request notification email to manager {Email}", managerEmail);
+            await smtp.ConnectAsync(
+                _emailSettings.Host,
+                _emailSettings.Port,
+                SecureSocketOptions.StartTls);
+
+            await smtp.AuthenticateAsync(
+                _emailSettings.Username,
+                _emailSettings.Password);
+
+            await smtp.SendAsync(message);
+
+            _logger.LogInformation("Leave request notification email sent successfully to manager {Email}", managerEmail);
+
+            await smtp.DisconnectAsync(true);
+        }
     }
 }

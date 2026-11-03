@@ -69,6 +69,88 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<LeaveBalanceSummary>> GetSummariesAsync(int employeeId, int year)
+        {
+            var startDate = new DateOnly(year, 1, 1);
+            var endDate = new DateOnly(year, 12, 31);
+
+            return await _context.EmployeeLeaveBalances
+                .AsNoTracking()
+                .Where(b => b.EmployeeId == employeeId && b.LeaveYearConfiguration.Year == year)
+                .Select(b => new LeaveBalanceSummary
+                {
+                    EmployeeId = b.EmployeeId,
+                    LeaveTypeId = b.LeaveYearConfiguration.LeaveTypeId,
+                    LeaveTypeName = b.LeaveYearConfiguration.LeaveType.Name,
+                    LeaveTypeCode = b.LeaveYearConfiguration.LeaveType.Code,
+                    Year = b.LeaveYearConfiguration.Year,
+                    AllocatedDays = b.AllocatedDays,
+                    UsedDays = _context.LeaveRequests
+                        .Where(r => r.EmployeeId == employeeId
+                                 && r.LeaveTypeId == b.LeaveYearConfiguration.LeaveTypeId
+                                 && r.FromDate >= startDate
+                                 && r.FromDate <= endDate
+                                 && r.Status == LeaveStatus.Approved)
+                        .Sum(r => (int?)r.NumberOfDays) ?? 0,
+                    PendingDays = _context.LeaveRequests
+                        .Where(r => r.EmployeeId == employeeId
+                                 && r.LeaveTypeId == b.LeaveYearConfiguration.LeaveTypeId
+                                 && r.FromDate >= startDate
+                                 && r.FromDate <= endDate
+                                 && r.Status == LeaveStatus.Pending)
+                        .Sum(r => (int?)r.NumberOfDays) ?? 0
+                })
+                .OrderBy(s => s.LeaveTypeName)
+                .ToListAsync();
+        }
+
+        public async Task<LeaveBalanceSummary?> GetSummaryAsync(int employeeId, int leaveTypeId, int year)
+        {
+            var startDate = new DateOnly(year, 1, 1);
+            var endDate = new DateOnly(year, 12, 31);
+
+            return await _context.EmployeeLeaveBalances
+                .AsNoTracking()
+                .Where(b => b.EmployeeId == employeeId
+                         && b.LeaveYearConfiguration.LeaveTypeId == leaveTypeId
+                         && b.LeaveYearConfiguration.Year == year)
+                .Select(b => new LeaveBalanceSummary
+                {
+                    EmployeeId = b.EmployeeId,
+                    LeaveTypeId = b.LeaveYearConfiguration.LeaveTypeId,
+                    LeaveTypeName = b.LeaveYearConfiguration.LeaveType.Name,
+                    LeaveTypeCode = b.LeaveYearConfiguration.LeaveType.Code,
+                    Year = b.LeaveYearConfiguration.Year,
+                    AllocatedDays = b.AllocatedDays,
+                    UsedDays = _context.LeaveRequests
+                        .Where(r => r.EmployeeId == employeeId
+                                 && r.LeaveTypeId == leaveTypeId
+                                 && r.FromDate >= startDate
+                                 && r.FromDate <= endDate
+                                 && r.Status == LeaveStatus.Approved)
+                        .Sum(r => (int?)r.NumberOfDays) ?? 0,
+                    PendingDays = _context.LeaveRequests
+                        .Where(r => r.EmployeeId == employeeId
+                                 && r.LeaveTypeId == leaveTypeId
+                                 && r.FromDate >= startDate
+                                 && r.FromDate <= endDate
+                                 && r.Status == LeaveStatus.Pending)
+                        .Sum(r => (int?)r.NumberOfDays) ?? 0
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<int>> GetYearsAsync(int employeeId)
+        {
+            return await _context.EmployeeLeaveBalances
+                .AsNoTracking()
+                .Where(b => b.EmployeeId == employeeId)
+                .Select(b => b.LeaveYearConfiguration.Year)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToListAsync();
+        }
+
         public async Task AddRangeAsync(IEnumerable<EmployeeLeaveBalance> balances)
         {
             await _context.EmployeeLeaveBalances.AddRangeAsync(balances);
