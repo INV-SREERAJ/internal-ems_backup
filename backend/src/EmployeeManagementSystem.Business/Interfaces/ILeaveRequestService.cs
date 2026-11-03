@@ -7,5 +7,6 @@ namespace EmployeeManagementSystem.Business.Interfaces
     {
         Task<Result<LeaveRequestResponse>> ApplyAsync(string employeeCode, ApplyLeaveRequest request);
         Task<Result<LeaveRequestResponse>> GetMyRequestByIdAsync(string employeeCode, int id);
+        Task<Result<LeaveRequestResponse>> CancelAsync(string employeeCode, int id);
     }
 }

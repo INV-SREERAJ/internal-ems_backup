@@ -230,5 +230,58 @@ namespace EmployeeManagementSystem.Business.Services
         {
             return dt.HasValue ? EnsureUtc(dt.Value) : null;
         }
+
+        public async Task<Result<LeaveRequestResponse>> CancelAsync(string employeeCode, int id)
+        {
+            var trimmedCode = employeeCode?.Trim() ?? string.Empty;
+            _logger.LogInformation("Employee {EmployeeCode} cancelling leave request {LeaveRequestId}", trimmedCode, id);
+
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(trimmedCode, trackChanges: false);
+            if (employee == null)
+            {
+                _logger.LogWarning("Cancel failed: employee not found: {EmployeeCode}", trimmedCode);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.NotFound, "Employee not found.");
+            }
+
+            var request = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+            if (request == null || request.EmployeeId != employee.Id)
+            {
+                _logger.LogWarning("Cancel failed: request {LeaveRequestId} not found for {EmployeeCode}", id, trimmedCode);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            if (request.Status != LeaveStatus.Pending)
+            {
+                _logger.LogWarning("Cancel failed: request {LeaveRequestId} is {Status}", id, request.Status);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict, "Only pending leave requests can be cancelled.");
+            }
+
+            var now = DateTime.UtcNow;
+            var history = new LeaveRequestHistory
+            {
+                PreviousStatus = LeaveStatus.Pending,
+                NewStatus = LeaveStatus.Cancelled,
+                PerformedById = employee.Id,
+                PerformedAt = now,
+                Comments = null
+            };
+
+            var changed = await _leaveRequestRepository.TryTransitionAsync(
+                id, new[] { LeaveStatus.Pending }, LeaveStatus.Cancelled,
+                reviewedById: null, reviewedAt: null, rejectionReason: null, history);
+
+            if (!changed)
+            {
+                _logger.LogWarning("Cancel failed: request {LeaveRequestId} was changed by another operation", id);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict, "The leave request was changed by another operation. Please refresh and try again.");
+            }
+
+            var reloaded = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+            if (reloaded == null)
+                return Result<LeaveRequestResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+
+            _logger.LogInformation("Leave request {LeaveRequestId} cancelled by {EmployeeCode}", id, trimmedCode);
+            return Result<LeaveRequestResponse>.Ok(MapToResponse(reloaded));
+        }
     }
 }

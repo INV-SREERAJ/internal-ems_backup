@@ -63,5 +63,20 @@ namespace EmployeeManagementSystem.Api.Controllers
             var response = await _leaveRequestService.GetMyRequestByIdAsync(employeeCode, id);
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
+
+        [HttpPatch("{id}/cancel")]
+        [ProducesResponseType(typeof(LeaveRequestResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var employeeCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(employeeCode))
+            {
+                return Unauthorized(new { Message = "Unauthorized." });
+            }
+            var response = await _leaveRequestService.CancelAsync(employeeCode, id);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using EmployeeManagementSystem.DataAccess.Entities;
+using EmployeeManagementSystem.DataAccess.Entities.Enums;
 
 namespace EmployeeManagementSystem.DataAccess.Interfaces
 {
@@ -8,5 +9,14 @@ namespace EmployeeManagementSystem.DataAccess.Interfaces
         Task AddAsync(LeaveRequest request);
         Task<LeaveRequest?> GetByIdWithDetailsAsync(int id, bool trackChanges = false);
         Task<bool> SaveChangesAsync();
+        Task<bool> TryTransitionAsync(
+            int id,
+            LeaveStatus[] allowedFrom,
+            LeaveStatus newStatus,
+            int? reviewedById,
+            DateTime? reviewedAt,
+            string? rejectionReason,
+            LeaveRequestHistory history
+        );
     }
 }

@@ -47,6 +47,34 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             return await query.FirstOrDefaultAsync(r => r.Id == id);
         }
 
+        public async Task<bool> TryTransitionAsync(
+                int id, LeaveStatus[] allowedFrom, LeaveStatus newStatus,
+                int? reviewedById, DateTime? reviewedAt, string? rejectionReason,
+                LeaveRequestHistory history
+        )
+        {
+            await using var tx = await _context.Database.BeginTransactionAsync();
+
+            var now = history.PerformedAt;
+            var rows = await _context.LeaveRequests
+                .Where(r => r.Id == id && allowedFrom.Contains(r.Status))
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(r => r.Status, newStatus)
+                    .SetProperty(r => r.ReviewedById, reviewedById)
+                    .SetProperty(r => r.ReviewedAt, reviewedAt)
+                    .SetProperty(r => r.RejectionReason, rejectionReason)
+                    .SetProperty(r => r.UpdatedAt, now));
+
+            if (rows == 0)
+                return false;                       // nothing changed; disposing the transaction rolls back
+
+            history.LeaveRequestId = id;
+            _context.LeaveRequestHistories.Add(history);   // use your real DbSet name
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+            return true;
+        }
+
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
