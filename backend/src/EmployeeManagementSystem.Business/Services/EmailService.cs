@@ -5,6 +5,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Org.BouncyCastle.Pqc.Crypto.Frodo;
 
 namespace EmployeeManagementSystem.Business.Services
 {
@@ -177,6 +178,107 @@ namespace EmployeeManagementSystem.Business.Services
             await smtp.SendAsync(message);
 
             _logger.LogInformation("Leave request notification email sent successfully to manager {Email}", managerEmail);
+
+            await smtp.DisconnectAsync(true);
+        }
+
+        public async Task SendLeaveApprovedNotification(string employeeEmai, string employeeFullName, string leaveTypeName, DateOnly fromDate, DateOnly toDate, int numberOfDays)
+        {
+            var message = new MimeMessage();
+
+            message.From.Add(new MailboxAddress(
+                _emailSettings.FromName,
+                _emailSettings.FromEmail));
+
+            message.To.Add(MailboxAddress.Parse(employeeEmai));
+
+            message.Subject = $"Your Leave request has been approved ";
+
+            message.Body = new TextPart("html")
+            {
+                Text = $@"
+            <h2>Hello, {employeeFullName}!</h2>
+
+            <p>Your leave request has been <strong>approved</strong> by your manager!.</p>
+
+            <table style=""border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;"">
+                <tr><td style=""padding: 5px 15px 5px 0;""><strong>Leave Type:</strong></td><td>{leaveTypeName}</td></tr>
+                <tr><td style=""padding: 5px 15px 5px 0;""><strong>Duration:</strong></td><td>{fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd} ({numberOfDays} working day{(numberOfDays > 1 ? "s" : "")})</td></tr>
+                
+            </table>
+
+            <br/>
+
+            <p>Regards,</p>
+            <p>Workflow OS</p>"
+            };
+
+            using var smtp = new SmtpClient();
+
+            _logger.LogInformation("Sending approval notification email to employee {employeefullName}", employeeFullName);
+            await smtp.ConnectAsync(
+                _emailSettings.Host,
+                _emailSettings.Port,
+                SecureSocketOptions.StartTls);
+
+            await smtp.AuthenticateAsync(
+                _emailSettings.Username,
+                _emailSettings.Password);
+
+            await smtp.SendAsync(message);
+
+            _logger.LogInformation("Leave request approval email sent successfully to employee {employeefullName}", employeeFullName);
+
+            await smtp.DisconnectAsync(true);
+        }
+
+        public async Task SendLeaveRejectedNotification(string employeeEmai, string employeeFullName, string leaveTypeName, DateOnly fromDate, DateOnly toDate, int numberOfDays, string rejectionReason)
+        {
+            var message = new MimeMessage();
+
+            message.From.Add(new MailboxAddress(
+                _emailSettings.FromName,
+                _emailSettings.FromEmail));
+
+            message.To.Add(MailboxAddress.Parse(employeeEmai));
+
+            message.Subject = $"Your Leave request has been rejected ";
+
+            message.Body = new TextPart("html")
+            {
+                Text = $@"
+                <h2>Hello, {employeeFullName}!</h2>
+
+                <p>Your leave request has been <strong>rejected</strong> by your manager!.</p>
+
+                <table style=""border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;"">
+                    <tr><td style=""padding: 5px 15px 5px 0;""><strong>Leave Type:</strong></td><td>{leaveTypeName}</td></tr>
+                    <tr><td style=""padding: 5px 15px 5px 0;""><strong>Duration:</strong></td><td>{fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd} ({numberOfDays} working day{(numberOfDays > 1 ? "s" : "")})</td></tr>
+                    <tr><td style=""padding: 5px 15px 5px 0;""><strong>Reason:</strong></td><td>{rejectionReason}</td></tr>
+    
+                </table>
+
+                <br/>
+
+                <p>Regards,</p>
+                <p>Workflow OS</p>"
+            };
+
+            using var smtp = new SmtpClient();
+
+            _logger.LogInformation("Sending rejection notification email to employee {employeefullName}", employeeFullName);
+            await smtp.ConnectAsync(
+                _emailSettings.Host,
+                _emailSettings.Port,
+                SecureSocketOptions.StartTls);
+
+            await smtp.AuthenticateAsync(
+                _emailSettings.Username,
+                _emailSettings.Password);
+
+            await smtp.SendAsync(message);
+
+            _logger.LogInformation("Leave request rejection email sent successfully to employee {employeefullName}", employeeFullName);
 
             await smtp.DisconnectAsync(true);
         }

@@ -267,7 +267,7 @@ namespace EmployeeManagementSystem.Business.Services
             };
 
             var changed = await _leaveRequestRepository.TryTransitionAsync(
-                id, new[] { LeaveStatus.Pending }, LeaveStatus.Cancelled,
+                id, LeaveStatus.Pending, LeaveStatus.Cancelled,
                 reviewedById: null, reviewedAt: null, rejectionReason: null, history);
 
             if (!changed)
@@ -283,5 +283,109 @@ namespace EmployeeManagementSystem.Business.Services
             _logger.LogInformation("Leave request {LeaveRequestId} cancelled by {EmployeeCode}", id, trimmedCode);
             return Result<LeaveRequestResponse>.Ok(MapToResponse(reloaded));
         }
+
+        public Task<Result<LeaveRequestResponse>> ApproveAsManagerAsync(string managerCode, int id) =>
+            ReviewAsync(managerCode, id, approve: true, rejectionReason: null, restrictToDirectReports: true);
+
+        private async Task<Result<LeaveRequestResponse>> ReviewAsync(string actorCode, int id, bool approve, string? rejectionReason, bool restrictToDirectReports)
+        {
+            var code = actorCode?.Trim() ?? string.Empty;
+            var verb = approve ? "approve" : "reject";
+            _logger.LogInformation("User {ActorCode} attempting to {Verb} leave request {LeaveRequestId}", code, verb, id);
+
+            var actor = await _employeeRepository.GetByEmployeeCodeAsync(code, trackChanges: false);
+            if(actor == null)
+            {
+                _logger.LogWarning("Leave {Verb} failed: actor not found: {ActorCode}", verb, code);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.NotFound, "Employee not found.");
+            }
+
+            var request = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+
+            if(request == null || (restrictToDirectReports && request.Employee.ManagerId != actor.Id))
+            {
+                _logger.LogWarning("Leave {Verb} failed: request {LeaveRequestId} not found in scope of {ActorCode}", verb, id, code);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            var allowed = approve ? request.Status == LeaveStatus.Pending
+                    : request.Status == LeaveStatus.Pending || request.Status == LeaveStatus.Approved;
+
+            if (!allowed)
+            {
+                _logger.LogWarning("Leave {Verb} failed: request {LeaveRequestId} is {Status}", verb, id, request.Status);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict,
+                    approve ? "Only pending leave requests can be approved."
+                            : "Only pending or approved leave requests can be rejected.");
+            }
+
+            var expected = request.Status;
+            var newStatus = approve ? LeaveStatus.Approved : LeaveStatus.Rejected;
+            if (!approve && request.Status == LeaveStatus.Approved && request.FromDate < DateOnly.FromDateTime(DateTime.UtcNow))
+            {
+                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict, "Cannot reject an approved leave that has already started or passed.");
+            }
+            var now = DateTime.UtcNow;
+
+            var history = new LeaveRequestHistory
+            {
+                PreviousStatus = expected,
+                NewStatus = newStatus,
+                PerformedById = actor.Id,
+                PerformedAt = now,
+                Comments = rejectionReason
+            };
+
+            var changed = await _leaveRequestRepository.TryTransitionAsync(id, expected, newStatus, actor.Id, now, rejectionReason, history);
+
+            if (!changed)
+            {
+                _logger.LogWarning("Leave {Verb} failed: request {LeaveRequestId} changed by another operation", verb, id);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict,
+                    "The leave request was changed by another operation. Please refresh and try again.");
+            }
+
+            var reloaded = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+            if(reloaded == null)
+            {
+                return Result<LeaveRequestResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+            _logger.LogInformation("Leave request {LeaveRequestId} {Status} by {ActorCode}", id, newStatus, code);
+
+            await NotifyEmployeeAsync(reloaded, approve, rejectionReason);   // after commit; never changes the result
+
+            return Result<LeaveRequestResponse>.Ok(MapToResponse(reloaded));
+        }
+
+        private async Task NotifyEmployeeAsync(LeaveRequest request, bool approved, string? rejectionReason)
+        {
+            try
+            {
+                var employee = request.Employee;
+                var name = $"{employee.FirstName} {employee.LastName}".Trim();
+
+                if (approved)
+                    await _emailService.SendLeaveApprovedNotification(
+                        employee.Email, name, request.LeaveType.Name,
+                        request.FromDate, request.ToDate, request.NumberOfDays);
+                else
+                    await _emailService.SendLeaveRejectedNotification(
+                        employee.Email, name, request.LeaveType.Name,
+                        request.FromDate, request.ToDate, request.NumberOfDays, rejectionReason!);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send leave decision email for leave request {LeaveRequestId}", request.Id);
+            }
+        }
+
+        public Task<Result<LeaveRequestResponse>> RejectAsManagerAsync(string managerCode, int id, RejectLeaveRequest request) =>
+            ReviewAsync(managerCode, id, approve: false, request.RejectionReason.Trim(), restrictToDirectReports: true);
+
+        public Task<Result<LeaveRequestResponse>> ApproveAsAdminAsync(string adminCode, int id)=>
+            ReviewAsync(adminCode, id, approve: true, rejectionReason: null, restrictToDirectReports: false);
+
+        public Task<Result<LeaveRequestResponse>> RejectAsAdminAsync(string adminCode, int id, RejectLeaveRequest request) =>
+            ReviewAsync(adminCode, id, approve: false, request.RejectionReason.Trim(), restrictToDirectReports: false);
     }
 }

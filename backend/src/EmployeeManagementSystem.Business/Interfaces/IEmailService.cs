@@ -14,5 +14,7 @@ namespace EmployeeManagementSystem.Business.Interfaces
             int numberOfDays,
             string reason,
             string reviewUrl);
+        Task SendLeaveApprovedNotification(string employeeEmai, string employeeFullName, string leaveTypeName, DateOnly fromDate, DateOnly toDate, int numberOfDays);
+        Task SendLeaveRejectedNotification(string employeeEmai, string employeeFullName, string leaveTypeName, DateOnly fromDate, DateOnly toDate, int numberOfDays, string rejectionReason);
     }
 }
