@@ -48,7 +48,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         }
 
         public async Task<bool> TryTransitionAsync(
-                int id, LeaveStatus[] allowedFrom, LeaveStatus newStatus,
+                int id, LeaveStatus allowedFrom, LeaveStatus newStatus,
                 int? reviewedById, DateTime? reviewedAt, string? rejectionReason,
                 LeaveRequestHistory history
         )
@@ -57,7 +57,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
 
             var now = history.PerformedAt;
             var rows = await _context.LeaveRequests
-                .Where(r => r.Id == id && allowedFrom.Contains(r.Status))
+                .Where(r => r.Id == id && r.Status == allowedFrom)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(r => r.Status, newStatus)
                     .SetProperty(r => r.ReviewedById, reviewedById)

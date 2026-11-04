@@ -11,7 +11,7 @@ namespace EmployeeManagementSystem.DataAccess.Interfaces
         Task<bool> SaveChangesAsync();
         Task<bool> TryTransitionAsync(
             int id,
-            LeaveStatus[] allowedFrom,
+            LeaveStatus allowedFrom,
             LeaveStatus newStatus,
             int? reviewedById,
             DateTime? reviewedAt,
