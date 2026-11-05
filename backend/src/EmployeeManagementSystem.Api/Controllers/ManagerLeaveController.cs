@@ -48,6 +48,24 @@ namespace EmployeeManagementSystem.Api.Controllers
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 
+        [HttpGet("leave-requests/{id}/history")]
+        [ProducesResponseType(typeof(LeaveRequestHistoryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetHistory(int id)
+        {
+            var managerCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(managerCode))
+            {
+                return Unauthorized(new { Message = "Unauthorized." });
+            }
+
+            var response = await _leaveRequestService.GetManagerHistoryAsync(managerCode, id);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
         [HttpPatch("leave-requests/{id}/approve")]
         [ProducesResponseType(typeof(LeaveRequestResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

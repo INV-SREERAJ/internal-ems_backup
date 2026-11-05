@@ -1,6 +1,8 @@
 using EmployeeManagementSystem.Business.Common;
+using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveRequest;
 using EmployeeManagementSystem.Business.Interfaces;
+using EmployeeManagementSystem.DataAccess.common;
 using EmployeeManagementSystem.DataAccess.Entities;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
 using EmployeeManagementSystem.DataAccess.Interfaces;
@@ -156,6 +158,80 @@ namespace EmployeeManagementSystem.Business.Services
             }
 
             return Result<LeaveRequestResponse>.Ok(MapToResponse(request));
+        }
+
+        public async Task<Result<PagedResponse<MyLeaveRequestListItem>>> GetMyRequestsAsync(string employeeCode, LeaveRequestFilter filter)
+        {
+            var trimmedCode = employeeCode?.Trim() ?? string.Empty;
+            _logger.LogInformation("Employee {EmployeeCode} fetching leave requests page {Page}", trimmedCode, filter.Page);
+
+            var employee = await _employeeRepository.GetByEmployeeCodeAsync(trimmedCode, trackChanges: false);
+            if (employee == null)
+            {
+                _logger.LogWarning("Get my requests failed: employee not found: {EmployeeCode}", trimmedCode);
+                return Result<PagedResponse<MyLeaveRequestListItem>>.Fail(ErrorType.NotFound, "Employee not found.");
+            }
+
+            LeaveStatus? status = null;
+            if (!string.IsNullOrWhiteSpace(filter.Status) &&
+                Enum.TryParse<LeaveStatus>(filter.Status.Trim(), ignoreCase: true, out var parsedStatus) &&
+                Enum.IsDefined(typeof(LeaveStatus), parsedStatus))
+            {
+                status = parsedStatus;
+            }
+
+            var query = new LeaveRequestQuery
+            {
+                EmployeeId = employee.Id,
+                ManagerId = null,
+                EmployeeCode = null,
+                Search = filter.Search,
+                LeaveTypeId = filter.LeaveTypeId,
+                Status = status,
+                Year = filter.Year,
+                FromDate = filter.FromDate,
+                ToDate = filter.ToDate,
+                Page = filter.Page,
+                PageSize = filter.PageSize
+            };
+
+            var (items, totalCount) = await _leaveRequestRepository.GetPagedAsync(query);
+
+            var mappedItems = items.Select(MapToListItem).ToList();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize);
+
+            _logger.LogInformation("Employee {EmployeeCode} fetched {Count} leave requests for page {Page}", trimmedCode, mappedItems.Count, filter.Page);
+
+            var response = new PagedResponse<MyLeaveRequestListItem>
+            {
+                Data = mappedItems,
+                PageNumber = filter.Page,
+                PageSize = filter.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
+
+            return Result<PagedResponse<MyLeaveRequestListItem>>.Ok(response);
+        }
+
+        private static MyLeaveRequestListItem MapToListItem(LeaveRequest request)
+        {
+            return new MyLeaveRequestListItem
+            {
+                Id = request.Id,
+                LeaveTypeId = request.LeaveTypeId,
+                LeaveTypeName = request.LeaveType?.Name ?? string.Empty,
+                LeaveTypeCode = request.LeaveType?.Code ?? string.Empty,
+                Year = request.FromDate.Year,
+                FromDate = request.FromDate,
+                ToDate = request.ToDate,
+                NumberOfDays = request.NumberOfDays,
+                Reason = request.Reason,
+                Status = request.Status.ToString(),
+                RejectionReason = request.Status == LeaveStatus.Rejected ? request.RejectionReason : null,
+                CreatedAt = EnsureUtc(request.CreatedAt),
+                UpdatedAt = EnsureUtc(request.UpdatedAt)
+            };
         }
 
         private async Task NotifyReportingManagerAsync(LeaveRequest request)
@@ -387,5 +463,74 @@ namespace EmployeeManagementSystem.Business.Services
 
         public Task<Result<LeaveRequestResponse>> RejectAsAdminAsync(string adminCode, int id, RejectLeaveRequest request) =>
             ReviewAsync(adminCode, id, approve: false, request.RejectionReason.Trim(), restrictToDirectReports: false);
+        public Task<Result<LeaveRequestHistoryResponse>> GetMyHistoryAsync(string employeeCode, int id) =>
+            GetHistoryInternalAsync(employeeCode, id, ScopeType.Employee);
+
+        public Task<Result<LeaveRequestHistoryResponse>> GetManagerHistoryAsync(string managerCode, int id) =>
+            GetHistoryInternalAsync(managerCode, id, ScopeType.Manager);
+
+        public Task<Result<LeaveRequestHistoryResponse>> GetAdminHistoryAsync(int id) =>
+            GetHistoryInternalAsync(null, id, ScopeType.Admin);
+
+        private enum ScopeType { Employee, Manager, Admin }
+
+        private async Task<Result<LeaveRequestHistoryResponse>> GetHistoryInternalAsync(string? callerCode, int id, ScopeType scope)
+        {
+            var trimmedCode = callerCode?.Trim() ?? string.Empty;
+            _logger.LogInformation("Fetching history for leave request {LeaveRequestId} with scope {Scope} by caller {CallerCode}", id, scope, trimmedCode);
+
+            Employee? caller = null;
+            if (scope != ScopeType.Admin)
+            {
+                caller = await _employeeRepository.GetByEmployeeCodeAsync(trimmedCode, trackChanges: false);
+                if (caller == null)
+                {
+                    _logger.LogWarning("Get history failed: caller not found: {CallerCode}", trimmedCode);
+                    return Result<LeaveRequestHistoryResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+                }
+            }
+
+            var request = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+
+            if (request == null)
+            {
+                _logger.LogWarning("Get history failed: request {LeaveRequestId} not found", id);
+                return Result<LeaveRequestHistoryResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            if (scope == ScopeType.Employee && request.EmployeeId != caller!.Id)
+            {
+                _logger.LogWarning("Get history failed: request {LeaveRequestId} does not belong to employee {CallerCode}", id, trimmedCode);
+                return Result<LeaveRequestHistoryResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            if (scope == ScopeType.Manager && request.Employee.ManagerId != caller!.Id)
+            {
+                _logger.LogWarning("Get history failed: request {LeaveRequestId} employee is not a direct report of manager {CallerCode}", id, trimmedCode);
+                return Result<LeaveRequestHistoryResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            var history = await _leaveRequestRepository.GetHistoryAsync(id);
+
+            var items = history.Select(h => new LeaveRequestHistoryItem
+            {
+                Id = h.Id,
+                Action = LeaveHistoryActionMapper.GetAction(h.PreviousStatus, h.NewStatus),
+                PreviousStatus = h.PreviousStatus?.ToString(),
+                NewStatus = h.NewStatus.ToString(),
+                PerformedByEmployeeCode = h.PerformedBy?.EmployeeCode ?? string.Empty,
+                PerformedByName = h.PerformedBy != null ? $"{h.PerformedBy.FirstName} {h.PerformedBy.LastName}".Trim() : string.Empty,
+                PerformedAt = EnsureUtc(h.PerformedAt),
+                Comments = h.Comments
+            }).ToList();
+
+            _logger.LogInformation("History for leave request {LeaveRequestId} retrieved successfully with {Count} entries", id, items.Count);
+
+            return Result<LeaveRequestHistoryResponse>.Ok(new LeaveRequestHistoryResponse
+            {
+                LeaveRequestId = id,
+                History = items
+            });
+        }
     }
 }

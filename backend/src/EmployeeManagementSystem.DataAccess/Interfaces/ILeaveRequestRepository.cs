@@ -1,3 +1,4 @@
+using EmployeeManagementSystem.DataAccess.common;
 using EmployeeManagementSystem.DataAccess.Entities;
 using EmployeeManagementSystem.DataAccess.Entities.Enums;
 
@@ -18,5 +19,7 @@ namespace EmployeeManagementSystem.DataAccess.Interfaces
             string? rejectionReason,
             LeaveRequestHistory history
         );
+        Task<(List<LeaveRequest> Items, int TotalCount)> GetPagedAsync(LeaveRequestQuery q);
+        Task<List<LeaveRequestHistory>> GetHistoryAsync(int leaveRequestId);
     }
 }
