@@ -532,5 +532,174 @@ namespace EmployeeManagementSystem.Business.Services
                 History = items
             });
         }
+
+        public async Task<Result<PagedResponse<TeamLeaveRequestListItem>>> GetTeamRequestsAsync(string managerCode, TeamLeaveRequestFilter filter)
+        {
+            var trimmedCode = managerCode?.Trim() ?? string.Empty;
+            _logger.LogInformation("Manager {ManagerCode} fetching team leave requests page {Page}", trimmedCode, filter.Page);
+
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(trimmedCode, trackChanges: false);
+            if (manager == null)
+            {
+                _logger.LogWarning("Get team requests failed: manager not found: {ManagerCode}", trimmedCode);
+                return Result<PagedResponse<TeamLeaveRequestListItem>>.Fail(ErrorType.NotFound, "Manager not found.");
+            }
+
+            var query = BuildLeaveRequestQuery(filter, managerId: manager.Id, employeeId: null, includeEmployeeInSearch: true);
+            var (items, totalCount) = await _leaveRequestRepository.GetPagedAsync(query);
+
+            var mappedItems = items.Select(MapToTeamListItem).ToList();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize);
+
+            _logger.LogInformation("Manager {ManagerCode} fetched {Count} team leave requests for page {Page}", trimmedCode, mappedItems.Count, filter.Page);
+
+            var response = new PagedResponse<TeamLeaveRequestListItem>
+            {
+                Data = mappedItems,
+                PageNumber = filter.Page,
+                PageSize = filter.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
+
+            return Result<PagedResponse<TeamLeaveRequestListItem>>.Ok(response);
+        }
+
+        public async Task<Result<LeaveRequestDetailResponse>> GetTeamRequestByIdAsync(string managerCode, int id)
+        {
+            var trimmedCode = managerCode?.Trim() ?? string.Empty;
+            _logger.LogInformation("Manager {ManagerCode} fetching leave request details for {LeaveRequestId}", trimmedCode, id);
+
+            var manager = await _employeeRepository.GetByEmployeeCodeAsync(trimmedCode, trackChanges: false);
+            if (manager == null)
+            {
+                _logger.LogWarning("Get team request details failed: manager not found: {ManagerCode}", trimmedCode);
+                return Result<LeaveRequestDetailResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            var request = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+            if (request == null || request.Employee.ManagerId != manager.Id)
+            {
+                _logger.LogWarning("Get team request details failed: request {LeaveRequestId} not found or not direct report of {ManagerCode}", id, trimmedCode);
+                return Result<LeaveRequestDetailResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            _logger.LogInformation("Leave request {LeaveRequestId} details fetched successfully by manager {ManagerCode}", id, trimmedCode);
+            return Result<LeaveRequestDetailResponse>.Ok(MapToDetailResponse(request));
+        }
+
+        public async Task<Result<PagedResponse<TeamLeaveRequestListItem>>> GetAllRequestsAsync(TeamLeaveRequestFilter filter)
+        {
+            _logger.LogInformation("Admin fetching all leave requests page {Page}", filter.Page);
+
+            var query = BuildLeaveRequestQuery(filter, managerId: null, employeeId: null, includeEmployeeInSearch: true);
+            var (items, totalCount) = await _leaveRequestRepository.GetPagedAsync(query);
+
+            var mappedItems = items.Select(MapToTeamListItem).ToList();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize);
+
+            _logger.LogInformation("Admin fetched {Count} leave requests for page {Page}", mappedItems.Count, filter.Page);
+
+            var response = new PagedResponse<TeamLeaveRequestListItem>
+            {
+                Data = mappedItems,
+                PageNumber = filter.Page,
+                PageSize = filter.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
+
+            return Result<PagedResponse<TeamLeaveRequestListItem>>.Ok(response);
+        }
+
+        public async Task<Result<LeaveRequestDetailResponse>> GetRequestByIdForAdminAsync(int id)
+        {
+            _logger.LogInformation("Admin fetching leave request details for {LeaveRequestId}", id);
+
+            var request = await _leaveRequestRepository.GetByIdWithDetailsAsync(id, trackChanges: false);
+            if (request == null)
+            {
+                _logger.LogWarning("Get leave request details for admin failed: request {LeaveRequestId} not found", id);
+                return Result<LeaveRequestDetailResponse>.Fail(ErrorType.NotFound, "Leave request not found.");
+            }
+
+            _logger.LogInformation("Leave request {LeaveRequestId} details fetched successfully by admin", id);
+            return Result<LeaveRequestDetailResponse>.Ok(MapToDetailResponse(request));
+        }
+
+        private static LeaveRequestQuery BuildLeaveRequestQuery(TeamLeaveRequestFilter filter, int? managerId, int? employeeId, bool includeEmployeeInSearch)
+        {
+            LeaveStatus? status = null;
+            if (!string.IsNullOrWhiteSpace(filter.Status) &&
+                Enum.TryParse<LeaveStatus>(filter.Status.Trim(), ignoreCase: true, out var parsedStatus) &&
+                Enum.IsDefined(typeof(LeaveStatus), parsedStatus))
+            {
+                status = parsedStatus;
+            }
+
+            return new LeaveRequestQuery
+            {
+                EmployeeId = employeeId,
+                ManagerId = managerId,
+                EmployeeCode = string.IsNullOrWhiteSpace(filter.EmployeeCode) ? null : filter.EmployeeCode.Trim(),
+                Search = filter.Search,
+                LeaveTypeId = filter.LeaveTypeId,
+                Status = status,
+                Year = filter.Year,
+                FromDate = filter.FromDate,
+                ToDate = filter.ToDate,
+                Page = filter.Page,
+                PageSize = filter.PageSize,
+                IncludeEmployeeInSearch = includeEmployeeInSearch
+            };
+        }
+
+        private static TeamLeaveRequestListItem MapToTeamListItem(LeaveRequest request)
+        {
+            return new TeamLeaveRequestListItem
+            {
+                Id = request.Id,
+                EmployeeCode = request.Employee?.EmployeeCode ?? string.Empty,
+                EmployeeName = request.Employee != null ? $"{request.Employee.FirstName} {request.Employee.LastName}".Trim() : string.Empty,
+                LeaveTypeId = request.LeaveTypeId,
+                LeaveTypeName = request.LeaveType?.Name ?? string.Empty,
+                LeaveTypeCode = request.LeaveType?.Code ?? string.Empty,
+                Year = request.FromDate.Year,
+                FromDate = request.FromDate,
+                ToDate = request.ToDate,
+                NumberOfDays = request.NumberOfDays,
+                Reason = request.Reason,
+                Status = request.Status.ToString(),
+                RejectionReason = request.Status == LeaveStatus.Rejected ? request.RejectionReason : null,
+                CreatedAt = EnsureUtc(request.CreatedAt),
+                UpdatedAt = EnsureUtc(request.UpdatedAt)
+            };
+        }
+
+        private static LeaveRequestDetailResponse MapToDetailResponse(LeaveRequest request)
+        {
+            return new LeaveRequestDetailResponse
+            {
+                Id = request.Id,
+                EmployeeCode = request.Employee?.EmployeeCode ?? string.Empty,
+                EmployeeName = request.Employee != null ? $"{request.Employee.FirstName} {request.Employee.LastName}".Trim() : string.Empty,
+                LeaveTypeId = request.LeaveTypeId,
+                LeaveTypeName = request.LeaveType?.Name ?? string.Empty,
+                LeaveTypeCode = request.LeaveType?.Code ?? string.Empty,
+                Year = request.FromDate.Year,
+                FromDate = request.FromDate,
+                ToDate = request.ToDate,
+                NumberOfDays = request.NumberOfDays,
+                Reason = request.Reason,
+                Status = request.Status.ToString(),
+                RejectionReason = request.Status == LeaveStatus.Rejected ? request.RejectionReason : null,
+                ReviewedByName = request.ReviewedBy != null
+                    ? $"{request.ReviewedBy.FirstName} {request.ReviewedBy.LastName}".Trim()
+                    : null,
+                ReviewedAt = EnsureUtc(request.ReviewedAt),
+                CreatedAt = EnsureUtc(request.CreatedAt),
+                UpdatedAt = EnsureUtc(request.UpdatedAt)
+            };
+        }
     }
 }

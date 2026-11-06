@@ -114,11 +114,24 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             if (!string.IsNullOrWhiteSpace(q.Search))
             {
                 var s = q.Search.Trim();
-                query = query.Where(r =>
-                    r.Reason.Contains(s) ||
-                    r.LeaveType.Name.Contains(s) ||
-                    r.LeaveType.Code.Contains(s));
-                // manager and admin lists will also match employee code and name here
+                if (q.IncludeEmployeeInSearch)
+                {
+                    query = query.Where(r =>
+                        r.Reason.Contains(s) ||
+                        r.LeaveType.Name.Contains(s) ||
+                        r.LeaveType.Code.Contains(s) ||
+                        r.Employee.EmployeeCode.Contains(s) ||
+                        r.Employee.FirstName.Contains(s) ||
+                        r.Employee.LastName.Contains(s) ||
+                        (r.Employee.FirstName + " " + r.Employee.LastName).Contains(s));
+                }
+                else
+                {
+                    query = query.Where(r =>
+                        r.Reason.Contains(s) ||
+                        r.LeaveType.Name.Contains(s) ||
+                        r.LeaveType.Code.Contains(s));
+                }
             }
 
             var total = await query.CountAsync();
@@ -141,6 +154,33 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 .Where(h => h.LeaveRequestId == leaveRequestId)
                 .OrderBy(h => h.PerformedAt)
                 .ThenBy(h => h.Id)
+                .ToListAsync();
+        }
+
+        public async Task<List<LeaveRequest>> GetApprovedInRangeAsync(DateOnly from, DateOnly to, int? employeeId, int? managerId)
+        {
+            var query = _context.LeaveRequests
+                .AsNoTracking()
+                .Include(r => r.LeaveType)
+                .Include(r => r.Employee)
+                .Where(r => r.Status == LeaveStatus.Approved
+                            && r.FromDate <= to
+                            && r.ToDate >= from);
+
+            if (employeeId.HasValue)
+            {
+                query = query.Where(r => r.EmployeeId == employeeId.Value);
+            }
+            else if (managerId.HasValue)
+            {
+                query = query.Where(r => r.Employee.ManagerId == managerId.Value);
+            }
+
+            return await query
+                .OrderBy(r => r.FromDate)
+                .ThenBy(r => r.Employee.FirstName)
+                .ThenBy(r => r.Employee.LastName)
+                .ThenBy(r => r.Id)
                 .ToListAsync();
         }
 

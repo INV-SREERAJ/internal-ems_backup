@@ -56,6 +56,15 @@ namespace EmployeeManagementSystem.Business.Validators.Leave.LeaveRequest
 
     public class ConcreteTeamLeaveRequestFilterValidator : LeaveRequestFilterValidator<TeamLeaveRequestFilter>
     {
+        public ConcreteTeamLeaveRequestFilterValidator()
+        {
+            RuleFor(x => x.EmployeeCode)
+                .Must(code => !string.IsNullOrWhiteSpace(code))
+                .WithMessage("EmployeeCode cannot be blank when provided.")
+                .MaximumLength(20)
+                .WithMessage("EmployeeCode cannot exceed 20 characters.")
+                .When(x => x.EmployeeCode != null);
+        }
     }
 }
 

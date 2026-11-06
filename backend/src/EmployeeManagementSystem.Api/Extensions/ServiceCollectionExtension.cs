@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILeaveYearConfigurationService, LeaveYearConfigurationService>();
         services.AddScoped<ILeaveBalanceService, LeaveBalanceService>();
         services.AddScoped<ILeaveRequestService, LeaveRequestService>();
+        services.AddScoped<ILeaveCalendarService, LeaveCalendarService>();
 
         services.Configure<EmailSettings>(
             configuration.GetSection("EmailSettings"));

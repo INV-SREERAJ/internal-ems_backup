@@ -1,3 +1,4 @@
+using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Api.Extensions;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveBalance;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveRequest;
@@ -45,6 +46,41 @@ namespace EmployeeManagementSystem.Api.Controllers
             }
 
             var response = await _leaveBalanceService.GetEmployeeBalancesForManagerAsync(managerCode, employeeCode, request.Year);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
+        [HttpGet("leave-requests")]
+        [ProducesResponseType(typeof(PagedResponse<TeamLeaveRequestListItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetTeamRequests([FromQuery] TeamLeaveRequestFilter filter)
+        {
+            var managerCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(managerCode))
+            {
+                return Unauthorized(new { Message = "Unauthorized." });
+            }
+
+            var response = await _leaveRequestService.GetTeamRequestsAsync(managerCode, filter);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
+        [HttpGet("leave-requests/{id}")]
+        [ProducesResponseType(typeof(LeaveRequestDetailResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTeamRequestById(int id)
+        {
+            var managerCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(managerCode))
+            {
+                return Unauthorized(new { Message = "Unauthorized." });
+            }
+
+            var response = await _leaveRequestService.GetTeamRequestByIdAsync(managerCode, id);
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 

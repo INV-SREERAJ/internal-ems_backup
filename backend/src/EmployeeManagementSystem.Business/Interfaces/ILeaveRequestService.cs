@@ -17,5 +17,9 @@ namespace EmployeeManagementSystem.Business.Interfaces
         Task<Result<LeaveRequestHistoryResponse>> GetMyHistoryAsync(string employeeCode, int id);
         Task<Result<LeaveRequestHistoryResponse>> GetManagerHistoryAsync(string managerCode, int id);
         Task<Result<LeaveRequestHistoryResponse>> GetAdminHistoryAsync(int id);
+        Task<Result<PagedResponse<TeamLeaveRequestListItem>>> GetTeamRequestsAsync(string managerCode, TeamLeaveRequestFilter filter);
+        Task<Result<LeaveRequestDetailResponse>> GetTeamRequestByIdAsync(string managerCode, int id);
+        Task<Result<PagedResponse<TeamLeaveRequestListItem>>> GetAllRequestsAsync(TeamLeaveRequestFilter filter);
+        Task<Result<LeaveRequestDetailResponse>> GetRequestByIdForAdminAsync(int id);
     }
 }

@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.DataAccess.Entities.Enums;
+using EmployeeManagementSystem.DataAccess.Entities.Enums;
 
 namespace EmployeeManagementSystem.DataAccess.common
 {
@@ -16,5 +16,7 @@ namespace EmployeeManagementSystem.DataAccess.common
         public DateOnly? ToDate { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public bool IncludeEmployeeInSearch { get; set; } = false;
     }
 }
+

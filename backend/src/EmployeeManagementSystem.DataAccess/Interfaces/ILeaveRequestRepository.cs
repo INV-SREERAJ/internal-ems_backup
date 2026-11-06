@@ -21,5 +21,6 @@ namespace EmployeeManagementSystem.DataAccess.Interfaces
         );
         Task<(List<LeaveRequest> Items, int TotalCount)> GetPagedAsync(LeaveRequestQuery q);
         Task<List<LeaveRequestHistory>> GetHistoryAsync(int leaveRequestId);
+        Task<List<LeaveRequest>> GetApprovedInRangeAsync(DateOnly from, DateOnly to, int? employeeId, int? managerId);
     }
 }
