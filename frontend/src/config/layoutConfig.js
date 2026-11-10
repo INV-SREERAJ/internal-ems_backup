@@ -5,6 +5,7 @@ import {
   HiOutlinePencilSquare,
   HiOutlineUser,
   HiOutlineUserGroup,
+  HiOutlineCalendarDays,
 } from "react-icons/hi2";
 import { ROLES, ROLE_LABEL } from "../utils/constants";
 
@@ -108,6 +109,27 @@ export const ROLE_LAYOUT_CONFIG = {
         label: "Dashboard",
         icon: HiOutlineSquares2X2,
         end: true,
+      },
+      {
+        label: "My Leaves",
+        icon: HiOutlineCalendarDays,
+        children: [
+          {
+            to: "/employee/leaves/apply",
+            label: "Apply",
+            end: true,
+          },
+          {
+            to: "/employee/leaves",
+            label: "Balances and Requests",
+            end: true,
+          },
+          {
+            to: "/employee/leaves/calendar",
+            label: "Leave Calendar",
+            end: true,
+          },
+        ],
       },
       {
         to: "/employee/profile",

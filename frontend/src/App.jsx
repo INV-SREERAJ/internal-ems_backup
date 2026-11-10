@@ -24,6 +24,9 @@ const ManagerMyManagerPage = lazy(() => import("./pages/manager/ManagerMyManager
 // Employee pages
 const EmployeeLayout = lazy(() => import("./pages/employee/EmployeeLayout"));
 const EmployeeDashboard = lazy(() => import("./pages/employee/EmployeeDashboard"));
+const ApplyLeavePage = lazy(() => import("./pages/employee/ApplyLeavePage"));
+const EmployeeLeavesPage = lazy(() => import("./pages/employee/EmployeeLeavesPage"));
+const LeaveCalendarPage = lazy(() => import("./pages/employee/LeaveCalendarPage"));
 
 // Common pages
 const AppLayout = lazy(() => import("./components/common/AppLayout"));
@@ -159,6 +162,9 @@ export default function App() {
         >
           <Route index element={<EmployeeDashboard />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="leaves" element={<EmployeeLeavesPage />} />
+          <Route path="leaves/apply" element={<ApplyLeavePage />} />
+          <Route path="leaves/calendar" element={<LeaveCalendarPage />} />
         </Route>
 
         <Route
