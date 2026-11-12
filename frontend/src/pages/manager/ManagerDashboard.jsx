@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
 import useAuth from "../../hooks/useAuth";
-import { HiOutlineUsers, HiOutlineUser } from "react-icons/hi2";
+import { HiOutlineUsers, HiOutlineUser, HiOutlineCalendarDays } from "react-icons/hi2";
 import { LiaUserSolid } from "react-icons/lia";
 import { CiPause1 } from "react-icons/ci";
 import { EMPLOYEE_STATUS } from "../../utils/constants";
@@ -150,6 +150,16 @@ export default function ManagerDashboard() {
               </h2>
             </div>
             <div className="p-3 flex flex-col gap-1">
+              <Link
+                to="/manager/leaves/pending"
+                className="p-3 flex items-center gap-3 rounded-lg text-slate-700 text-sm font-medium no-underline transition-colors duration-150 hover:bg-slate-50"
+              >
+                <div className="w-9 h-9 flex items-center justify-center bg-amber-50 rounded-lg text-amber-600 shrink-0">
+                  <HiOutlineCalendarDays size={18} />
+                </div>
+                Review Leave Requests
+              </Link>
+
               <Link
                 to="/manager/team"
                 className="p-3 flex items-center gap-3 rounded-lg text-slate-700 text-sm font-medium no-underline transition-colors duration-150 hover:bg-slate-50"

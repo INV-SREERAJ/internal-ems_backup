@@ -41,6 +41,24 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUserPlus,
         end: true,
       },
+      {
+        label: "Leave Management",
+        icon: HiOutlineCalendarDays,
+        children: [
+          {
+            to: "/admin/leave-types",
+            label: "Leave Types",
+          },
+          {
+            to: "/admin/yearly-configuration",
+            label: "Yearly Configuration",
+          },
+          {
+            to: "/admin/leave-requests",
+            label: "All Leave requests",
+          },
+        ],
+      },
     ],
     profileMenu: (user) => [
       {
@@ -73,6 +91,24 @@ export const ROLE_LAYOUT_CONFIG = {
         end: true,
       },
       {
+        label: "Team Leaves",
+        icon: HiOutlineCalendarDays,
+        children: [
+          {
+            to: "/manager/leaves/pending",
+            label: "Pending Requests",
+          },
+          {
+            to: "/manager/leaves/all",
+            label: "All Team Leaves",
+          },
+          {
+            to: "/manager/leaves/calendar",
+            label: "Team Calendar",
+          },
+        ],
+      },
+      {
         to: "/manager/my-manager",
         label: "My Manager",
         icon: HiOutlineUsers,
@@ -84,7 +120,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
         end: true,
       },
-
     ],
     profileMenu: () => [
       {

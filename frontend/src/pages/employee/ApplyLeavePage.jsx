@@ -124,8 +124,14 @@ export default function ApplyLeavePage() {
   const [balances, setBalances] = useState([]);
   const [manager, setManager] = useState(null);
   const [selectedLeaveTypeId, setSelectedLeaveTypeId] = useState("");
-  const [fromDate, setFromDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
+  const [fromDate, setFromDate] = useState(() => {
+    const p = new URLSearchParams(window.location.search).get("fromDate");
+    return p && dayjs(p).isValid() ? dayjs(p) : null;
+  });
+  const [toDate, setToDate] = useState(() => {
+    const p = new URLSearchParams(window.location.search).get("fromDate");
+    return p && dayjs(p).isValid() ? dayjs(p) : null;
+  });
   const [reason, setReason] = useState("");
 
   const [loadingInitial, setLoadingInitial] = useState(true);
@@ -372,7 +378,7 @@ export default function ApplyLeavePage() {
                     {leaveTypes.map((type) => {
                       const bal = balances.find((b) => b.leaveTypeId === type.id);
                       const label = bal
-                        ? `${type.name} (${bal.availableDays} days available)`
+                        ? `${type.name} `
                         : type.name;
                       return (
                         <option key={type.id} value={type.id}>

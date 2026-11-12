@@ -14,12 +14,18 @@ const EditEmployeePage = lazy(() => import("./pages/admin/EditEmployeePage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ChangePasswordPage = lazy(() => import("./pages/auth/ChangePasswordPage"));
 const CreateEmployee = lazy(() => import("./pages/admin/CreateEmployee"));
+const AdminLeaveTypesPage = lazy(() => import("./pages/admin/AdminLeaveTypesPage"));
+const AdminYearlyLeaveConfigPage = lazy(() => import("./pages/admin/AdminYearlyLeaveConfigPage"));
+const AdminLeaveRequestsPage = lazy(() => import("./pages/admin/AdminLeaveRequestsPage"));
 
 // Manager pages
 const ManagerLayout = lazy(() => import("./pages/manager/ManagerLayout"));
 const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
 const ManagerTeamPage = lazy(() => import("./pages/manager/ManagerTeamPage"));
 const ManagerMyManagerPage = lazy(() => import("./pages/manager/ManagerMyManagerPage"));
+const ManagerPendingRequestsPage = lazy(() => import("./pages/manager/ManagerPendingRequestsPage"));
+const ManagerAllLeavesPage = lazy(() => import("./pages/manager/ManagerAllLeavesPage"));
+const ManagerTeamCalendarPage = lazy(() => import("./pages/manager/ManagerTeamCalendarPage"));
 
 // Employee pages
 const EmployeeLayout = lazy(() => import("./pages/employee/EmployeeLayout"));
@@ -134,6 +140,12 @@ export default function App() {
             path="employees/edit/:employeeCode"
             element={<EditEmployeePage />}
           />
+          <Route path="leaves" element={<Navigate to="/admin/leave-types" replace />} />
+          <Route path="leave-types" element={<AdminLeaveTypesPage />} />
+          <Route path="yearly-configuration" element={<AdminYearlyLeaveConfigPage />} />
+          <Route path="leave-year-configurations" element={<Navigate to="/admin/yearly-configuration" replace />} />
+          <Route path="leave-requests" element={<AdminLeaveRequestsPage />} />
+          <Route path="all-leaves" element={<Navigate to="/admin/leave-requests" replace />} />
         </Route>
 
         {/* Manager Routes */}
@@ -147,6 +159,10 @@ export default function App() {
         >
           <Route index element={<ManagerDashboard />} />
           <Route path="team" element={<ManagerTeamPage />} />
+          <Route path="leaves" element={<Navigate to="/manager/leaves/pending" replace />} />
+          <Route path="leaves/pending" element={<ManagerPendingRequestsPage />} />
+          <Route path="leaves/all" element={<ManagerAllLeavesPage />} />
+          <Route path="leaves/calendar" element={<ManagerTeamCalendarPage />} />
           <Route path="my-manager" element={<ManagerMyManagerPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

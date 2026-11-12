@@ -14,6 +14,7 @@ import {
 import leaveApi from "../../api/leaveApi";
 import LeaveBalanceCard from "../../components/leave/LeaveBalanceCard";
 import LeaveDetailsDrawer from "../../components/leave/LeaveDetailsDrawer";
+import LeaveStatusBadge from "../../components/leave/LeaveStatusBadge";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import Pagination from "../../components/common/Pagination";
 
@@ -204,46 +205,6 @@ export default function EmployeeLeavesPage() {
         "Failed to cancel leave request.";
       setFeedback({ type: "error", message: msg });
       setCancelModalState((prev) => ({ ...prev, loading: false }));
-    }
-  };
-
-  // Status Badge Helper for Table
-  const renderStatusBadge = (status) => {
-    switch (status) {
-      case "Approved":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Approved
-          </span>
-        );
-      case "Pending":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            Pending
-          </span>
-        );
-      case "Rejected":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/80 text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-            Rejected
-          </span>
-        );
-      case "Cancelled":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-            Cancelled
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-            {status}
-          </span>
-        );
     }
   };
 
@@ -441,7 +402,7 @@ export default function EmployeeLeavesPage() {
                         {req.numberOfDays}
                       </td>
                       <td className="py-4 px-4">
-                        {renderStatusBadge(req.status)}
+                        <LeaveStatusBadge status={req.status} variant="subtle" />
                       </td>
                       <td className="py-4 px-4 text-slate-500 text-xs">
                         {dayjs(req.createdAt).format("D MMM YYYY")}

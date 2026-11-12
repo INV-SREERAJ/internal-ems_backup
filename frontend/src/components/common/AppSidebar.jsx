@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { HiOutlineArrowRightOnRectangle, HiChevronDown } from "react-icons/hi2";
 import { getLayoutConfig } from "../../config/layoutConfig";
+import leaveApi from "../../api/leaveApi";
+import { ROLES, ROLE_LABEL } from "../../utils/constants";
 
 export default function AppSidebar({ onNavigate, role }) {
   const { logout, user } = useAuth();
@@ -11,6 +13,41 @@ export default function AppSidebar({ onNavigate, role }) {
   const effectiveRole = role || user?.role;
   const config = getLayoutConfig(effectiveRole);
   const navItems = config.sidebarNav || [];
+
+  // Track pending leave requests for Manager alert badge
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+  const fetchPendingCount = useCallback(async () => {
+    if (effectiveRole !== ROLE_LABEL[ROLES.Manager]) {
+      setPendingRequestsCount(0);
+      return;
+    }
+    try {
+      const res = await leaveApi.getTeamRequests({
+        page: 1,
+        pageSize: 1,
+        status: "Pending",
+      });
+      setPendingRequestsCount(res?.totalCount ?? 0);
+    } catch {
+      // Ignore if unauthorized or failed
+    }
+  }, [effectiveRole]);
+
+  useEffect(() => {
+    fetchPendingCount();
+  }, [fetchPendingCount, location.pathname]);
+
+  // Listen to cross-component updates when leaves are approved/rejected
+  useEffect(() => {
+    const handleUpdate = () => {
+      fetchPendingCount();
+    };
+    window.addEventListener("team-requests-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("team-requests-updated", handleUpdate);
+    };
+  }, [fetchPendingCount]);
 
   // Track expanded state for menu groups
   const [openGroups, setOpenGroups] = useState(() => {
@@ -38,7 +75,7 @@ export default function AppSidebar({ onNavigate, role }) {
     "w-full box-border flex items-center gap-3 px-3.5 py-2.5 bg-transparent text-slate-300 border-none rounded-lg font-sans text-sm font-medium text-left no-underline cursor-pointer transition-colors duration-150 hover:bg-white/8 hover:text-white";
 
   const subLinkBase =
-    "w-full box-border flex items-center px-3.5 py-2 pl-10 bg-transparent text-slate-400 border-none rounded-lg font-sans text-sm font-medium text-left no-underline cursor-pointer transition-colors duration-150 hover:bg-white/8 hover:text-white";
+    "w-full box-border flex items-center justify-between px-3.5 py-2 pl-10 bg-transparent text-slate-400 border-none rounded-lg font-sans text-sm font-medium text-left no-underline cursor-pointer transition-colors duration-150 hover:bg-white/8 hover:text-white";
 
   const linkClass = ({ isActive }) =>
     isActive ? `${linkBase} !bg-blue-600 !text-white font-semibold` : linkBase;
@@ -56,6 +93,9 @@ export default function AppSidebar({ onNavigate, role }) {
 
           if (item.children) {
             const isOpen = openGroups[item.label] ?? true;
+            const isTeamLeavesGroup = item.label === "Team Leaves";
+            const showGroupDot = isTeamLeavesGroup && pendingRequestsCount > 0;
+
             return (
               <div key={item.label} className="flex flex-col gap-1">
                 <button
@@ -66,6 +106,12 @@ export default function AppSidebar({ onNavigate, role }) {
                   <div className="flex items-center gap-3">
                     {ItemIcon && <ItemIcon size={20} className="shrink-0" />}
                     <span>{item.label}</span>
+                    {showGroupDot && (
+                      <span
+                        title={`${pendingRequestsCount} pending requests awaiting decision`}
+                        className="w-2 h-2 rounded-full bg-amber-400 shrink-0"
+                      />
+                    )}
                   </div>
                   <HiChevronDown
                     size={16}
@@ -77,17 +123,30 @@ export default function AppSidebar({ onNavigate, role }) {
 
                 {isOpen && (
                   <div className="flex flex-col gap-1 pl-1">
-                    {item.children.map((child) => (
-                      <NavLink
-                        key={child.to}
-                        to={child.to}
-                        end={child.end !== false}
-                        className={subLinkClass}
-                        onClick={onNavigate}
-                      >
-                        <span>{child.label}</span>
-                      </NavLink>
-                    ))}
+                    {item.children.map((child) => {
+                      const isPendingItem =
+                        child.to.includes("pending") ||
+                        child.label.toLowerCase().includes("pending");
+                      const showChildDot = isPendingItem && pendingRequestsCount > 0;
+
+                      return (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          end={child.end !== false}
+                          className={subLinkClass}
+                          onClick={onNavigate}
+                        >
+                          <span className="flex-1">{child.label}</span>
+                          {showChildDot && (
+                            <span
+                              title={`${pendingRequestsCount} pending requests awaiting decision`}
+                              className="w-2 h-2 rounded-full bg-amber-400 shrink-0 ml-2"
+                            />
+                          )}
+                        </NavLink>
+                      );
+                    })}
                   </div>
                 )}
               </div>

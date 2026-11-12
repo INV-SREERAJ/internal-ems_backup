@@ -67,6 +67,49 @@ export const leaveApi = {
       throw err;
     }
   },
+
+  // Manager: Get team leave requests with filters
+  getTeamRequests: async (filters = {}) => {
+    const response = await api.get("/manager/leave-requests", { params: filters });
+    return response.data;
+  },
+
+  // Manager: Get detail of a specific team leave request
+  getTeamRequestById: async (id) => {
+    const response = await api.get(`/manager/leave-requests/${id}`);
+    return response.data;
+  },
+
+  // Manager: Get history trail of a specific team leave request
+  getTeamRequestHistory: async (id) => {
+    const response = await api.get(`/manager/leave-requests/${id}/history`);
+    return response.data;
+  },
+
+  // Manager: Get leave balances of a direct report employee
+  getEmployeeBalancesForManager: async (employeeCode, year) => {
+    const params = year ? { year } : {};
+    const response = await api.get(
+      `/manager/employees/${employeeCode}/leave-balances`,
+      { params }
+    );
+    return response.data;
+  },
+
+  // Manager: Approve a pending leave request
+  approveTeamRequest: async (id) => {
+    const response = await api.patch(`/manager/leave-requests/${id}/approve`);
+    return response.data;
+  },
+
+  // Manager: Reject a pending or approved leave request
+  rejectTeamRequest: async (id, rejectionReason) => {
+    const response = await api.patch(
+      `/manager/leave-requests/${id}/reject`,
+      { rejectionReason: rejectionReason?.trim() || "Rejected by manager" }
+    );
+    return response.data;
+  },
 };
 
 export default leaveApi;

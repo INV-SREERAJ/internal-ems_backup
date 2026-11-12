@@ -10,6 +10,7 @@ import { PieChart } from "@mui/x-charts/PieChart";
 export default function LeaveBalanceDonut({
   balance,
   requestedDays = 0,
+  variant = "default",
 }) {
   if (!balance) {
     return (
@@ -44,37 +45,64 @@ export default function LeaveBalanceDonut({
   // Compute segmented data for MUI X-Charts PieChart
   const chartData = useMemo(() => {
     const items = [];
-    if (leftAfter > 0) {
-      items.push({
-        id: "remaining",
-        value: leftAfter,
-        color: "#2563eb",
-        label: "Left after",
-      });
-    }
-    if (thisRequest > 0) {
-      items.push({
-        id: "thisRequest",
-        value: thisRequest,
-        color: "#0f172a",
-        label: "This request",
-      });
-    }
-    if (pending > 0) {
-      items.push({
-        id: "pending",
-        value: pending,
-        color: "#f59e0b",
-        label: "Pending",
-      });
-    }
-    if (used > 0) {
-      items.push({
-        id: "used",
-        value: used,
-        color: "#60a5fa",
-        label: "Used",
-      });
+    if (variant === "drawer" || variant === "horizontal") {
+      if (available > 0) {
+        items.push({
+          id: "free",
+          value: available,
+          color: "#2563eb",
+          label: "Free",
+        });
+      }
+      if (pending > 0) {
+        items.push({
+          id: "pending",
+          value: pending,
+          color: "#f59e0b",
+          label: "Pending",
+        });
+      }
+      if (used > 0) {
+        items.push({
+          id: "used",
+          value: used,
+          color: "#60a5fa",
+          label: "Used",
+        });
+      }
+    } else {
+      if (leftAfter > 0) {
+        items.push({
+          id: "remaining",
+          value: leftAfter,
+          color: "#2563eb",
+          label: "Left after",
+        });
+      }
+      if (thisRequest > 0) {
+        items.push({
+          id: "thisRequest",
+          value: thisRequest,
+          color: "#0f172a",
+          label: "This request",
+        });
+      }
+      if (pending > 0) {
+        items.push({
+          id: "pending",
+          value: pending,
+          color: "#f59e0b",
+          label: "Pending",
+        });
+      }
+      if (used > 0) {
+        items.push({
+          id: "used",
+          value: used,
+          color: "#60a5fa",
+          label: "Used",
+        });
+      }
     }
 
     // Fallback if balance has 0 across all fields
@@ -88,7 +116,83 @@ export default function LeaveBalanceDonut({
     }
 
     return items;
-  }, [leftAfter, thisRequest, pending, used]);
+  }, [variant, available, leftAfter, thisRequest, pending, used]);
+
+  if (variant === "drawer" || variant === "horizontal") {
+    return (
+      <div className="flex items-center gap-6">
+        {/* MUI X-Charts Donut Ring */}
+        <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+          <PieChart
+            series={[
+              {
+                data: chartData,
+                innerRadius: 26,
+                outerRadius: 36,
+                paddingAngle: chartData.length > 1 ? 2 : 0,
+                cornerRadius: 3,
+                cx: 40,
+                cy: 40,
+              },
+            ]}
+            width={80}
+            height={80}
+            margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
+            slotProps={{ legend: { hidden: true } }}
+          />
+
+          {/* Centered label inside the donut hole */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+            <span className="text-lg font-bold tracking-tight text-slate-900 leading-none">
+              {available}
+            </span>
+            <span className="text-[9px] font-medium text-slate-500 mt-0.5">
+              left
+            </span>
+          </div>
+        </div>
+
+        {/* Breakdown row as shown in Wireframe 3 */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-4 text-xs">
+            <div>
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <span className="w-2 h-2 rounded-full bg-blue-400" />
+                <span>Used</span>
+              </div>
+              <span className="text-sm font-bold text-slate-800 ml-3.5 block mt-0.5">
+                {used}
+              </span>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <span>Pending</span>
+              </div>
+              <span className="text-sm font-bold text-slate-800 ml-3.5 block mt-0.5">
+                {pending}
+              </span>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <span className="w-2 h-2 rounded-full bg-blue-600" />
+                <span>Free</span>
+              </div>
+              <span className="text-sm font-bold text-slate-800 ml-3.5 block mt-0.5">
+                {available}
+              </span>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-slate-400 mt-2 font-medium">
+            {allocated} days allocated
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
