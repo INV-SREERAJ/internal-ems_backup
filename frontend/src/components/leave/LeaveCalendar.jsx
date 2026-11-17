@@ -53,6 +53,14 @@ export const LEAVE_TYPE_COLORS = [
   },
 ];
 
+// Format short employee name (e.g. "Priya Nair" -> "Priya N")
+function formatEmployeeShort(name) {
+  if (!name) return "Employee";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0]}`;
+}
+
 export const SHORT_MONTH_NAMES = [
   "Jan",
   "Feb",
@@ -107,13 +115,14 @@ export default function LeaveCalendar({
   pendingRequests = [],
   leaveTypeOptions = [],
   loading = false,
-  mode = "employee", // 'employee' | 'manager'
+  mode = "employee", // 'employee' | 'manager' | 'admin'
   onEventClick,
   renderWeekEmptyDay,
   selectedLeaveTypeId: controlledLeaveTypeId,
   onLeaveTypeIdChange,
   showPending: controlledShowPending,
   onShowPendingChange,
+  showPendingToggle = true,
   extraToolbarActions,
 }) {
   // Controlled vs uncontrolled state for currentDate
@@ -233,7 +242,7 @@ export default function LeaveCalendar({
     if (!selectedLeaveTypeId) return events;
     return events.filter((ev) => {
       const typeId = ev.leaveTypeId ?? ev.LeaveTypeId;
-      return String(typeId) === String(selectedLeaveTypeId);
+      return typeId === Number(selectedLeaveTypeId);
     });
   }, [events, selectedLeaveTypeId]);
 
@@ -242,7 +251,7 @@ export default function LeaveCalendar({
     if (!selectedLeaveTypeId) return pendingRequests;
     return pendingRequests.filter((req) => {
       const typeId = req.leaveTypeId ?? req.LeaveTypeId;
-      return String(typeId) === String(selectedLeaveTypeId);
+      return typeId === selectedLeaveTypeId;
     });
   }, [pendingRequests, showPending, selectedLeaveTypeId]);
 
@@ -316,7 +325,7 @@ export default function LeaveCalendar({
   // Compute Spanning Leave Bars for any given week (1-indexed for CSS Grid colStart & colSpan)
   const getEventsForWeek = useCallback(
     (weekStart, weekEnd) => {
-      const result = [];
+      const rawEvents = [];
 
       // 1. Approved leaves
       filteredEvents.forEach((ev) => {
@@ -327,15 +336,11 @@ export default function LeaveCalendar({
         const evEnd = dayjs(toRaw).startOf("day");
 
         if (evStart.isSameOrBefore(weekEnd) && evEnd.isSameOrAfter(weekStart)) {
-          const startIndex = Math.max(0, evStart.diff(weekStart, "day"));
-          const endIndex = Math.min(6, evEnd.diff(weekStart, "day"));
-          result.push({
+          rawEvents.push({
             ...ev,
             isPending: false,
-            colStart: startIndex + 1,
-            colSpan: endIndex - startIndex + 1,
-            startsBefore: evStart.isBefore(weekStart),
-            endsAfter: evEnd.isAfter(weekEnd),
+            evStart,
+            evEnd,
           });
         }
       });
@@ -350,20 +355,77 @@ export default function LeaveCalendar({
           const evEnd = dayjs(toRaw).startOf("day");
 
           if (evStart.isSameOrBefore(weekEnd) && evEnd.isSameOrAfter(weekStart)) {
-            const startIndex = Math.max(0, evStart.diff(weekStart, "day"));
-            const endIndex = Math.min(6, evEnd.diff(weekStart, "day"));
-            result.push({
+            rawEvents.push({
               ...req,
               leaveRequestId: req.id,
               isPending: true,
-              colStart: startIndex + 1,
-              colSpan: endIndex - startIndex + 1,
-              startsBefore: evStart.isBefore(weekStart),
-              endsAfter: evEnd.isAfter(weekEnd),
+              evStart,
+              evEnd,
             });
           }
         });
       }
+
+      // Group consecutive/overlapping leaves per person to join into one flowing bar
+      const personGroups = {};
+      rawEvents.forEach((ev) => {
+        const key = ev.employeeCode || ev.employeeName || ev.id;
+        if (!personGroups[key]) personGroups[key] = [];
+        personGroups[key].push(ev);
+      });
+
+      const mergedEvents = [];
+      Object.values(personGroups).forEach((events) => {
+        // Sort by start date
+        events.sort((a, b) => a.evStart.diff(b.evStart));
+
+        let current = null;
+        events.forEach((ev) => {
+          if (!current) {
+            current = { ...ev };
+          } else {
+            // Check if consecutive (adjacent working days: diff <= 1 or over weekend diff <= 3)
+            const daysDiff = ev.evStart.diff(current.evEnd, "day");
+            const isConsecutive =
+              daysDiff <= 1 ||
+              (current.evEnd.isoWeekday() === 5 && daysDiff <= 3);
+
+            if (isConsecutive && current.isPending === ev.isPending) {
+              // Merge into single continuous joined bar
+              if (ev.evEnd.isAfter(current.evEnd)) {
+                current.evEnd = ev.evEnd;
+              }
+              current.numberOfDays =
+                (current.numberOfDays || 1) + (ev.numberOfDays || 1);
+            } else {
+              mergedEvents.push(current);
+              current = { ...ev };
+            }
+          }
+        });
+        if (current) mergedEvents.push(current);
+      });
+
+      // Convert each merged bar into week grid column spans (strictly Mon-Fri)
+      const result = [];
+      mergedEvents.forEach((ev) => {
+        const rawStart = ev.evStart.diff(weekStart, "day");
+        const rawEnd = ev.evEnd.diff(weekStart, "day");
+
+        // Clamp to working days: Monday (0) to Friday (4) so bars stay on working days and don't spill into weekend
+        const startIndex = Math.max(0, rawStart);
+        const endIndex = Math.min(4, rawEnd);
+
+        if (startIndex <= 4 && endIndex >= startIndex) {
+          result.push({
+            ...ev,
+            colStart: startIndex + 1,
+            colSpan: endIndex - startIndex + 1,
+            startsBefore: rawStart < 0,
+            endsAfter: rawEnd > 4,
+          });
+        }
+      });
 
       return result;
     },
@@ -516,18 +578,20 @@ export default function LeaveCalendar({
         {/* Right Controls: Filter, Pending Toggle, & Month/Week Pill */}
         <div className="flex items-center gap-3 flex-wrap">
           {/* Include Pending Toggle */}
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showPending}
-              onChange={(e) => setShowPending(e.target.checked)}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
-            />
-            <span>
-              Include Pending
-              {pendingRequests.length > 0 && ` (${pendingRequests.length})`}
-            </span>
-          </label>
+          {showPendingToggle && (
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showPending}
+                onChange={(e) => setShowPending(e.target.checked)}
+                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
+              />
+              <span>
+                Include Pending
+                {pendingRequests.length > 0 && ` (${pendingRequests.length})`}
+              </span>
+            </label>
+          )}
 
           {/* Filter by Leave Type */}
           <div className="relative">
@@ -706,8 +770,8 @@ export default function LeaveCalendar({
                                 : `${color.bg} ${color.text} ${color.border}`
                             }`}
                           >
-                            {/* Manager Mode: show employee name prominently */}
-                            {mode === "manager" && employeeName && (
+                            {/* Manager/Admin Mode: show employee name prominently */}
+                            {(mode === "manager" || mode === "admin") && employeeName && (
                               <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-black/5">
                                 <span className="w-5 h-5 rounded-full bg-white/80 border border-slate-300/80 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
                                   {employeeName.charAt(0).toUpperCase()}
@@ -786,8 +850,19 @@ export default function LeaveCalendar({
                 key={`month-week-${wIdx}`}
                 className="min-h-[110px] flex flex-col justify-between py-1.5 px-2 relative group transition-colors hover:bg-slate-50/20"
               >
+                {/* Weekend column background tint (columns 6 and 7) */}
+                <div className="absolute inset-0 grid grid-cols-7 pointer-events-none">
+                  <div />
+                  <div />
+                  <div />
+                  <div />
+                  <div />
+                  <div className="bg-slate-50/70 border-l border-slate-100/80" />
+                  <div className="bg-slate-50/70 border-l border-slate-100/80" />
+                </div>
+
                 {/* Day Numbers row */}
-                <div className="grid grid-cols-7 gap-1 mb-1.5">
+                <div className="grid grid-cols-7 gap-1 mb-1.5 relative z-10">
                   {week.days.map((day) => {
                     const isCurrentMonth = day.month() === currentDate.month();
                     const isToday = day.isSame(dayjs(), "day");
@@ -811,64 +886,73 @@ export default function LeaveCalendar({
                         >
                           {day.format("D")}
                         </span>
+                        
                       </div>
                     );
                   })}
                 </div>
 
                 {/* Spanning Event Bars for this week row */}
-                <div className="grid grid-cols-7 gap-1 px-1.5 my-1.5">
+                <div className="grid grid-cols-7 gap-1 px-1.5 my-1.5 relative z-10 [grid-auto-flow:dense]">
                   {weekEvents.map((ev, i) => {
                     const color = getColorForEvent(ev);
                     const reqId = ev.id || ev.leaveRequestId || i;
                     const typeName = ev.leaveTypeName || "Leave";
                     const daysCount = ev.numberOfDays ?? 1;
-                    const employeePrefix =
-                      mode === "manager" && ev.employeeName
-                        ? `${ev.employeeName}: `
-                        : "";
+                    const isTeamOrAdmin = mode === "manager" || mode === "admin";
+                    const typeCode =
+                      ev.leaveTypeCode ||
+                      (typeName
+                        ? typeName
+                            .split(" ")
+                            .map((w) => w[0])
+                            .join("")
+                            .slice(0, 2)
+                            .toUpperCase()
+                        : "LV");
 
                     return (
                       <button
-                        key={`bar-${ev.isPending ? "p" : "a"}-${reqId}-${wIdx}-${i}`}
+                        key={`bar-${ev.isPending ? "p" : "a"}-${reqId}-${wIdx}-${i}-${ev.colStart}`}
                         type="button"
                         onClick={() => onEventClick?.(ev, ev.isPending)}
                         style={{
                           gridColumn: `${ev.colStart} / span ${ev.colSpan}`,
                         }}
-                        className={`h-6.5 px-2 rounded-md text-[11px] font-semibold flex items-center justify-between truncate transition-transform hover:scale-[1.01] cursor-pointer shadow-2xs ${
+                        className={`h-6.5 px-2.5 rounded-md text-[11px] font-semibold flex items-center truncate transition-transform hover:scale-[1.01] cursor-pointer shadow-2xs ${
                           ev.isPending
                             ? "bg-amber-50 text-amber-900 border border-dashed border-amber-400"
                             : `${color.bg} ${color.text} border ${color.border}`
                         }`}
-                        title={`${employeePrefix}${typeName} (${daysCount} days) · ${
+                        title={`${ev.employeeName ? ev.employeeName + " · " : ""}${typeName} (${daysCount} days) · ${
                           ev.isPending ? "Pending" : "Approved"
                         } - Click to view`}
                       >
-                        <span className="truncate flex items-center gap-1">
-                          {ev.isPending && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                          )}
-                          {ev.startsBefore && (
-                            <span className="text-[9px] opacity-75">◀</span>
-                          )}
-                          <span className="truncate font-semibold">
-                            {mode === "manager" && ev.employeeName && (
-                              <strong className="font-bold mr-1">
-                                {ev.employeeName}:
-                              </strong>
-                            )}
-                            {typeName} · {daysCount}d
+                        {isTeamOrAdmin ? (
+                          <span className="truncate">
+                            {formatEmployeeShort(ev.employeeName)} · {typeCode}
                           </span>
-                          {ev.isPending && (
-                            <span className="text-[9px] opacity-75">
-                              (Pending)
+                        ) : (
+                          <span className="truncate flex items-center gap-1">
+                            {ev.isPending && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                            )}
+                            {ev.startsBefore && (
+                              <span className="text-[9px] opacity-75">◀</span>
+                            )}
+                            <span className="truncate font-semibold">
+                              {typeName} · {daysCount}d
                             </span>
-                          )}
-                          {ev.endsAfter && (
-                            <span className="text-[9px] opacity-75">▶</span>
-                          )}
-                        </span>
+                            {ev.isPending && (
+                              <span className="text-[9px] opacity-75">
+                                (Pending)
+                              </span>
+                            )}
+                            {ev.endsAfter && (
+                              <span className="text-[9px] opacity-75">▶</span>
+                            )}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -882,7 +966,7 @@ export default function LeaveCalendar({
       {/* Legend & Summary Footer */}
       <div className="px-6 py-4 border-t border-slate-200/80 bg-slate-50/50 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600 rounded-b-2xl">
         <div className="flex flex-wrap items-center gap-5 sm:gap-6">
-          <span className="font-semibold text-slate-700">Legend:</span>
+          
           {leaveTypeOptions.map((type) => {
             const color = getColorForEvent({ leaveTypeId: type.id });
             return (
@@ -902,12 +986,14 @@ export default function LeaveCalendar({
           })}
 
           {/* Pending Chip */}
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-sm shrink-0 bg-amber-100 border border-dashed border-amber-400" />
-            <span className="font-medium text-amber-800">
-              Pending Approval
-            </span>
-          </div>
+          {showPendingToggle && showPending && (
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-sm shrink-0 bg-amber-100 border border-dashed border-amber-400" />
+              <span className="font-medium text-amber-800">
+                Pending Approval
+              </span>
+            </div>
+          )}
 
           {/* Weekend */}
           <div className="flex items-center gap-2">
@@ -917,7 +1003,7 @@ export default function LeaveCalendar({
         </div>
 
         <div className="flex items-center gap-4 text-[11px] text-slate-500">
-          {pendingRequests.length > 0 && (
+          {showPendingToggle && pendingRequests.length > 0 && (
             <span className="inline-flex items-center gap-1.5 font-medium text-amber-700">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
               {pendingRequests.length}{" "}
@@ -925,9 +1011,8 @@ export default function LeaveCalendar({
               decision
             </span>
           )}
-          <span className="text-slate-400">
-            Loaded {dayjs(queryFrom).format("MM/DD")} to{" "}
-            {dayjs(queryTo).format("MM/DD")}
+          <span className="font-medium text-slate-400">
+            Loaded {dayjs(queryFrom).format("MM/DD")} to {dayjs(queryTo).format("MM/DD")}
           </span>
         </div>
       </div>

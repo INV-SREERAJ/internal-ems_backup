@@ -51,13 +51,13 @@ export default function AdminLeaveTypesPage() {
     }, 4000);
   };
 
-  // Fetch leave types from backend
-  const fetchLeaveTypes = useCallback(async () => {
+  // Fetch leave types from backend (fetches all leave types once or on mutations)
+  const fetchLeaveTypes = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
-      // Backend expects activeOnly: boolean. When showInactive is true, activeOnly is false.
-      const data = await adminApi.getLeaveTypes(!showInactive);
+      // Fetch all leave types (activeOnly: false) and handle active/inactive filtering cleanly on the client
+      const data = await adminApi.getLeaveTypes(false);
       const list = Array.isArray(data) ? data : [];
       setLeaveTypes(list);
     } catch (err) {
@@ -66,9 +66,9 @@ export default function AdminLeaveTypesPage() {
         err.response?.data?.message || "Failed to load leave types from server."
       );
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
-  }, [showInactive]);
+  }, []);
 
   useEffect(() => {
     fetchLeaveTypes();
@@ -287,15 +287,23 @@ export default function AdminLeaveTypesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[880px] table-fixed text-left border-collapse">
+              <colgroup>
+                <col className="w-[20%]" />
+                <col className="w-[10%]" />
+                <col className="w-[26%]" />
+                <col className="w-[12%]" />
+                <col className="w-[14%]" />
+                <col className="w-[18%]" />
+              </colgroup>
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
                   <th className="py-3 px-4 md:px-6">Leave type</th>
                   <th className="py-3 px-4">Code</th>
                   <th className="py-3 px-4">Description</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Last updated</th>
-                  <th className="py-3 px-4 md:px-6 text-right">Actions</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-center">Last updated</th>
+                  <th className="py-3 px-4 md:px-6 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -305,26 +313,29 @@ export default function AdminLeaveTypesPage() {
                     className="hover:bg-slate-50/50 transition-colors group"
                   >
                     {/* Name */}
-                    <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900">
+                    <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900 truncate"
+                      title={item.name}
+                    >
                       {item.name}
                     </td>
 
                     {/* Code */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded-md text-xs font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200 tracking-wide">
                         {item.code}
                       </span>
                     </td>
 
                     {/* Description */}
-                    <td className="py-3.5 px-4 max-w-xs text-xs text-slate-600 truncate">
+                    <td className="py-3.5 px-4 text-xs text-slate-600 truncate"
+                    title={item.description}>
                       {item.description || (
                         <span className="text-slate-400 italic">—</span>
                       )}
                     </td>
 
                     {/* Status */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                           item.isActive
@@ -342,15 +353,15 @@ export default function AdminLeaveTypesPage() {
                     </td>
 
                     {/* Last Updated */}
-                    <td className="py-3.5 px-4 text-xs font-medium text-slate-600 whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-xs font-medium text-slate-600 whitespace-nowrap text-center">
                       {item.updatedAt
                         ? dayjs(item.updatedAt).format("DD MMM YYYY")
                         : "—"}
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3.5 px-4 md:px-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="py-3.5 px-4 md:px-6 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-2">
                         {/* Edit Button */}
                         <button
                           type="button"

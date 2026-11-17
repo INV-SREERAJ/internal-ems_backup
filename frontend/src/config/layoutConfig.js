@@ -57,6 +57,14 @@ export const ROLE_LAYOUT_CONFIG = {
             to: "/admin/leave-requests",
             label: "All Leave requests",
           },
+          {
+            to: "/admin/employee-leave-balances",
+            label: "Employee Leave balances",
+          },
+          {
+            to: "/admin/leave-calendar",
+            label: "Leave Calendar",
+          },
         ],
       },
     ],
@@ -67,7 +75,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlinePencilSquare,
       },
     ],
-    getProfileButtonText: () => "Profile",
   },
 
   [ROLE_LABEL[ROLES.Manager]]: {
@@ -128,7 +135,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
       },
     ],
-    getProfileButtonText: () => "Profile",
   },
 
   [ROLE_LABEL[ROLES.Employee]]: {
@@ -180,7 +186,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
       },
     ],
-    getProfileButtonText: () => "Profile",
   },
 };
 

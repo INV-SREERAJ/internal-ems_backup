@@ -76,7 +76,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
 
             return await _context.EmployeeLeaveBalances
                 .AsNoTracking()
-                .Where(b => b.EmployeeId == employeeId && b.LeaveYearConfiguration.Year == year)
+                .Where(b => b.EmployeeId == employeeId && b.LeaveYearConfiguration.Year == year && b.LeaveYearConfiguration.IsActive && b.LeaveYearConfiguration.LeaveType.IsActive)
                 .Select(b => new LeaveBalanceSummary
                 {
                     EmployeeId = b.EmployeeId,

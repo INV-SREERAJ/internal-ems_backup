@@ -447,7 +447,7 @@ export default function AdminYearlyLeaveConfigPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
                   <th className="py-3 px-4 md:px-6">Leave type</th>
                   <th className="py-3 px-4">Allocated days</th>
                   <th className="py-3 px-4">Status</th>

@@ -356,25 +356,28 @@ export default function EmployeeLeavesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4">Leave Type</th>
-                <th className="py-3 px-4">Dates</th>
-                <th className="py-3 px-4">Days</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Applied On</th>
-                <th className="py-3 px-4 text-center">View</th>
+              <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3.5 px-4 md:px-6">Leave Type</th>
+                <th className="py-3.5 px-4">Dates</th>
+                <th className="py-3.5 px-4">Days</th>
+                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3.5 px-4">Applied On</th>
+                <th className="py-3.5 px-4 md:px-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
               {loadingRequests ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
-                    Loading requests...
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <div className="inline-flex items-center gap-2 text-xs">
+                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <span>Loading requests...</span>
+                    </div>
                   </td>
                 </tr>
               ) : requests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
                     No leave requests found.
                   </td>
                 </tr>
@@ -392,29 +395,30 @@ export default function EmployeeLeavesPage() {
                       key={req.id}
                       className="hover:bg-slate-50/70 transition-colors"
                     >
-                      <td className="py-4 px-4 font-semibold text-slate-900">
+                      <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900 whitespace-nowrap">
                         {req.leaveTypeName}
                       </td>
-                      <td className="py-4 px-4 text-slate-600 font-medium">
+                      <td className="py-3.5 px-4 text-slate-700 whitespace-nowrap">
                         {dateStr}
                       </td>
-                      <td className="py-4 px-4 text-slate-700 font-medium">
+                      <td className="py-3.5 px-4 text-slate-700 font-semibold whitespace-nowrap">
                         {req.numberOfDays}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <LeaveStatusBadge status={req.status} variant="subtle" />
                       </td>
-                      <td className="py-4 px-4 text-slate-500 text-xs">
-                        {dayjs(req.createdAt).format("D MMM YYYY")}
+                      <td className="py-3.5 px-4 text-slate-500 text-xs whitespace-nowrap">
+                        {dayjs(req.createdAt).format("DD MMM YYYY")}
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3.5 px-4 md:px-6 text-right whitespace-nowrap">
                         <button
                           type="button"
                           onClick={() => handleViewDetails(req)}
                           title="View leave request details"
-                          className="p-1.5 rounded-lg border border-slate-200 text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer inline-flex items-center justify-center"
+                          className="px-2.5 py-1 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50 active:scale-[0.98] text-xs font-semibold transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5"
                         >
-                          <HiOutlineEye size={18} />
+                          <HiOutlineEye size={15} />
+                          <span>View</span>
                         </button>
                       </td>
                     </tr>
@@ -431,7 +435,7 @@ export default function EmployeeLeavesPage() {
             <Pagination
               pageNumber={page}
               totalPages={totalPages}
-              onPageClick={(p) => setPage(p)}
+              onPageClick={setPage}
             />
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   HiOutlineChevronDown,
@@ -18,14 +19,17 @@ import Pagination from "../../components/common/Pagination";
 import { formatLeaveDateRange } from "../../utils/dateUtils";
 
 export default function AdminLeaveRequestsPage() {
+  const location = useLocation();
   const currentYear = useMemo(() => dayjs().year(), []);
 
-  // Filter states (defaults to "Pending" matching wireframe)
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  // Filter states (defaults to "All")
+  const [search, setSearch] = useState(() => location.state?.employeeCode || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(() => location.state?.employeeCode || "");
   const [selectedLeaveTypeId, setSelectedLeaveTypeId] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("Pending");
-  const [selectedYear, setSelectedYear] = useState(String(currentYear));
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedYear, setSelectedYear] = useState(() =>
+    location.state?.year ? String(location.state.year) : String(currentYear)
+  );
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
@@ -296,7 +300,7 @@ export default function AdminLeaveRequestsPage() {
         {/* Filters Toolbar */}
         <div className="p-4 md:px-6 border-b border-slate-100 flex flex-wrap items-center gap-3 bg-white">
           {/* 1. Search Box */}
-          <div className="relative min-w-[220px] flex-1 max-w-xs">
+          <div className="relative min-w-[220px] flex-1">
             <input
               type="text"
               value={search}
@@ -316,7 +320,7 @@ export default function AdminLeaveRequestsPage() {
           </div>
 
           {/* 2. Leave Types Dropdown */}
-          <div className="relative min-w-[140px]">
+          <div className="relative min-w-[140px] ">
             <select
               value={selectedLeaveTypeId}
               onChange={(e) => {
@@ -339,7 +343,7 @@ export default function AdminLeaveRequestsPage() {
           </div>
 
           {/* 3. Status Dropdown */}
-          <div className="relative min-w-[120px]">
+          <div className="relative min-w-[120px] ">
             <select
               value={selectedStatus}
               onChange={(e) => {
@@ -361,7 +365,7 @@ export default function AdminLeaveRequestsPage() {
           </div>
 
           {/* 4. Year Dropdown */}
-          <div className="relative min-w-[90px]">
+          <div className="relative min-w-[90px] ">
             <select
               value={selectedYear}
               onChange={(e) => {
@@ -384,7 +388,7 @@ export default function AdminLeaveRequestsPage() {
           </div>
 
           {/* 5. Date Range Filter Popover */}
-          <div className="relative" ref={datePickerRef}>
+          <div className="relative" ref={datePickerRef} >
             <button
               type="button"
               onClick={() => setDatePopoverOpen((prev) => !prev)}
@@ -502,7 +506,16 @@ export default function AdminLeaveRequestsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[960px] table-fixed text-left border-collapse">
+              <colgroup>
+                <col className="w-[20%]" />
+                <col className="w-[14%]" />
+                <col className="w-[18%]" />
+                <col className="w-[8%]" />
+                <col className="w-[11%]" />
+                <col className="w-[11%]" />
+                <col className="w-[18%]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   <th className="py-3 px-4 md:px-6">Employee</th>
@@ -521,19 +534,19 @@ export default function AdminLeaveRequestsPage() {
                     className="hover:bg-slate-50/80 transition-colors group"
                   >
                     {/* Employee */}
-                    <td className="py-3.5 px-4 md:px-6 whitespace-nowrap">
+                    <td className="py-3.5 px-4 md:px-6 truncate">
                       <div>
-                        <div className="font-bold text-slate-900 leading-snug">
+                        <div className="font-bold text-slate-900 leading-snug truncate">
                           {req.employeeName}
                         </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
+                        <div className="text-[11px] text-slate-400 mt-0.5 truncate font-mono">
                           {req.employeeCode}
                         </div>
                       </div>
                     </td>
 
                     {/* Leave type */}
-                    <td className="py-3.5 px-4 whitespace-nowrap text-slate-700 font-medium">
+                    <td className="py-3.5 px-4 text-slate-700 font-medium truncate">
                       {req.leaveTypeName}
                     </td>
 
@@ -615,7 +628,7 @@ export default function AdminLeaveRequestsPage() {
               <Pagination
                 pageNumber={page}
                 totalPages={totalPages}
-                onPageChange={(p) => setPage(p)}
+                onPageClick={(p) => setPage(p)}
               />
             )}
           </div>

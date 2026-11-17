@@ -214,13 +214,14 @@ export default function ApplyLeavePage() {
 
     while (curr.isBefore(end) || curr.isSame(end, "day")) {
       const dayOfWeek = curr.day(); // 0 is Sunday, 6 is Saturday
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      if (dayOfWeek > 0 && dayOfWeek < 6) {
         count++;
       }
       curr = curr.add(1, "day");
     }
-
+    console.log(count);
     return count;
+
   }, [fromDate, toDate]);
 
   // Reference today's date start of day & end of leave year
