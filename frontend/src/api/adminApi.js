@@ -127,6 +127,17 @@ export const adminApi = {
     const response = await api.get(`/admin/employees/${employeeCode}`);
     return response.data;
   },
+
+  searchEmployees: async (search, pageSize = 8) => {
+    const response = await api.get("/admin/employees", {
+      params: {
+        search: search?.trim() || "",
+        pageSize,
+        pageNumber: 1,
+      },
+    });
+    return response.data;
+  },
 };
 
 export default adminApi;

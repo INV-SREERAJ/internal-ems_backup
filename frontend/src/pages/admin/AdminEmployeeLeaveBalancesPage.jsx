@@ -1,12 +1,14 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   HiOutlineChevronDown,
   HiOutlineExclamationCircle,
 } from "react-icons/hi2";
+import { RxChevronDown, RxCross2 } from "react-icons/rx";
 
 import adminApi from "../../api/adminApi";
+import { useEmployeeSearch } from "../../hooks/useEmployeeSearch";
 
 export default function AdminEmployeeLeaveBalancesPage() {
   const navigate = useNavigate();
@@ -20,6 +22,12 @@ export default function AdminEmployeeLeaveBalancesPage() {
 
   const [inputCode, setInputCode] = useState(paramCode);
   const [inputYear, setInputYear] = useState(paramYear);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchContainerRef = useRef(null);
+
+  // Hook directly mirroring useManagerSearch from CreateEmployee / EditEmployee
+  const { employees, loading: searching, error: searchError } = useEmployeeSearch(inputCode);
 
   // Active searched criteria
   const [searchedCode, setSearchedCode] = useState(paramCode);
@@ -31,6 +39,20 @@ export default function AdminEmployeeLeaveBalancesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Year options: past 2 years up to next 2 years
   const yearOptions = useMemo(() => {
@@ -94,19 +116,40 @@ export default function AdminEmployeeLeaveBalancesPage() {
     }
   }, [paramCode, paramYear, fetchEmployeeBalances]);
 
+  // Handle employee selection from search dropdown
+  const handleSelectEmployee = (emp) => {
+    setSelectedEmployee(emp);
+    setInputCode(`${emp.firstName} ${emp.lastName} — ${emp.employeeCode}`);
+    setDropdownOpen(false);
+    setSearchParams({ code: emp.employeeCode, year: inputYear });
+    setSearchedCode(emp.employeeCode);
+    setSearchedYear(inputYear);
+    fetchEmployeeBalances(emp.employeeCode, inputYear);
+  };
+
   // Handle form submit
   const handleView = (e) => {
     e?.preventDefault();
-    const trimmed = inputCode.trim();
-    if (!trimmed) {
-      setError("Please enter an employee code.");
+    setDropdownOpen(false);
+
+    // If an employee was selected or code typed
+    const codeToSearch = selectedEmployee?.employeeCode || inputCode.split("—").pop().trim();
+    if (!codeToSearch) {
+      setError("Please select or enter an employee.");
       return;
     }
 
-    setSearchParams({ code: trimmed, year: inputYear });
-    setSearchedCode(trimmed);
+    setSearchParams({ code: codeToSearch, year: inputYear });
+    setSearchedCode(codeToSearch);
     setSearchedYear(inputYear);
-    fetchEmployeeBalances(trimmed, inputYear);
+    fetchEmployeeBalances(codeToSearch, inputYear);
+  };
+
+  // Clear search selection
+  const handleClear = () => {
+    setSelectedEmployee(null);
+    setInputCode("");
+    setDropdownOpen(false);
   };
 
   // Navigate to leave requests filtered for this employee
@@ -139,18 +182,113 @@ export default function AdminEmployeeLeaveBalancesPage() {
 
       {/* Lookup Controls */}
       <form onSubmit={handleView} className="flex flex-wrap items-end gap-3">
-        {/* Employee Code Input */}
-        <div className="flex flex-col gap-1.5 w-full sm:w-72">
+        {/* Employee Search Input with Manager-Search Style Dropdown */}
+        <div ref={searchContainerRef} className="relative flex flex-col gap-1.5 w-full sm:w-80">
           <label className="text-xs font-semibold text-slate-700">
-            Employee code
+            Employee
           </label>
-          <input
-            type="text"
-            value={inputCode}
-            onChange={(e) => setInputCode(e.target.value)}
-            placeholder="e.g. EMP20260042"
-            className="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-xs"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              value={inputCode}
+              onFocus={() => {
+                if (selectedEmployee) setInputCode("");
+                setDropdownOpen(true);
+              }}
+              onChange={(e) => {
+                setInputCode(e.target.value);
+                setSelectedEmployee(null);
+                setDropdownOpen(true);
+              }}
+              placeholder="Search by name or employee code"
+              className="w-full pl-3.5 pr-14 py-2 text-sm rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-xs"
+            />
+
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              {selectedEmployee && (
+                <button
+                  type="button"
+                  className="flex items-center justify-center p-0.5 bg-transparent border-none text-slate-400 rounded cursor-pointer hover:bg-slate-100 hover:text-slate-600"
+                  aria-label="Clear selected employee"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClear();
+                  }}
+                >
+                  <RxCross2 size={14} />
+                </button>
+              )}
+              <RxChevronDown
+                size={14}
+                className={`text-slate-400 transition-transform duration-150 pointer-events-none ${
+                  dropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Search Dropdown mirroring CreateEmployee manager search */}
+          {dropdownOpen && (
+            <div className="absolute top-[calc(100%+4px)] inset-x-0 z-30 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-[0_8px_20px_rgba(15,23,42,0.1)]">
+              {inputCode.trim().length < 2 && (
+                <div className="p-3 text-[13px] text-slate-500">
+                  Type at least 2 characters to search...
+                </div>
+              )}
+
+              {inputCode.trim().length >= 2 && searching && (
+                <div className="p-3 text-[13px] text-slate-500 flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
+                  Searching...
+                </div>
+              )}
+
+              {inputCode.trim().length >= 2 && !searching && searchError && (
+                <div className="p-3 text-[13px] text-red-600">
+                  {searchError}
+                </div>
+              )}
+
+              {inputCode.trim().length >= 2 &&
+                !searching &&
+                !searchError &&
+                employees.length === 0 && (
+                  <div className="p-3 text-[13px] text-slate-500">
+                    No employees found.
+                  </div>
+                )}
+
+              {inputCode.trim().length >= 2 &&
+                !searching &&
+                !searchError &&
+                employees.map((emp) => (
+                  <button
+                    key={emp.employeeCode}
+                    type="button"
+                    className={`flex justify-between items-center w-full px-3.5 py-2.5 bg-transparent border-none text-left font-sans text-[13px] cursor-pointer hover:bg-slate-100 transition-colors ${
+                      emp.employeeCode === selectedEmployee?.employeeCode
+                        ? "!bg-blue-50"
+                        : ""
+                    }`}
+                    onClick={() => handleSelectEmployee(emp)}
+                  >
+                    <div>
+                      <span className="font-medium text-slate-900">
+                        {emp.fullName} 
+                      </span>
+                      {emp.role && (
+                        <span className="text-slate-400 text-xs ml-1.5">
+                          ({emp.role})
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-slate-500 text-xs font-mono font-semibold">
+                      {emp.employeeCode}
+                    </span>
+                  </button>
+                ))}
+            </div>
+          )}
         </div>
 
         {/* Year Select */}
@@ -179,7 +317,7 @@ export default function AdminEmployeeLeaveBalancesPage() {
         <div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !inputCode.trim()}
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
           >
             {loading ? (
