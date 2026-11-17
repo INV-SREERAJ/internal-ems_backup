@@ -354,15 +354,23 @@ export default function EmployeeLeavesPage() {
 
         {/* Table of Leave Requests */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[760px] table-fixed text-left border-collapse">
+            <colgroup>
+              <col className="w-[24%]" />
+              <col className="w-[24%]" />
+              <col className="w-[10%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                 <th className="py-3.5 px-4 md:px-6">Leave Type</th>
                 <th className="py-3.5 px-4">Dates</th>
-                <th className="py-3.5 px-4">Days</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4">Applied On</th>
-                <th className="py-3.5 px-4 md:px-6 text-right">Actions</th>
+                <th className="py-3.5 px-4 text-center">Days</th>
+                <th className="py-3.5 px-4 text-center">Status</th>
+                <th className="py-3.5 px-4 text-center">Applied On</th>
+                <th className="py-3.5 px-4 md:px-6 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
@@ -395,22 +403,24 @@ export default function EmployeeLeavesPage() {
                       key={req.id}
                       className="hover:bg-slate-50/70 transition-colors"
                     >
-                      <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900 whitespace-nowrap">
+                      <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900 truncate"
+                        title={req.leaveTypeName}
+                      >
                         {req.leaveTypeName}
                       </td>
                       <td className="py-3.5 px-4 text-slate-700 whitespace-nowrap">
                         {dateStr}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-700 font-semibold whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-slate-700 font-semibold text-center whitespace-nowrap">
                         {req.numberOfDays}
                       </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <LeaveStatusBadge status={req.status} variant="subtle" />
                       </td>
-                      <td className="py-3.5 px-4 text-slate-500 text-xs whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-slate-500 text-xs text-center whitespace-nowrap">
                         {dayjs(req.createdAt).format("DD MMM YYYY")}
                       </td>
-                      <td className="py-3.5 px-4 md:px-6 text-right whitespace-nowrap">
+                      <td className="py-3.5 px-4 md:px-6 text-center whitespace-nowrap">
                         <button
                           type="button"
                           onClick={() => handleViewDetails(req)}

@@ -445,13 +445,19 @@ export default function AdminYearlyLeaveConfigPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[760px] table-fixed text-left border-collapse">
+              <colgroup>
+                <col className="w-[34%]" />
+                <col className="w-[20%]" />
+                <col className="w-[18%]" />
+                <col className="w-[28%]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
                   <th className="py-3 px-4 md:px-6">Leave type</th>
-                  <th className="py-3 px-4">Allocated days</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 md:px-6 text-right">Actions</th>
+                  <th className="py-3 px-4 text-center">Allocated days</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 md:px-6 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -484,9 +490,9 @@ export default function AdminYearlyLeaveConfigPage() {
                       </td>
 
                       {/* Allocated Days */}
-                      <td className="py-3.5 px-4 font-semibold text-slate-900">
+                      <td className="py-3.5 px-4 font-semibold text-slate-900 text-center whitespace-nowrap">
                         {isEditing ? (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col items-center gap-1">
                             <input
                               type="number"
                               min={1}
@@ -494,7 +500,7 @@ export default function AdminYearlyLeaveConfigPage() {
                               autoFocus
                               value={editingDays}
                               onChange={(e) => setEditingDays(e.target.value)}
-                              className="w-20 px-2.5 py-1 text-sm font-semibold rounded-lg border border-blue-500 ring-2 ring-blue-100 outline-none bg-white text-slate-900"
+                              className="w-20 px-2.5 py-1 text-sm font-semibold rounded-lg border border-blue-500 ring-2 ring-blue-100 outline-none bg-white text-slate-900 text-center"
                             />
                             {hasRowError && (
                               <span className="text-[11px] font-medium text-red-600 max-w-xs">
@@ -508,7 +514,7 @@ export default function AdminYearlyLeaveConfigPage() {
                       </td>
 
                       {/* Status */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                             cfg.isActive
@@ -526,8 +532,8 @@ export default function AdminYearlyLeaveConfigPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 px-4 md:px-6 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-3.5 px-4 md:px-6 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-2">
                           {isEditing ? (
                             <>
                               <button

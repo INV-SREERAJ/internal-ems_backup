@@ -220,7 +220,7 @@ export default function AdminEmployeeLeaveBalancesPage() {
           {/* Leave Balances Table */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[640px] table-fixed text-left border-collapse">
                 <colgroup>
                   <col className="w-[36%]" />
                   <col className="w-[16%]" />
@@ -229,12 +229,12 @@ export default function AdminEmployeeLeaveBalancesPage() {
                   <col className="w-[16%]" />
                 </colgroup>
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50 text-xs font-semibold text-slate-600">
+                  <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                     <th className="py-3.5 px-4 md:px-6">Leave type</th>
-                    <th className="py-3.5 px-4">Allocated</th>
-                    <th className="py-3.5 px-4">Used</th>
-                    <th className="py-3.5 px-4">Pending</th>
-                    <th className="py-3.5 px-4 md:px-6">Available</th>
+                    <th className="py-3.5 px-4 text-center">Allocated</th>
+                    <th className="py-3.5 px-4 text-center">Used</th>
+                    <th className="py-3.5 px-4 text-center">Pending</th>
+                    <th className="py-3.5 px-4 md:px-6 text-center">Available</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm">
@@ -265,20 +265,22 @@ export default function AdminEmployeeLeaveBalancesPage() {
                         key={b.leaveTypeId}
                         className="hover:bg-slate-50/70 transition-colors"
                       >
-                        <td className="py-3.5 px-4 md:px-6 font-medium text-slate-900">
+                        <td className="py-3.5 px-4 md:px-6 font-medium text-slate-900 truncate"
+                          title={b.leaveTypeName}
+                        >
                           {b.leaveTypeName}
                           {b.leaveTypeCode ? ` (${b.leaveTypeCode})` : ""}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-700">
+                        <td className="py-3.5 px-4 text-slate-700 text-center whitespace-nowrap">
                           {b.allocatedDays}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-700">
+                        <td className="py-3.5 px-4 text-slate-700 text-center whitespace-nowrap">
                           {b.usedDays}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-700">
+                        <td className="py-3.5 px-4 text-slate-700 text-center whitespace-nowrap">
                           {b.pendingDays}
                         </td>
-                        <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900">
+                        <td className="py-3.5 px-4 md:px-6 font-semibold text-slate-900 text-center whitespace-nowrap">
                           {b.availableDays}
                         </td>
                       </tr>

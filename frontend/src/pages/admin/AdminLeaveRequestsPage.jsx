@@ -508,23 +508,23 @@ export default function AdminLeaveRequestsPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[960px] table-fixed text-left border-collapse">
               <colgroup>
-                <col className="w-[20%]" />
+                <col className="w-[19%]" />
                 <col className="w-[14%]" />
-                <col className="w-[18%]" />
-                <col className="w-[8%]" />
+                <col className="w-[17%]" />
+                <col className="w-[7%]" />
                 <col className="w-[11%]" />
-                <col className="w-[11%]" />
-                <col className="w-[18%]" />
+                <col className="w-[12%]" />
+                <col className="w-[20%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   <th className="py-3 px-4 md:px-6">Employee</th>
                   <th className="py-3 px-4">Leave type</th>
                   <th className="py-3 px-4">Dates</th>
-                  <th className="py-3 px-4">Days</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Applied on</th>
-                  <th className="py-3 px-4 md:px-6 text-right">Actions</th>
+                  <th className="py-3 px-4 text-center">Days</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-center">Applied on</th>
+                  <th className="py-3 px-4 md:px-6 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
@@ -556,23 +556,23 @@ export default function AdminLeaveRequestsPage() {
                     </td>
 
                     {/* Days */}
-                    <td className="py-3.5 px-4 whitespace-nowrap text-slate-700 font-semibold">
+                    <td className="py-3.5 px-4 whitespace-nowrap text-slate-700 font-semibold text-center">
                       {req.numberOfDays}
                     </td>
 
                     {/* Status */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
+                    <td className="py-3.5 px-4 whitespace-nowrap text-center">
                       <LeaveStatusBadge status={req.status} variant="solid" />
                     </td>
 
                     {/* Applied on */}
-                    <td className="py-3.5 px-4 whitespace-nowrap text-slate-600">
+                    <td className="py-3.5 px-4 whitespace-nowrap text-slate-600 text-center">
                       {dayjs(req.createdAt).format("DD MMM YYYY")}
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3.5 px-4 md:px-6 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="py-3.5 px-4 md:px-6 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-2">
                         {req.status === "Pending" ? (
                           <>
                             <button
