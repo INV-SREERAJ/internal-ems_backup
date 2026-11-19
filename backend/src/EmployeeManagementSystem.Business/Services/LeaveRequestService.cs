@@ -16,6 +16,7 @@ namespace EmployeeManagementSystem.Business.Services
         private readonly ILeaveRequestRepository _leaveRequestRepository;
         private readonly IEmployeeLeaveBalanceRepository _balanceRepository;
         private readonly ILeaveTypeRepository _leaveTypeRepository;
+        private readonly ILeaveYearConfigurationRepository _leaveYearConfigurationRepository;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
@@ -25,6 +26,7 @@ namespace EmployeeManagementSystem.Business.Services
             ILeaveRequestRepository leaveRequestRepository,
             IEmployeeLeaveBalanceRepository balanceRepository,
             ILeaveTypeRepository leaveTypeRepository,
+            ILeaveYearConfigurationRepository leaveYearConfigurationRepository,
             IEmployeeRepository employeeRepository,
             IEmailService emailService,
             IConfiguration configuration,
@@ -33,6 +35,7 @@ namespace EmployeeManagementSystem.Business.Services
             _leaveRequestRepository = leaveRequestRepository;
             _balanceRepository = balanceRepository;
             _leaveTypeRepository = leaveTypeRepository;
+            _leaveYearConfigurationRepository = leaveYearConfigurationRepository;
             _employeeRepository = employeeRepository;
             _emailService = emailService;
             _configuration = configuration;
@@ -57,6 +60,15 @@ namespace EmployeeManagementSystem.Business.Services
             {
                 _logger.LogWarning("Leave application failed: leave type {LeaveTypeId} is inactive", request.LeaveTypeId);
                 return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict, "Leave type is inactive.");
+            }
+
+            // 1b. Leave year configuration exists and active check
+            var leaveYearConfig = await _leaveYearConfigurationRepository.GetByLeaveTypeAndYearAsync(request.LeaveTypeId, request.FromDate.Year);
+            if (leaveYearConfig == null || !leaveYearConfig.IsActive)
+            {
+                _logger.LogWarning("Leave application failed: leave year configuration for leave type {LeaveTypeId} and year {Year} is missing or inactive",
+                    request.LeaveTypeId, request.FromDate.Year);
+                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict, "Leave type is not configured or is inactive for the selected year.");
             }
 
             // 2. Employee exists check

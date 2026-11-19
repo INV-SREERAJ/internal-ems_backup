@@ -38,6 +38,13 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
             return await query.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<LeaveYearConfiguration?> GetByLeaveTypeAndYearAsync(int leaveTypeId, int year)
+        {
+            return await _context.LeaveYearConfigurations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.LeaveTypeId == leaveTypeId && x.Year == year);
+        }
+
         public async Task<bool> ExistsAsync(int leaveTypeId, int year)
         {
             return await _context.LeaveYearConfigurations

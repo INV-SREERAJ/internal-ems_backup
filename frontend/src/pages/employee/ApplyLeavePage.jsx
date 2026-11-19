@@ -188,11 +188,18 @@ export default function ApplyLeavePage() {
     };
   }, []);
 
-  // Currently selected leave type object from leaveTypes list
+  // Filter leave types to only those that have an active configuration and balance for this year
+  const availableLeaveTypes = useMemo(() => {
+    return leaveTypes.filter((type) =>
+      balances.some((b) => b.leaveTypeId === type.id)
+    );
+  }, [leaveTypes, balances]);
+
+  // Currently selected leave type object from availableLeaveTypes list
   const selectedType = useMemo(() => {
     if (!selectedLeaveTypeId) return null;
-    return leaveTypes.find((t) => String(t.id) === String(selectedLeaveTypeId)) || null;
-  }, [leaveTypes, selectedLeaveTypeId]);
+    return availableLeaveTypes.find((t) => String(t.id) === String(selectedLeaveTypeId)) || null;
+  }, [availableLeaveTypes, selectedLeaveTypeId]);
 
   // Balance record for selected leave type (if any)
   const selectedBalance = useMemo(() => {
@@ -242,7 +249,9 @@ export default function ApplyLeavePage() {
       return "Leave dates must be within the same calendar year.";
     if (workingDaysCount === 0)
       return "The selected date range contains no working days (weekends only).";
-    if (selectedBalance && workingDaysCount > selectedBalance.availableDays)
+    if (!selectedBalance)
+      return "Selected leave type is not active or configured for this year.";
+    if (workingDaysCount > selectedBalance.availableDays)
       return `Insufficient balance: You only have ${selectedBalance.availableDays} day(s) available.`;
     if (!reason.trim()) return "Please provide a reason for your leave request.";
     return null;
@@ -376,10 +385,10 @@ export default function ApplyLeavePage() {
                     <option value="">
                       {loadingInitial ? "Loading leave types..." : "Select a leave type"}
                     </option>
-                    {leaveTypes.map((type) => {
+                    {availableLeaveTypes.map((type) => {
                       const bal = balances.find((b) => b.leaveTypeId === type.id);
                       const label = bal
-                        ? `${type.name} `
+                        ? `${type.name} (${bal.availableDays} days available)`
                         : type.name;
                       return (
                         <option key={type.id} value={type.id}>

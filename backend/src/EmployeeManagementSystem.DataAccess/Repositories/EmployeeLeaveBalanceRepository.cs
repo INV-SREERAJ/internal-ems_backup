@@ -113,7 +113,9 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 .AsNoTracking()
                 .Where(b => b.EmployeeId == employeeId
                          && b.LeaveYearConfiguration.LeaveTypeId == leaveTypeId
-                         && b.LeaveYearConfiguration.Year == year)
+                         && b.LeaveYearConfiguration.Year == year
+                         && b.LeaveYearConfiguration.IsActive
+                         && b.LeaveYearConfiguration.LeaveType.IsActive)
                 .Select(b => new LeaveBalanceSummary
                 {
                     EmployeeId = b.EmployeeId,
