@@ -130,7 +130,7 @@ export default function LeaveDetailsDrawer({
   const today = dayjs().startOf("day");
   const leaveStartDate = dayjs(request.fromDate).startOf("day");
   const canRejectApproved = isApproved && !leaveStartDate.isBefore(today);
-  const canReject = isPending || (mode === "manager" && canRejectApproved);
+  const canReject = isPending || ((mode === "manager" || mode === "admin") && canRejectApproved);
 
   return (
     <div
@@ -397,7 +397,7 @@ export default function LeaveDetailsDrawer({
                   Close
                 </button>
               )
-            ) : isPending || (mode === "manager" && canReject) ? (
+            ) : isPending || canReject ? (
               <div>
                 <div className="grid grid-cols-2 gap-3">
                   {isPending && onApprove && (

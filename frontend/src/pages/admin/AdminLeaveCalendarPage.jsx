@@ -13,6 +13,8 @@ import LeaveCalendar, {
   getCalendarRange,
 } from "../../components/leave/LeaveCalendar";
 import LeaveDetailsDrawer from "../../components/leave/LeaveDetailsDrawer";
+import RejectLeaveDialog from "../../components/leave/RejectLeaveDialog";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -62,6 +64,25 @@ export default function AdminLeaveCalendarPage() {
   // Drawer state
   const [activeRequest, setActiveRequest] = useState(null);
   const [feedback, setFeedback] = useState({ type: "", message: "" });
+
+  // Dialog states for Approve / Reject actions
+  const [approveDialogState, setApproveDialogState] = useState({
+    open: false,
+    request: null,
+    loading: false,
+  });
+  const [rejectDialogState, setRejectDialogState] = useState({
+    open: false,
+    request: null,    
+    loading: false,
+  });
+
+  const showFeedback = (type, message) => {
+    setFeedback({ type, message });
+    setTimeout(() => {
+      setFeedback({ type: "", message: "" });
+    }, 5000);
+  };
 
   const today = useMemo(() => dayjs(), []);
   const todayStr = useMemo(() => today.format("YYYY-MM-DD"), [today]);
@@ -205,6 +226,84 @@ export default function AdminLeaveCalendarPage() {
         numberOfDays: event.numberOfDays,
         reason: event.reason || "Approved Leave",
       });
+    }
+  };
+
+  // Refresh all calendar & widget data
+  const refreshAll = useCallback(() => {
+    fetchCalendarEvents();
+    fetchSideWidgetsData();
+  }, [fetchCalendarEvents, fetchSideWidgetsData]);
+
+  // Approve action handlers
+  const handleOpenApprove = (req) => {
+    setApproveDialogState({
+      open: true,
+      request: req,
+      loading: false,
+    });
+  };
+
+  const handleConfirmApprove = async () => {
+    const target = approveDialogState.request;
+    if (!target) return;
+
+    try {
+      setApproveDialogState((prev) => ({ ...prev, loading: true }));
+      await adminApi.approveLeaveRequest(target.id);
+
+      setApproveDialogState({ open: false, request: null, loading: false });
+      if (activeRequest && activeRequest.id === target.id) {
+        setActiveRequest(null);
+      }
+      refreshAll();
+      showFeedback(
+        "success",
+        `Approved ${target.leaveTypeName} request for ${target.employeeName}.`
+      );
+    } catch (err) {
+      console.error("Failed to approve leave request:", err);
+      setApproveDialogState((prev) => ({ ...prev, loading: false }));
+      showFeedback(
+        "error",
+        err.response?.data?.message || "Failed to approve leave request."
+      );
+    }
+  };
+
+  // Reject action handlers
+  const handleOpenReject = (req) => {
+    setRejectDialogState({
+      open: true,
+      request: req,
+      loading: false,
+    });
+  };
+
+  const handleConfirmReject = async (requestId, reason) => {
+    const target = rejectDialogState.request;
+    if (!target) return;
+
+    try {
+      setRejectDialogState((prev) => ({ ...prev, loading: true }));
+      await adminApi.rejectLeaveRequest(requestId, reason);
+
+      setRejectDialogState({ open: false, request: null, loading: false });
+      if (activeRequest && activeRequest.id === target.id) {
+        setActiveRequest(null);
+      }
+      refreshAll();
+      showFeedback(
+        "success",
+        `Rejected ${target.leaveTypeName} request for ${target.employeeName}.`
+      );
+    } catch (err) {
+      console.error("Failed to reject leave request:", err);
+      setRejectDialogState((prev) => ({ ...prev, loading: false }));
+      showFeedback(
+        "error",
+        err.response?.data?.message || "Failed to reject leave request."
+      );
     }
   };
 
@@ -411,6 +510,46 @@ export default function AdminLeaveCalendarPage() {
         request={activeRequest}
         mode="admin"
         onClose={() => setActiveRequest(null)}
+        onApprove={(req) => handleOpenApprove(req)}
+        onReject={(req) => handleOpenReject(req)}
+      />
+
+      {/* Approval Confirmation Dialog */}
+      <ConfirmDialog
+        open={approveDialogState.open}
+        title="Approve Leave Request?"
+        message={
+          approveDialogState.request
+            ? `Are you sure you want to approve this ${
+                approveDialogState.request.leaveTypeName
+              } request for ${
+                approveDialogState.request.employeeName
+              } (${approveDialogState.request.numberOfDays} ${
+                approveDialogState.request.numberOfDays === 1
+                  ? "day"
+                  : "days"
+              })? Admin override: The normal flow is Employee → Manager.`
+            : ""
+        }
+        confirmLabel="Yes, Approve"
+        cancelLabel="Go Back"
+        variant="success"
+        loading={approveDialogState.loading}
+        onConfirm={handleConfirmApprove}
+        onCancel={() =>
+          setApproveDialogState({ open: false, request: null, loading: false })
+        }
+      />
+
+      {/* Rejection Dialog with Reason */}
+      <RejectLeaveDialog
+        open={rejectDialogState.open}
+        request={rejectDialogState.request}
+        loading={rejectDialogState.loading}
+        onConfirm={handleConfirmReject}
+        onCancel={() =>
+          setRejectDialogState({ open: false, request: null, loading: false })
+        }
       />
     </div>
   );

@@ -15,6 +15,12 @@ const ROLE_OPTIONS = [
   { value: "manager", label: "Manager" },
 ];
 
+const STATUS_OPTIONS = [
+  { value: "", label: "All Statuses" },
+  { value: "1", label: "Active" },
+  { value: "2", label: "Inactive" },
+];
+
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +35,10 @@ export default function EmployeesPage() {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const roleDropdownRef = useRef(null);
 
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const statusDropdownRef = useRef(null);
+
   const [sortBy, setSortBy] = useState("");
   const [descending, setDescending] = useState(false);
 
@@ -38,7 +48,7 @@ export default function EmployeesPage() {
   // Bumped after a successful delete to force a refetch
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Click outside to close role dropdown
+  // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -46,6 +56,12 @@ export default function EmployeesPage() {
         !roleDropdownRef.current.contains(event.target)
       ) {
         setRoleDropdownOpen(false);
+      }
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target)
+      ) {
+        setStatusDropdownOpen(false);
       }
     };
 
@@ -79,6 +95,7 @@ export default function EmployeesPage() {
             pageSize: 10,
             search: debouncedSearch,
             role: selectedRole || undefined,
+            status: selectedStatus ? Number(selectedStatus) : undefined,
             sortBy,
             descending,
           },
@@ -98,6 +115,7 @@ export default function EmployeesPage() {
     pageNumber,
     debouncedSearch,
     selectedRole,
+    selectedStatus,
     descending,
     sortBy,
     refreshKey,
@@ -135,6 +153,10 @@ export default function EmployeesPage() {
 
   const currentRoleLabel =
     ROLE_OPTIONS.find((opt) => opt.value === selectedRole)?.label || "All Roles";
+
+  const currentStatusLabel =
+    STATUS_OPTIONS.find((opt) => opt.value === selectedStatus)?.label ||
+    "All Statuses";
 
   return (
     <section className="w-full max-w-[1400px] mx-auto">
@@ -203,6 +225,69 @@ export default function EmployeesPage() {
                       setSelectedRole(opt.value);
                       setPageNumber(1);
                       setRoleDropdownOpen(false);
+                    }}
+                    className={`w-full box-border px-3 py-2 flex items-center justify-between bg-transparent border-none rounded-lg font-sans text-sm font-normal text-left cursor-pointer transition-colors duration-150 ${
+                      isSelected
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <span>{opt.label}</span>
+                    {isSelected && (
+                      <RxCheck
+                        size={16}
+                        className="text-blue-600 shrink-0 ml-2"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Status Filter Dropdown */}
+        <div
+          className="relative min-w-[160px] max-[767px]:w-full"
+          ref={statusDropdownRef}
+        >
+          <button
+            type="button"
+            onClick={() => setStatusDropdownOpen((prev) => !prev)}
+            aria-expanded={statusDropdownOpen}
+            aria-label="Filter employees by status"
+            className={`w-full box-border px-3.5 py-[11px] bg-white text-slate-800 border rounded-lg font-sans text-sm font-normal flex items-center justify-between cursor-pointer outline-none transition-[border-color,box-shadow] duration-150 ${
+              statusDropdownOpen
+                ? "border-blue-600 ring-[3px] ring-blue-600/15"
+                : "border-slate-300 hover:border-slate-400"
+            }`}
+          >
+            <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
+              <span className="text-slate-400 text-xs font-normal">Status:</span>
+              <span className="text-slate-800 font-normal">
+                {currentStatusLabel}
+              </span>
+            </div>
+            <RxChevronDown
+              size={15}
+              className={`text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${
+                statusDropdownOpen ? "rotate-180 text-blue-600" : ""
+              }`}
+            />
+          </button>
+
+          {statusDropdownOpen && (
+            <div className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[170px] p-1.5 box-border bg-white border border-slate-200 rounded-xl shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12),0_8px_10px_-6px_rgba(15,23,42,0.08)] z-30 flex flex-col gap-0.5">
+              {STATUS_OPTIONS.map((opt) => {
+                const isSelected = selectedStatus === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedStatus(opt.value);
+                      setPageNumber(1);
+                      setStatusDropdownOpen(false);
                     }}
                     className={`w-full box-border px-3 py-2 flex items-center justify-between bg-transparent border-none rounded-lg font-sans text-sm font-normal text-left cursor-pointer transition-colors duration-150 ${
                       isSelected
