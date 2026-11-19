@@ -52,7 +52,7 @@ export default function ManagerTeamCalendarPage() {
     let mounted = true;
     async function fetchInitial() {
       try {
-        const types = await leaveApi.getLeaveTypeOptions();
+        const types = await leaveApi.getLeaveTypeOptions(false);
         if (mounted && Array.isArray(types)) {
           setLeaveTypeOptions(types);
         }

@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.Api.Extensions;
+using EmployeeManagementSystem.Api.Extensions;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveType;
 using EmployeeManagementSystem.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +16,9 @@ namespace EmployeeManagementSystem.Api.Controllers
 
         [HttpGet("options")]
         [ProducesResponseType(typeof(List<LeaveTypeOptionsResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetOptions()
+        public async Task<IActionResult> GetOptions([FromQuery] bool activeOnly = true)
         {
-            var response = await _service.GetOptionsAsync();
+            var response = await _service.GetOptionsAsync(activeOnly);
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
     }

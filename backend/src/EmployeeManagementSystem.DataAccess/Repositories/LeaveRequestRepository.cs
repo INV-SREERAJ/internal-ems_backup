@@ -70,7 +70,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
                 return false;                       // nothing changed; disposing the transaction rolls back
 
             history.LeaveRequestId = id;
-            _context.LeaveRequestHistories.Add(history);   // use your real DbSet name
+            _context.LeaveRequestHistories.Add(history);   
             await _context.SaveChangesAsync();
             await tx.CommitAsync();
             return true;

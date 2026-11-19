@@ -56,7 +56,7 @@ export default function EmployeeLeavesPage() {
       try {
         const [yearsRes, typesRes, managerRes] = await Promise.allSettled([
           leaveApi.getMyYears(),
-          leaveApi.getLeaveTypeOptions(),
+          leaveApi.getLeaveTypeOptions(false),
           leaveApi.getMyManager(),
         ]);
 

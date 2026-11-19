@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.Business.Common;
+using EmployeeManagementSystem.Business.Common;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveType;
 
 namespace EmployeeManagementSystem.Business.Interfaces
@@ -12,6 +12,6 @@ namespace EmployeeManagementSystem.Business.Interfaces
         Task<Result<LeaveTypeResponse>> UpdateAsync(int id, UpdateLeaveTypeRequest request);
         Task<Result<LeaveTypeResponse>> SetActiveStatusAsync(int id, bool isActive);
 
-        Task<Result<List<LeaveTypeOptionsResponse>>> GetOptionsAsync();
+        Task<Result<List<LeaveTypeOptionsResponse>>> GetOptionsAsync(bool activeOnly = true);
     }
 }

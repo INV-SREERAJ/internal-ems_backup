@@ -4,9 +4,11 @@ import api from "./axios";
  * Leave API client services
  */
 export const leaveApi = {
-  // Get active leave types
-  getLeaveTypeOptions: async () => {
-    const response = await api.get("/leave-types/options");
+  // Get leave types options (default active only, or all for filtering past records)
+  getLeaveTypeOptions: async (activeOnly = true) => {
+    const response = await api.get("/leave-types/options", {
+      params: { activeOnly },
+    });
     return response.data;
   },
 

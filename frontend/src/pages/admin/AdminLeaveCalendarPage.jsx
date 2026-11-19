@@ -94,7 +94,7 @@ export default function AdminLeaveCalendarPage() {
     async function loadMeta() {
       try {
         const [types, empCount] = await Promise.all([
-          leaveApi.getLeaveTypeOptions(),
+          leaveApi.getLeaveTypeOptions(false),
           adminApi.getActiveEmployeesCount(),
         ]);
 

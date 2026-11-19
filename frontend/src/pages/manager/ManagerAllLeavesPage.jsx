@@ -63,7 +63,7 @@ export default function ManagerAllLeavesPage() {
     let mounted = true;
     async function loadLeaveTypes() {
       try {
-        const types = await leaveApi.getLeaveTypeOptions();
+        const types = await leaveApi.getLeaveTypeOptions(false);
         if (mounted && Array.isArray(types)) {
           setLeaveTypes(types);
         }

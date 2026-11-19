@@ -70,7 +70,7 @@ namespace EmployeeManagementSystem.DataAccess.Repositories
         {
             return await _context.LeaveYearConfigurations
                 .AsNoTracking()
-                .Where(c => c.Year >= year && c.IsActive)
+                .Where(c => c.Year >= year && c.IsActive && c.LeaveType.IsActive)
                 .ToListAsync();
         }
     }

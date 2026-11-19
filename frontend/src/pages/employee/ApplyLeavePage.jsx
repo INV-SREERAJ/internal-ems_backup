@@ -322,8 +322,8 @@ export default function ApplyLeavePage() {
 
   // Manager display name
   const managerDisplayName = useMemo(() => {
-    if (!manager) return "Your reporting manager";
-    return manager.managerName || "Your reporting manager";
+    if (!manager || !manager.managerName) return "Administrator";
+    return manager.managerName;
   }, [manager]);
 
   return (

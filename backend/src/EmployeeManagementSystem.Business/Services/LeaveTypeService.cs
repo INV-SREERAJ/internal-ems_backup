@@ -1,4 +1,4 @@
-﻿using EmployeeManagementSystem.Business.Common;
+using EmployeeManagementSystem.Business.Common;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveType;
 using EmployeeManagementSystem.Business.Interfaces;
 using EmployeeManagementSystem.DataAccess.Entities;
@@ -159,13 +159,13 @@ namespace EmployeeManagementSystem.Business.Services
             return Result<LeaveTypeResponse>.Ok(MapToResponse(leaveType));
         }
 
-        public async Task<Result<List<LeaveTypeOptionsResponse>>> GetOptionsAsync()
+        public async Task<Result<List<LeaveTypeOptionsResponse>>> GetOptionsAsync(bool activeOnly = true)
         {
-            _logger.LogInformation("Fetching active leave type options");
+            _logger.LogInformation("Fetching leave type options, activeOnly: {ActiveOnly}", activeOnly);
 
-            var leaveTypes = await _repository.GetAllAsync(activeOnly: true);
+            var leaveTypes = await _repository.GetAllAsync(activeOnly: activeOnly);
 
-            _logger.LogInformation("Fetched {Count} active leave type options", leaveTypes.Count);
+            _logger.LogInformation("Fetched {Count} leave type options", leaveTypes.Count);
 
             return Result<List<LeaveTypeOptionsResponse>>.Ok(leaveTypes.Select(l => new LeaveTypeOptionsResponse
             {
