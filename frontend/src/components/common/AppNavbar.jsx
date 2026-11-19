@@ -36,9 +36,11 @@ export default function AppNavbar({ onMenuClick, role }) {
     "w-full box-border flex items-center gap-2.5 px-3 py-2 bg-transparent text-slate-700 border-none rounded-lg font-sans text-sm text-left no-underline cursor-pointer transition-colors duration-150 hover:bg-red-50 hover:text-red-600";
 
   const profileMenuItems = config.profileMenu ? config.profileMenu(user) : [];
-  const profileButtonText = config.getProfileButtonText
-    ? config.getProfileButtonText(user)
-    : "Profile";
+  const profileButtonText = user?.firstName
+    ? user.firstName.charAt(0).toUpperCase()
+    : user?.role
+    ? user.role.charAt(0).toUpperCase()
+    : "U";
 
   return (
     <header className="fixed top-0 inset-x-0 h-16 box-border flex items-center justify-between bg-slate-900 text-white z-[100] px-6 max-[767px]:px-4 max-[480px]:px-3">
@@ -71,9 +73,10 @@ export default function AppNavbar({ onMenuClick, role }) {
       <div className="relative" ref={profileRef}>
         <button
           type="button"
-          className="bg-blue-600 text-white border-none rounded-lg font-sans text-sm font-semibold cursor-pointer transition-colors duration-150 hover:bg-blue-700 px-4 py-[9px] max-[767px]:px-3 max-[767px]:py-2 max-[480px]:text-[13px]"
+          className="w-9 h-9 p-0 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white font-sans text-sm font-semibold cursor-pointer border-none transition-colors duration-150 select-none shadow-sm"
           onClick={() => setProfileOpen((current) => !current)}
           aria-expanded={profileOpen}
+          title="Account"
         >
           {profileButtonText}
         </button>

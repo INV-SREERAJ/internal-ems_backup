@@ -5,6 +5,7 @@ import {
   HiOutlinePencilSquare,
   HiOutlineUser,
   HiOutlineUserGroup,
+  HiOutlineCalendarDays,
 } from "react-icons/hi2";
 import { ROLES, ROLE_LABEL } from "../utils/constants";
 
@@ -40,6 +41,32 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUserPlus,
         end: true,
       },
+      {
+        label: "Leave Management",
+        icon: HiOutlineCalendarDays,
+        children: [
+          {
+            to: "/admin/leave-types",
+            label: "Leave Types",
+          },
+          {
+            to: "/admin/yearly-configuration",
+            label: "Yearly Configuration",
+          },
+          {
+            to: "/admin/leave-requests",
+            label: "All Leave requests",
+          },
+          {
+            to: "/admin/employee-leave-balances",
+            label: "Employee Leave balances",
+          },
+          {
+            to: "/admin/leave-calendar",
+            label: "Leave Calendar",
+          },
+        ],
+      },
     ],
     profileMenu: (user) => [
       {
@@ -48,7 +75,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlinePencilSquare,
       },
     ],
-    getProfileButtonText: () => "Profile",
   },
 
   [ROLE_LABEL[ROLES.Manager]]: {
@@ -72,6 +98,24 @@ export const ROLE_LAYOUT_CONFIG = {
         end: true,
       },
       {
+        label: "Team Leaves",
+        icon: HiOutlineCalendarDays,
+        children: [
+          {
+            to: "/manager/leaves/pending",
+            label: "Pending Requests",
+          },
+          {
+            to: "/manager/leaves/all",
+            label: "All Team Leaves",
+          },
+          {
+            to: "/manager/leaves/calendar",
+            label: "Team Calendar",
+          },
+        ],
+      },
+      {
         to: "/manager/my-manager",
         label: "My Manager",
         icon: HiOutlineUsers,
@@ -83,7 +127,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
         end: true,
       },
-
     ],
     profileMenu: () => [
       {
@@ -92,7 +135,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
       },
     ],
-    getProfileButtonText: () => "Profile",
   },
 
   [ROLE_LABEL[ROLES.Employee]]: {
@@ -110,6 +152,27 @@ export const ROLE_LAYOUT_CONFIG = {
         end: true,
       },
       {
+        label: "My Leaves",
+        icon: HiOutlineCalendarDays,
+        children: [
+          {
+            to: "/employee/leaves/apply",
+            label: "Apply",
+            end: true,
+          },
+          {
+            to: "/employee/leaves",
+            label: "Balances and Requests",
+            end: true,
+          },
+          {
+            to: "/employee/leaves/calendar",
+            label: "Leave Calendar",
+            end: true,
+          },
+        ],
+      },
+      {
         to: "/employee/profile",
         label: "My Profile",
         icon: HiOutlineUser,
@@ -123,7 +186,6 @@ export const ROLE_LAYOUT_CONFIG = {
         icon: HiOutlineUser,
       },
     ],
-    getProfileButtonText: () => "Profile",
   },
 };
 

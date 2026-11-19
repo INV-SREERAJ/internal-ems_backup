@@ -1,4 +1,5 @@
-﻿using EmployeeManagementSystem.Api.Extensions;
+using EmployeeManagementSystem.Business.DTOs.Admin;
+using EmployeeManagementSystem.Api.Extensions;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveRequest;
 using EmployeeManagementSystem.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,41 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
     {
         private readonly ILeaveRequestService _service;
         public AdminLeaveRequestController(ILeaveRequestService service) => _service = service;
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<TeamLeaveRequestListItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetAll([FromQuery] TeamLeaveRequestFilter filter)
+        {
+            var response = await _service.GetAllRequestsAsync(filter);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(LeaveRequestDetailResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var response = await _service.GetRequestByIdForAdminAsync(id);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
+        [HttpGet("{id}/history")]
+        [ProducesResponseType(typeof(LeaveRequestHistoryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetHistory(int id)
+        {
+            var response = await _service.GetAdminHistoryAsync(id);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
 
         [HttpPatch("{id}/approve")]
         [ProducesResponseType(typeof(LeaveRequestResponse), StatusCodes.Status200OK)]

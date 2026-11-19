@@ -7,6 +7,7 @@ export default function ConfirmDialog({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   danger = false,
+  variant = "primary", // "primary" | "danger" | "success"
   loading = false,
   onConfirm,
   onCancel,
@@ -31,6 +32,16 @@ export default function ConfirmDialog({
   const btnBase =
     "px-4 py-[9px] border rounded-lg font-sans text-[13px] font-semibold cursor-pointer transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed";
 
+  const getConfirmBtnClass = () => {
+    if (danger || variant === "danger") {
+      return "bg-red-600 text-white border-red-600 hover:bg-red-700";
+    }
+    if (variant === "success") {
+      return "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700";
+    }
+    return "bg-blue-600 text-white border-blue-600 hover:bg-blue-700";
+  };
+
   return (
     <div
       className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/45 [animation:confirm-dialog-fade-in_0.15s_ease]"
@@ -39,18 +50,18 @@ export default function ConfirmDialog({
       }}
     >
       <div
-        className="w-full max-w-[400px] p-6 bg-white rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] [animation:confirm-dialog-slide-up_0.15s_ease]"
+        className="w-full max-w-[420px] p-6 bg-white rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] [animation:confirm-dialog-slide-up_0.15s_ease]"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-message"
       >
-        <h2 id="confirm-dialog-title" className="m-0 mb-2 text-slate-900 text-lg font-bold">
+        <h2 id="confirm-dialog-title" className="m-0 mb-2.5 text-slate-900 text-lg font-bold">
           {title}
         </h2>
 
         {message && (
-          <p id="confirm-dialog-message" className="m-0 mb-5 text-slate-500 text-sm leading-normal">
+          <p id="confirm-dialog-message" className="m-0 mb-6 text-slate-600 text-sm leading-relaxed">
             {message}
           </p>
         )}
@@ -67,10 +78,7 @@ export default function ConfirmDialog({
           <button
             ref={confirmBtnRef}
             type="button"
-            className={`${btnBase} ${danger
-                ? "bg-red-600 text-white border-red-600 hover:bg-red-700"
-                : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
-              }`}
+            className={`${btnBase} ${getConfirmBtnClass()}`}
             onClick={onConfirm}
             disabled={loading}
           >

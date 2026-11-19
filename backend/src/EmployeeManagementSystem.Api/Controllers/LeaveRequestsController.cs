@@ -1,4 +1,5 @@
 using EmployeeManagementSystem.Api.Extensions;
+using EmployeeManagementSystem.Business.DTOs.Admin;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveRequest;
 using EmployeeManagementSystem.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -46,6 +47,23 @@ namespace EmployeeManagementSystem.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = response.Value!.Id }, response.Value);
         }
 
+        [HttpGet("me")]
+        [ProducesResponseType(typeof(PagedResponse<MyLeaveRequestListItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetMine([FromQuery] LeaveRequestFilter filter)
+        {
+            var employeeCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(employeeCode))
+            {
+                return Unauthorized(new { Message = "Unauthorized." });
+            }
+
+            var response = await _leaveRequestService.GetMyRequestsAsync(employeeCode, filter);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(LeaveRequestResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,6 +79,24 @@ namespace EmployeeManagementSystem.Api.Controllers
             }
 
             var response = await _leaveRequestService.GetMyRequestByIdAsync(employeeCode, id);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
+        [HttpGet("{id}/history")]
+        [ProducesResponseType(typeof(LeaveRequestHistoryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetHistory(int id)
+        {
+            var employeeCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(employeeCode))
+            {
+                return Unauthorized(new { Message = "Unauthorized." });
+            }
+
+            var response = await _leaveRequestService.GetMyHistoryAsync(employeeCode, id);
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 
