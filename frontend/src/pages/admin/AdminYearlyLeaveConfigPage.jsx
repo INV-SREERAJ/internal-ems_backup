@@ -533,68 +533,70 @@ export default function AdminYearlyLeaveConfigPage() {
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 md:px-6 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          {isEditing ? (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => handleSaveEdit(cfg)}
-                                disabled={isSaving}
-                                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
-                              >
-                                {isSaving && (
-                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="flex items-center justify-center">
+                          <div className="inline-flex items-center justify-start gap-2 min-w-[200px]">
+                            {isEditing ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveEdit(cfg)}
+                                  disabled={isSaving}
+                                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+                                >
+                                  {isSaving && (
+                                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  )}
+                                  <span>Save</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={handleCancelEdit}
+                                  disabled={isSaving}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                {!isPastYear && (
+                                  <>
+                                    {/* Edit Button */}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartEdit(cfg)}
+                                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-2xs transition-colors cursor-pointer"
+                                    >
+                                      Edit
+                                    </button>
+
+                                    {/* Disable / Enable Button */}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenToggleStatus(cfg)}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer ${
+                                        cfg.isActive
+                                          ? "bg-rose-600 hover:bg-rose-700"
+                                          : "bg-emerald-600 hover:bg-emerald-700"
+                                      }`}
+                                    >
+                                      {cfg.isActive ? "Disable" : "Enable"}
+                                    </button>
+                                  </>
                                 )}
-                                <span>Save</span>
-                              </button>
 
-                              <button
-                                type="button"
-                                onClick={handleCancelEdit}
-                                disabled={isSaving}
-                                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              {!isPastYear && (
-                                <>
-                                  {/* Edit Button */}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleStartEdit(cfg)}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-2xs transition-colors cursor-pointer"
-                                  >
-                                    Edit
-                                  </button>
-
-                                  {/* Disable / Enable Button */}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenToggleStatus(cfg)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer ${
-                                      cfg.isActive
-                                        ? "bg-rose-600 hover:bg-rose-700"
-                                        : "bg-emerald-600 hover:bg-emerald-700"
-                                    }`}
-                                  >
-                                    {cfg.isActive ? "Disable" : "Enable"}
-                                  </button>
-                                </>
-                              )}
-
-                              {/* View Details Button */}
-                              <button
-                                type="button"
-                                onClick={() => setViewingConfig(cfg)}
-                                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-white hover:bg-blue-50 border border-blue-600 transition-colors cursor-pointer"
-                              >
-                                View
-                              </button>
-                            </>
-                          )}
+                                {/* View Details Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => setViewingConfig(cfg)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-white hover:bg-blue-50 border border-blue-600 transition-colors cursor-pointer"
+                                >
+                                  View
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
