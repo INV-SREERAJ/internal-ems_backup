@@ -12,10 +12,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Repositories
+        // Repositories (Entity-Aggregated)
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-        services.AddScoped<IAdminRepository, AdminRepository>();
-        services.AddScoped<IManagerRepository, ManagerRepository>();
         services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
         services.AddScoped<ILeaveYearConfigurationRepository, LeaveYearConfigurationRepository>();
         services.AddScoped<IEmployeeLeaveBalanceRepository, EmployeeLeaveBalanceRepository>();
@@ -23,14 +21,14 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpContextAccessor();
 
-        // Services
-        services.AddScoped<IAdminService, AdminService>();
+        // Services (Domain-Focused)
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IEmployeeCodeGenerator, EmployeeCodeGenerator>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<IManagerService, ManagerService>();
         services.AddScoped<ILeaveTypeService, LeaveTypeService>();
         services.AddScoped<ILeaveYearConfigurationService, LeaveYearConfigurationService>();
         services.AddScoped<ILeaveBalanceService, LeaveBalanceService>();

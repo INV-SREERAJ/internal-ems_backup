@@ -1,21 +1,21 @@
-﻿using EmployeeManagementSystem.Api.Extensions;
+using EmployeeManagementSystem.Api.Extensions;
 using EmployeeManagementSystem.Business.DTOs.Leave.LeaveType;
 using EmployeeManagementSystem.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmployeeManagementSystem.Api.Controllers.Admin
+namespace EmployeeManagementSystem.Api.Controllers
 {
     [ApiController]
-    [Route("/api/admin/leave-types")]
-    [Authorize(Roles = "Admin")]
-    public class AdminLeaveTypesController : ControllerBase
+    [Route("api/leave-types")]
+    [Route("api/admin/leave-types")] // Legacy route compatibility
+    [Authorize]
+    public class LeaveTypesController : ControllerBase
     {
-
         private readonly ILeaveTypeService _service;
-        private readonly ILogger<AdminLeaveTypesController> _logger;
+        private readonly ILogger<LeaveTypesController> _logger;
 
-        public AdminLeaveTypesController(ILeaveTypeService service, ILogger<AdminLeaveTypesController> logger)
+        public LeaveTypesController(ILeaveTypeService service, ILogger<LeaveTypesController> logger)
         {
             _service = service;
             _logger = logger;
@@ -23,9 +23,17 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
 
         [HttpGet]
         [ProducesResponseType(typeof(List<LeaveTypeResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetLeaveTypes([FromQuery] bool activeOnly = true)
+        public async Task<IActionResult> GetLeaveTypes([FromQuery] bool activeOnly = false)
         {
             var response = await _service.GetAllAsync(activeOnly);
+            return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
+        }
+
+        [HttpGet("options")]
+        [ProducesResponseType(typeof(List<LeaveTypeOptionsResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetOptions([FromQuery] bool activeOnly = true)
+        {
+            var response = await _service.GetOptionsAsync(activeOnly);
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 
@@ -39,7 +47,9 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(LeaveTypeResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateLeaveType([FromBody] CreateLeaveTypeRequest request)
         {
@@ -51,6 +61,7 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(LeaveTypeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -61,6 +72,7 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
         }
 
         [HttpPatch("{id:int}/status")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(LeaveTypeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeLeaveTypeStatusRequest request)
@@ -68,7 +80,5 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
             var response = await _service.SetActiveStatusAsync(id, request.IsActive!.Value);
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
-
-
     }
 }

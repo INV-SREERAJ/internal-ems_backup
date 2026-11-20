@@ -409,9 +409,24 @@ namespace EmployeeManagementSystem.Business.Services
 
             var expected = request.Status;
             var newStatus = approve ? LeaveStatus.Approved : LeaveStatus.Rejected;
-            if (!approve && request.Status == LeaveStatus.Approved && request.FromDate < DateOnly.FromDateTime(DateTime.UtcNow))
+
+            if (!approve && request.Status == LeaveStatus.Approved)
             {
-                return Result<LeaveRequestResponse>.Fail(ErrorType.Conflict, "Cannot reject an approved leave that has already started or passed.");
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+                if (request.FromDate <= today)
+                {
+                    if (request.FromDate == today)
+                    {
+                        return Result<LeaveRequestResponse>.Fail(
+                            ErrorType.Conflict,
+                            "Approved leave must be rejected at least one day prior to the start date. Rejection failed.");
+                    }
+
+                    return Result<LeaveRequestResponse>.Fail(
+                        ErrorType.Conflict,
+                        "Cannot reject an approved leave that has already started or passed.");
+                }
             }
             var now = DateTime.UtcNow;
 

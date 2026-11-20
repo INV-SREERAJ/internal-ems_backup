@@ -45,6 +45,7 @@ export default function ManagerPendingRequestsPage() {
     open: false,
     request: null,
     loading: false,
+    error: "",
   });
 
   // Debounce search input
@@ -171,13 +172,14 @@ export default function ManagerPendingRequestsPage() {
       open: true,
       request: req,
       loading: false,
+      error: "",
     });
   };
 
   const handleConfirmReject = async (requestId, reason) => {
     const req = rejectDialogState.request;
     try {
-      setRejectDialogState((prev) => ({ ...prev, loading: true }));
+      setRejectDialogState((prev) => ({ ...prev, loading: true, error: "" }));
       await leaveApi.rejectTeamRequest(requestId, reason);
 
       setFeedback({
@@ -185,7 +187,7 @@ export default function ManagerPendingRequestsPage() {
         message: `Leave request for ${req?.employeeName || "employee"} has been rejected.`,
       });
 
-      setRejectDialogState({ open: false, request: null, loading: false });
+      setRejectDialogState({ open: false, request: null, loading: false, error: "" });
       if (activeRequest?.id === requestId) {
         setActiveRequest(null);
       }
@@ -193,14 +195,15 @@ export default function ManagerPendingRequestsPage() {
       fetchPendingRequests();
     } catch (err) {
       console.error("Failed to reject request:", err);
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        "Failed to reject leave request.";
       setFeedback({
         type: "error",
-        message:
-          err.response?.data?.message ||
-          err.response?.data?.detail ||
-          "Failed to reject leave request.",
+        message: msg,
       });
-      setRejectDialogState((prev) => ({ ...prev, loading: false }));
+      setRejectDialogState((prev) => ({ ...prev, loading: false, error: msg }));
     }
   };
 
@@ -492,6 +495,7 @@ export default function ManagerPendingRequestsPage() {
               <Pagination
                 pageNumber={page}
                 totalPages={totalPages}
+                onPageClick={(p) => setPage(p)}
                 onPageChange={(p) => setPage(p)}
               />
             )}
@@ -529,9 +533,10 @@ export default function ManagerPendingRequestsPage() {
         open={rejectDialogState.open}
         request={rejectDialogState.request}
         loading={rejectDialogState.loading}
+        apiError={rejectDialogState.error}
         onConfirm={handleConfirmReject}
         onCancel={() =>
-          setRejectDialogState({ open: false, request: null, loading: false })
+          setRejectDialogState({ open: false, request: null, loading: false, error: "" })
         }
       />
     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { HiOutlineExclamationCircle } from "react-icons/hi2";
 
 /**
  * Shared dialog for Manager and Admin to enter a required rejection reason
@@ -8,6 +9,7 @@ import { useState, useEffect, useRef } from "react";
  *  - open: boolean
  *  - request: object | null
  *  - loading: boolean
+ *  - apiError: string | null
  *  - onConfirm: (requestId, reason) => void
  *  - onCancel: () => void
  */
@@ -15,6 +17,7 @@ export default function RejectLeaveDialog({
   open,
   request,
   loading = false,
+  apiError = "",
   onConfirm,
   onCancel,
 }) {
@@ -142,6 +145,13 @@ export default function RejectLeaveDialog({
               </span>
             )}
           </div>
+
+          {apiError && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
+              <HiOutlineExclamationCircle size={16} className="shrink-0 mt-0.5 text-rose-600" />
+              <span className="font-medium leading-relaxed">{apiError}</span>
+            </div>
+          )}
 
           <div className="flex justify-end items-center gap-2.5 pt-1">
             <button

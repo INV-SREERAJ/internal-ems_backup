@@ -4,19 +4,20 @@ using EmployeeManagementSystem.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmployeeManagementSystem.Api.Controllers.Admin
+namespace EmployeeManagementSystem.Api.Controllers
 {
     [ApiController]
-    [Route("api/admin/leave-year-configurations")]
+    [Route("api/leave-year-configurations")]
+    [Route("api/admin/leave-year-configurations")] // Legacy route compatibility
     [Authorize(Roles = "Admin")]
-    public class AdminLeaveYearConfigurationsController : ControllerBase
+    public class LeaveYearConfigurationsController : ControllerBase
     {
         private readonly ILeaveYearConfigurationService _service;
-        private readonly ILogger<AdminLeaveYearConfigurationsController> _logger;
+        private readonly ILogger<LeaveYearConfigurationsController> _logger;
 
-        public AdminLeaveYearConfigurationsController(
+        public LeaveYearConfigurationsController(
             ILeaveYearConfigurationService service,
-            ILogger<AdminLeaveYearConfigurationsController> logger)
+            ILogger<LeaveYearConfigurationsController> logger)
         {
             _service = service;
             _logger = logger;
@@ -31,7 +32,7 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(LeaveYearConfigurationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,12 +51,14 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
         {
             var response = await _service.CreateAsync(request);
             if (!response.Success)
+            {
                 return this.ToErrorActionResult(response);
+            }
 
             return CreatedAtAction(nameof(GetConfiguration), new { id = response.Value!.Id }, response.Value);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(LeaveYearConfigurationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -66,11 +69,10 @@ namespace EmployeeManagementSystem.Api.Controllers.Admin
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 
-        [HttpPatch("{id}/status")]
+        [HttpPatch("{id:int}/status")]
         [ProducesResponseType(typeof(LeaveYearConfigurationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeLeaveYearConfigurationStatusRequest request)
         {
             var response = await _service.SetActiveStatusAsync(id, request.IsActive!.Value);

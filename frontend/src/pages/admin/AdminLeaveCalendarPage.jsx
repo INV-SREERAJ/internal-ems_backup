@@ -75,6 +75,7 @@ export default function AdminLeaveCalendarPage() {
     open: false,
     request: null,    
     loading: false,
+    error: "",
   });
 
   const showFeedback = (type, message) => {
@@ -277,6 +278,7 @@ export default function AdminLeaveCalendarPage() {
       open: true,
       request: req,
       loading: false,
+      error: "",
     });
   };
 
@@ -285,10 +287,10 @@ export default function AdminLeaveCalendarPage() {
     if (!target) return;
 
     try {
-      setRejectDialogState((prev) => ({ ...prev, loading: true }));
+      setRejectDialogState((prev) => ({ ...prev, loading: true, error: "" }));
       await adminApi.rejectLeaveRequest(requestId, reason);
 
-      setRejectDialogState({ open: false, request: null, loading: false });
+      setRejectDialogState({ open: false, request: null, loading: false, error: "" });
       if (activeRequest && activeRequest.id === target.id) {
         setActiveRequest(null);
       }
@@ -299,11 +301,9 @@ export default function AdminLeaveCalendarPage() {
       );
     } catch (err) {
       console.error("Failed to reject leave request:", err);
-      setRejectDialogState((prev) => ({ ...prev, loading: false }));
-      showFeedback(
-        "error",
-        err.response?.data?.message || "Failed to reject leave request."
-      );
+      const msg = err.response?.data?.message || err.response?.data?.detail || "Failed to reject leave request.";
+      setRejectDialogState((prev) => ({ ...prev, loading: false, error: msg }));
+      showFeedback("error", msg);
     }
   };
 
@@ -546,9 +546,10 @@ export default function AdminLeaveCalendarPage() {
         open={rejectDialogState.open}
         request={rejectDialogState.request}
         loading={rejectDialogState.loading}
+        apiError={rejectDialogState.error}
         onConfirm={handleConfirmReject}
         onCancel={() =>
-          setRejectDialogState({ open: false, request: null, loading: false })
+          setRejectDialogState({ open: false, request: null, loading: false, error: "" })
         }
       />
     </div>

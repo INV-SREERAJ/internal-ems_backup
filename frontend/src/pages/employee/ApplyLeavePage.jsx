@@ -158,6 +158,7 @@ export default function ApplyLeavePage() {
           // Leave types options from backend
           if (typesRes.status === "fulfilled" && Array.isArray(typesRes.value)) {
             setLeaveTypes(typesRes.value);
+            console.log(typesRes);
             // Leave types dropdown defaults to empty placeholder ("Select a leave type")
             setSelectedLeaveTypeId("");
           }

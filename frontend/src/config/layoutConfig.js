@@ -173,6 +173,12 @@ export const ROLE_LAYOUT_CONFIG = {
         ],
       },
       {
+        to: "/employee/my-manager",
+        label: "My Manager",
+        icon: HiOutlineUsers,
+        end: true,
+      },
+      {
         to: "/employee/profile",
         label: "My Profile",
         icon: HiOutlineUser,
