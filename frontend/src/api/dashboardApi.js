@@ -15,6 +15,12 @@ export const dashboardApi = {
     const response = await api.get("/dashboard/manager");
     return response.data;
   },
+
+  // Employee dashboard composite payload
+  getEmployeeDashboard: async () => {
+    const response = await api.get("/dashboard/employee");
+    return response.data;
+  },
 };
 
 export default dashboardApi;

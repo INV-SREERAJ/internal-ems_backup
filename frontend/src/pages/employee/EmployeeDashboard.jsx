@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
-import { HiOutlinePlus } from "react-icons/hi2";
+import { HiOutlinePlus, HiOutlineCalendar } from "react-icons/hi2";
 import useAuth from "../../hooks/useAuth";
-import leaveApi from "../../api/leaveApi";
+import dashboardApi from "../../api/dashboardApi";
 import LeaveStatusBadge from "../../components/leave/LeaveStatusBadge";
 import { formatLeaveDateRange } from "../../utils/dateUtils";
 
@@ -36,40 +36,17 @@ export default function EmployeeDashboard() {
         setLoading(true);
         setError(null);
 
-        const currentYear = new Date().getFullYear();
-
-        const [balancesRes, requestsRes, managerRes] = await Promise.allSettled([
-          leaveApi.getMyBalances(currentYear),
-          leaveApi.getMyRequests({ page: 1, pageSize: 5 }),
-          leaveApi.getMyManager(),
-        ]);
+        // Single clean BFF endpoint
+        const res = await dashboardApi.getEmployeeDashboard();
 
         if (!mounted) return;
 
-        // Leave Balances
-        if (balancesRes.status === "fulfilled" && Array.isArray(balancesRes.value)) {
-          setBalances(balancesRes.value);
-        }
-
-        // Latest Request
-        if (requestsRes.status === "fulfilled" && requestsRes.value) {
-          const reqList =
-            requestsRes.value.data ||
-            requestsRes.value.items ||
-            (Array.isArray(requestsRes.value) ? requestsRes.value : []);
-          if (reqList.length > 0) {
-            setLatestRequest(reqList[0]);
-          } else {
-            setLatestRequest(null);
-          }
-        }
-
-        // Manager details
-        if (managerRes.status === "fulfilled" && managerRes.value) {
-          setManager(managerRes.value);
-        }
+        setBalances(Array.isArray(res?.balances) ? res.balances : []);
+        setLatestRequest(res?.latestRequest || null);
+        setManager(res?.manager || null);
       } catch (err) {
         if (mounted) {
+          console.error("Failed to load employee dashboard:", err);
           setError(err.response?.data?.message || "Failed to load dashboard data.");
         }
       } finally {
@@ -85,18 +62,6 @@ export default function EmployeeDashboard() {
       mounted = false;
     };
   }, []);
-
-  // Display cards: if balances is empty, provide sensible defaults so UI mirrors design
-  const displayBalances = useMemo(() => {
-    if (balances && balances.length > 0) {
-      return balances;
-    }
-    return [
-      { leaveTypeId: 1, leaveTypeName: "Casual leave", availableDays: 0 },
-      { leaveTypeId: 2, leaveTypeName: "Earned leave", availableDays: 0 },
-      { leaveTypeId: 3, leaveTypeName: "Sick leave", availableDays: 0 },
-    ];
-  }, [balances]);
 
   const userName = user?.firstName || user?.name || "Employee";
 
@@ -117,7 +82,7 @@ export default function EmployeeDashboard() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm min-h-[130px] flex flex-col justify-between"
+              className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs min-h-[130px] flex flex-col justify-between"
             >
               <div className="h-4 w-28 bg-slate-100 rounded" />
               <div className="h-8 w-24 bg-slate-200 rounded mt-4" />
@@ -127,12 +92,12 @@ export default function EmployeeDashboard() {
 
         {/* Bottom Cards Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm min-h-[130px] lg:col-span-2 flex flex-col justify-between">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs min-h-[130px] lg:col-span-2 flex flex-col justify-between">
             <div className="h-4 w-28 bg-slate-100 rounded" />
             <div className="h-6 w-56 bg-slate-200 rounded mt-4" />
           </div>
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm min-h-[130px] flex flex-col justify-between">
-            <div className="h-4 w-32 bg-slate-100 rounded" />
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs min-h-[130px] flex flex-col justify-between">
+            <div className="h-4 w-28 bg-slate-100 rounded" />
             <div className="h-6 w-36 bg-slate-200 rounded mt-4" />
           </div>
         </div>
@@ -142,10 +107,10 @@ export default function EmployeeDashboard() {
 
   return (
     <section className="w-full max-w-[1200px] mx-auto pt-2 pb-12">
-      {/* Top Greeting Header */}
+      {/* Greeting Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="m-0 text-slate-900 text-2xl sm:text-[28px] font-bold tracking-[-0.5px]">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-[-0.5px] text-slate-900 m-0">
             {greeting}, {userName}
           </h1>
           <p className="mt-1.5 mb-0 text-slate-500 text-sm font-medium">
@@ -155,7 +120,7 @@ export default function EmployeeDashboard() {
 
         <Link
           to="/employee/leaves/apply"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-sm hover:shadow transition-all shrink-0 self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-xs hover:shadow-sm transition-all shrink-0 self-start sm:self-auto cursor-pointer"
         >
           <HiOutlinePlus size={18} />
           <span>Apply leave</span>
@@ -168,32 +133,46 @@ export default function EmployeeDashboard() {
         </div>
       )}
 
-      {/* Row 1: Leave Balance Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
-        {displayBalances.map((item) => (
-          <div
-            key={item.leaveTypeId || item.leaveTypeCode || item.leaveTypeName}
-            className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between min-h-[130px]"
-          >
-            <span className="text-slate-500 text-sm font-medium">
-              {item.leaveTypeName}
-            </span>
-            <div className="mt-4 flex items-baseline">
-              <span className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
-                {item.availableDays ?? 0}
+      {/* Row 1: Leave Balance Cards or Clean Empty State */}
+      {balances.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+          {balances.map((item) => (
+            <div
+              key={item.leaveTypeId || item.leaveTypeCode || item.leaveTypeName}
+              className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs hover:shadow-sm transition-shadow flex flex-col justify-between min-h-[130px]"
+            >
+              <span className="text-slate-500 text-sm font-medium">
+                {item.leaveTypeName}
               </span>
-              <span className="text-slate-500 font-medium text-sm lg:text-base ml-2">
-                {item.availableDays === 1 ? "day left" : "days left"}
-              </span>
+              <div className="mt-4 flex items-baseline">
+                <span className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+                  {item.availableDays ?? 0}
+                </span>
+                <span className="text-slate-500 font-medium text-sm lg:text-base ml-2">
+                  {item.availableDays === 1 ? "day left" : "days left"}
+                </span>
+              </div>
             </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-8 mb-5 text-center flex flex-col items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
+            <HiOutlineCalendar size={22} />
           </div>
-        ))}
-      </div>
+          <p className="text-base font-semibold text-slate-800 m-0">
+            No leave balances allocated yet
+          </p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm m-0">
+            Your leave quotas for the current year have not been assigned yet. Please contact your HR administrator.
+          </p>
+        </div>
+      )}
 
       {/* Row 2: Latest Request & Reporting Manager */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Latest Request Card */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between min-h-[130px] lg:col-span-2">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs hover:shadow-sm transition-shadow flex flex-col justify-between min-h-[130px] lg:col-span-2">
           <div className="flex items-center justify-between">
             <span className="text-slate-500 text-sm font-medium">
               Latest request
@@ -201,7 +180,7 @@ export default function EmployeeDashboard() {
             {latestRequest && (
               <Link
                 to="/employee/leaves"
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline cursor-pointer"
               >
                 View all
               </Link>
@@ -226,7 +205,7 @@ export default function EmployeeDashboard() {
               </span>
               <Link
                 to="/employee/leaves/apply"
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline cursor-pointer"
               >
                 Apply now
               </Link>
@@ -235,15 +214,15 @@ export default function EmployeeDashboard() {
         </div>
 
         {/* Reporting Manager Card */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between min-h-[130px] lg:col-span-1">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs hover:shadow-sm transition-shadow flex flex-col justify-between min-h-[130px] lg:col-span-1">
           <div className="flex items-center justify-between">
             <span className="text-slate-500 text-sm font-medium">
               Reporting manager
             </span>
             {manager && (
               <Link
-                to="/employee/my-manager"
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                to="/profile"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline cursor-pointer"
               >
                 View details
               </Link>

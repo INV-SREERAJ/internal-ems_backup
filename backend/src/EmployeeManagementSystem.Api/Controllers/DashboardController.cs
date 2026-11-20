@@ -1,5 +1,6 @@
 using EmployeeManagementSystem.Api.Extensions;
 using EmployeeManagementSystem.Business.DTOs.Admin;
+using EmployeeManagementSystem.Business.DTOs.Employee;
 using EmployeeManagementSystem.Business.DTOs.Manager;
 using EmployeeManagementSystem.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -47,6 +48,22 @@ namespace EmployeeManagementSystem.Api.Controllers
             }
 
             var result = await _dashboardService.GetManagerDashboardStatsAsync(managerCode);
+            return result.Success ? Ok(result.Value) : this.ToErrorActionResult(result);
+        }
+
+        [HttpGet("employee")]
+        [ProducesResponseType(typeof(EmployeeDashboardDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetEmployeeDashboard()
+        {
+            _logger.LogInformation("GET /api/dashboard/employee initiated.");
+            var employeeCode = User.FindFirst("EmployeeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(employeeCode))
+            {
+                return Unauthorized(new { message = "Employee code is missing." });
+            }
+
+            var result = await _dashboardService.GetEmployeeDashboardAsync(employeeCode);
             return result.Success ? Ok(result.Value) : this.ToErrorActionResult(result);
         }
     }

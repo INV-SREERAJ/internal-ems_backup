@@ -385,7 +385,7 @@ namespace EmployeeManagementSystem.Business.Services
             }
         }
 
-        //login
+        //logout
         public async Task LogoutAsync()
         {
             var refreshToken = _httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
