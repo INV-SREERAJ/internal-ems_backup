@@ -63,7 +63,7 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpGet("team")]
-        [Route("/api/manager/leave-requests")] // Legacy route compatibility
+        [HttpGet("/api/manager/leave-requests")] // Legacy route compatibility
         [Authorize(Roles = "Manager,Admin")]
         [ProducesResponseType(typeof(PagedResponse<TeamLeaveRequestListItem>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -80,8 +80,8 @@ namespace EmployeeManagementSystem.Api.Controllers
             return response.Success ? Ok(response.Value) : this.ToErrorActionResult(response);
         }
 
-        [HttpGet]
-        [Route("/api/admin/leave-requests")] // Legacy route compatibility
+        [HttpGet("")]
+        [HttpGet("/api/admin/leave-requests")] // Legacy route compatibility
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(PagedResponse<TeamLeaveRequestListItem>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -93,8 +93,8 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [Route("/api/manager/leave-requests/{id:int}")] // Legacy route compatibility
-        [Route("/api/admin/leave-requests/{id:int}")]   // Legacy route compatibility
+        [HttpGet("/api/manager/leave-requests/{id:int}")] // Legacy route compatibility
+        [HttpGet("/api/admin/leave-requests/{id:int}")]   // Legacy route compatibility
         [ProducesResponseType(typeof(LeaveRequestDetailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -125,8 +125,8 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpGet("{id:int}/history")]
-        [Route("/api/manager/leave-requests/{id:int}/history")] // Legacy route compatibility
-        [Route("/api/admin/leave-requests/{id:int}/history")]   // Legacy route compatibility
+        [HttpGet("/api/manager/leave-requests/{id:int}/history")] // Legacy route compatibility
+        [HttpGet("/api/admin/leave-requests/{id:int}/history")]   // Legacy route compatibility
         [ProducesResponseType(typeof(LeaveRequestHistoryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -171,8 +171,8 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpPatch("{id:int}/approve")]
-        [Route("/api/manager/leave-requests/{id:int}/approve")] // Legacy route compatibility
-        [Route("/api/admin/leave-requests/{id:int}/approve")]   // Legacy route compatibility
+        [HttpPatch("/api/manager/leave-requests/{id:int}/approve")] // Legacy route compatibility
+        [HttpPatch("/api/admin/leave-requests/{id:int}/approve")]   // Legacy route compatibility
         [Authorize(Roles = "Manager,Admin")]
         [ProducesResponseType(typeof(LeaveRequestResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -193,8 +193,8 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpPatch("{id:int}/reject")]
-        [Route("/api/manager/leave-requests/{id:int}/reject")] // Legacy route compatibility
-        [Route("/api/admin/leave-requests/{id:int}/reject")]   // Legacy route compatibility
+        [HttpPatch("/api/manager/leave-requests/{id:int}/reject")] // Legacy route compatibility
+        [HttpPatch("/api/admin/leave-requests/{id:int}/reject")]   // Legacy route compatibility
         [Authorize(Roles = "Manager,Admin")]
         [ProducesResponseType(typeof(LeaveRequestResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

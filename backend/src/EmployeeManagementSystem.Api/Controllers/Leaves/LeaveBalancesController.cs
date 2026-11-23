@@ -54,8 +54,8 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpGet("employees/{employeeCode}")]
-        [Route("/api/manager/employees/{employeeCode}/leave-balances")] // Legacy route compatibility
-        [Route("/api/admin/employees/{employeeCode}/leave-balances")]   // Legacy route compatibility
+        [HttpGet("/api/manager/employees/{employeeCode}/leave-balances")] // Legacy route compatibility
+        [HttpGet("/api/admin/employees/{employeeCode}/leave-balances")]   // Legacy route compatibility
         [Authorize(Roles = "Manager,Admin")]
         [ProducesResponseType(typeof(List<EmployeeLeaveBalanceResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

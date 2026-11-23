@@ -23,7 +23,7 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpGet("admin")]
-        [Route("/api/admin/stats")] // Legacy route compatibility
+        [HttpGet("/api/admin/stats")] // Legacy route compatibility
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(AdminDashboardStatsDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAdminStats()
@@ -34,7 +34,7 @@ namespace EmployeeManagementSystem.Api.Controllers
         }
 
         [HttpGet("manager")]
-        [Route("/api/manager/stats")] // Legacy route compatibility
+        [HttpGet("/api/manager/stats")] // Legacy route compatibility
         [Authorize(Roles = "Manager,Admin")]
         [ProducesResponseType(typeof(ManagerDashboardStatsDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
