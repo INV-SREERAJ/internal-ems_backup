@@ -17,7 +17,6 @@ const CreateEmployee = lazy(() => import("./pages/admin/CreateEmployee"));
 const AdminLeaveTypesPage = lazy(() => import("./pages/admin/AdminLeaveTypesPage"));
 const AdminYearlyLeaveConfigPage = lazy(() => import("./pages/admin/AdminYearlyLeaveConfigPage"));
 const AdminLeaveRequestsPage = lazy(() => import("./pages/admin/AdminLeaveRequestsPage"));
-const AdminEmployeeLeaveBalancesPage = lazy(() => import("./pages/admin/AdminEmployeeLeaveBalancesPage"));
 const AdminLeaveCalendarPage = lazy(() => import("./pages/admin/AdminLeaveCalendarPage"));
 
 // Manager pages
@@ -149,7 +148,7 @@ export default function App() {
           <Route path="leave-year-configurations" element={<Navigate to="/admin/yearly-configuration" replace />} />
           <Route path="leave-requests" element={<AdminLeaveRequestsPage />} />
           <Route path="all-leaves" element={<Navigate to="/admin/leave-requests" replace />} />
-          <Route path="employee-leave-balances" element={<AdminEmployeeLeaveBalancesPage />} />
+          <Route path="employee-leave-balances" element={<Navigate to="/admin/employees" replace />} />
           <Route path="team-calendar" element={<AdminLeaveCalendarPage />} />
           <Route path="leave-calendar" element={<AdminLeaveCalendarPage />} />
           <Route path="leaves/calendar" element={<Navigate to="/admin/team-calendar" replace />} />

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   HiOutlineMagnifyingGlass,
@@ -18,9 +19,12 @@ import Pagination from "../../components/common/Pagination";
 import { formatLeaveDateRange } from "../../utils/dateUtils";
 
 export default function ManagerAllLeavesPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+
   // Filter states
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedLeaveTypeId, setSelectedLeaveTypeId] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -362,13 +366,13 @@ export default function ManagerAllLeavesPage() {
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[960px] table-fixed text-left border-collapse">
             <colgroup>
-              <col className="w-[20%]" />
+              <col className="w-[22%]" />
               <col className="w-[16%]" />
-              <col className="w-[17%]" />
-              <col className="w-[7%]" />
+              <col className="w-[18%]" />
+              <col className="w-[8%]" />
               <col className="w-[13%]" />
               <col className="w-[13%]" />
-              <col className="w-[14%]" />
+              <col className="w-[10%]" />
             </colgroup>
             <thead>
               <tr className="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50/50">
@@ -447,35 +451,15 @@ export default function ManagerAllLeavesPage() {
                       className="py-4 px-6 text-center whitespace-nowrap"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="inline-flex items-center justify-center gap-2">
-                        {req.status === "Pending" ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenApprove(req)}
-                              className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenReject(req)}
-                              className="px-3 py-1 rounded-lg border border-rose-300 hover:border-rose-400 hover:bg-rose-50 text-rose-600 font-semibold text-xs transition-colors cursor-pointer"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        ) : null}
-
-                        <button
-                          type="button"
-                          onClick={() => setActiveRequest(req)}
-                          title="View details"
-                          className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                        >
-                          <HiChevronRight size={18} />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveRequest(req)}
+                        title="View details"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                      >
+                        <span>View</span>
+                        <HiChevronRight size={14} className="text-slate-400" />
+                      </button>
                     </td>
                   </tr>
                 ))

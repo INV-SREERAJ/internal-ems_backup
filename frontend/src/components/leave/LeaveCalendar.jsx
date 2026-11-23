@@ -188,9 +188,11 @@ export default function LeaveCalendar({
   const pickerRef = useRef(null);
 
   // Sync pickerYear when currentDate year changes
-  useEffect(() => {
+  const [prevYear, setPrevYear] = useState(() => currentDate.year());
+  if (prevYear !== currentDate.year()) {
+    setPrevYear(currentDate.year());
     setPickerYear(currentDate.year());
-  }, [currentDate]);
+  }
 
   // Close month picker when clicking outside
   useEffect(() => {
@@ -390,10 +392,16 @@ export default function LeaveCalendar({
               daysDiff <= 1 ||
               (current.evEnd.isoWeekday() === 5 && daysDiff <= 3);
 
-            if (isConsecutive && current.isPending === ev.isPending) {
+            const sameType =
+              current.leaveTypeId && ev.leaveTypeId
+                ? current.leaveTypeId === ev.leaveTypeId
+                : current.leaveTypeName === ev.leaveTypeName;
+
+            if (isConsecutive && current.isPending === ev.isPending && sameType) {
               // Merge into single continuous joined bar
               if (ev.evEnd.isAfter(current.evEnd)) {
                 current.evEnd = ev.evEnd;
+                current.toDate = ev.toDate || ev.ToDate;
               }
               current.numberOfDays =
                 (current.numberOfDays || 1) + (ev.numberOfDays || 1);
@@ -448,6 +456,26 @@ export default function LeaveCalendar({
       return `${weekStart.format("D")} – ${weekEnd.format("D MMMM YYYY")}`;
     }
   }, [currentDate, viewMode]);
+
+  // Spanning events for Week View
+  const currentWeekEvents = useMemo(() => {
+    if (viewMode !== "week" || !calendarWeeks[0]) return [];
+    return getEventsForWeek(
+      calendarWeeks[0].weekStart,
+      calendarWeeks[0].weekEnd
+    );
+  }, [viewMode, calendarWeeks, getEventsForWeek]);
+
+  // Track which weekday columns (1-5) have at least one event
+  const daysWithEvents = useMemo(() => {
+    const set = new Set();
+    currentWeekEvents.forEach((ev) => {
+      for (let c = ev.colStart; c < ev.colStart + ev.colSpan; c++) {
+        set.add(c);
+      }
+    });
+    return set;
+  }, [currentWeekEvents]);
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-2xl shadow-sm relative flex flex-col">
@@ -706,136 +734,126 @@ export default function LeaveCalendar({
         </div>
       ) : viewMode === "week" ? (
         /* ============================================================ */
-        /* WEEK VIEW: Dedicated 7 Daily Schedule Columns               */
+        /* WEEK VIEW: Continuous Spanning Bars (Mon-Fri) & Weekends     */
         /* ============================================================ */
-        <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[460px] bg-white">
-          {calendarWeeks[0]?.days.map((day, idx) => {
-            const isWeekend = idx === 5 || idx === 6;
-            const isToday = day.isSame(dayjs(), "day");
-            const dateStr = day.format("YYYY-MM-DD");
+        <div className="relative min-h-[480px] bg-white">
+          {/* Base Layer: 7 Column dividers, weekend shading & empty day placeholders */}
+          <div className="absolute inset-0 grid grid-cols-7 divide-x divide-slate-100">
+            {calendarWeeks[0]?.days.map((day, idx) => {
+              const isWeekend = idx >= 5;
+              const isToday = day.isSame(dayjs(), "day");
+              const dateStr = day.format("YYYY-MM-DD");
+              const colNum = idx + 1; // 1 to 7
+              const hasEvents = daysWithEvents.has(colNum);
 
-            const dayApprovedEvents = filteredEvents.filter((ev) => {
-              const fromRaw = ev.fromDate || ev.FromDate;
-              const toRaw = ev.toDate || ev.ToDate;
-              if (!fromRaw || !toRaw) return false;
-              const fromStr = dayjs(fromRaw).format("YYYY-MM-DD");
-              const toStr = dayjs(toRaw).format("YYYY-MM-DD");
-              return dateStr >= fromStr && dateStr <= toStr;
-            });
-
-            const dayPendingEvents = filteredPending.filter((req) => {
-              const fromRaw = req.fromDate || req.FromDate;
-              const toRaw = req.toDate || req.ToDate;
-              if (!fromRaw || !toRaw) return false;
-              const fromStr = dayjs(fromRaw).format("YYYY-MM-DD");
-              const toStr = dayjs(toRaw).format("YYYY-MM-DD");
-              return dateStr >= fromStr && dateStr <= toStr;
-            });
-
-            const allDayEvents = [
-              ...dayApprovedEvents.map((e) => ({ ...e, isPending: false })),
-              ...dayPendingEvents.map((e) => ({ ...e, isPending: true })),
-            ];
-
-            return (
-              <div
-                key={dateStr}
-                className={`p-3 flex flex-col justify-between transition-colors ${
-                  isWeekend
-                    ? "bg-slate-50/60"
-                    : isToday
-                    ? "bg-blue-50/15"
-                    : "bg-white"
-                }`}
-              >
-                <div className="flex-1 flex flex-col">
-                  {allDayEvents.length > 0 ? (
-                    <div className="flex flex-col gap-2.5">
-                      {allDayEvents.map((ev, i) => {
-                        const color = getColorForEvent(ev);
-                        const typeName = ev.leaveTypeName || "Leave";
-                        const daysCount = ev.numberOfDays ?? 1;
-                        const fromDay = dayjs(ev.fromDate || ev.FromDate);
-                        const toDay = dayjs(ev.toDate || ev.ToDate);
-                        const isMultiDay = daysCount > 1;
-                        const employeeName = ev.employeeName;
-
-                        return (
-                          <div
-                            key={`col-${ev.isPending ? "p" : "a"}-${ev.id || ev.leaveRequestId || i}`}
-                            onClick={() => onEventClick?.(ev, ev.isPending)}
-                            className={`p-3 rounded-xl border text-xs cursor-pointer transition-all hover:scale-[1.01] hover:shadow-xs ${
-                              ev.isPending
-                                ? "bg-amber-50 text-amber-900 border-amber-300"
-                                : `${color.bg} ${color.text} ${color.border}`
-                            }`}
-                          >
-                            {/* Manager/Admin Mode: show employee name prominently */}
-                            {(mode === "manager" || mode === "admin") && employeeName && (
-                              <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-black/5">
-                                <span className="w-5 h-5 rounded-full bg-white/80 border border-slate-300/80 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
-                                  {employeeName.charAt(0).toUpperCase()}
-                                </span>
-                                <span className="font-bold text-xs truncate">
-                                  {employeeName}
-                                </span>
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between mb-1.5 gap-1">
-                              <span className="font-bold truncate text-xs">
-                                {typeName}
-                              </span>
-                              <span
-                                className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${
-                                  ev.isPending
-                                    ? "bg-amber-200 text-amber-900 border border-amber-300"
-                                    : "bg-white/90 text-slate-700 border border-slate-200/60"
-                                }`}
-                              >
-                                {ev.isPending ? "Pending" : "Approved"}
-                              </span>
-                            </div>
-
-                            <div className="text-[11px] font-medium opacity-85">
-                              {isMultiDay ? (
-                                <span>
-                                  {daysCount} days ({fromDay.format("D MMM")} –{" "}
-                                  {toDay.format("D MMM")})
-                                </span>
-                              ) : (
-                                <span>1 working day</span>
-                              )}
-                            </div>
-
-                            {ev.reason && (
-                              <div className="mt-2 pt-1.5 border-t border-black/5 text-[11px] opacity-75 truncate italic">
-                                &ldquo;{ev.reason}&rdquo;
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+              return (
+                <div
+                  key={dateStr}
+                  className={`h-full flex flex-col justify-center items-center p-2 transition-colors select-none ${
+                    isWeekend
+                      ? "bg-slate-50/70"
+                      : isToday
+                      ? "bg-blue-50/15"
+                      : "bg-white"
+                  }`}
+                >
+                  {isWeekend ? (
+                    <div className="flex flex-col items-center justify-center gap-1 text-slate-300">
+                      <span className="text-xs font-semibold">Weekend</span>
                     </div>
-                  ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center min-h-[140px] group/slot">
-                      {isWeekend ? (
-                        <span className="text-xs text-slate-300 font-medium select-none">
-                          Weekend
-                        </span>
-                      ) : renderWeekEmptyDay ? (
+                  ) : !hasEvents ? (
+                    <div className="flex-1 flex flex-col items-center justify-center group/slot pointer-events-auto">
+                      {renderWeekEmptyDay ? (
                         renderWeekEmptyDay(dateStr, isWeekend)
                       ) : (
-                        <span className="text-xs text-slate-300 font-medium select-none">
+                        <span className="text-xs text-slate-300 font-medium">
                           No leaves
                         </span>
                       )}
                     </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Foreground Layer: Continuous Multi-day Spanning Cards */}
+          <div className="relative z-10 grid grid-cols-7 gap-y-2.5 gap-x-2 p-3 min-h-[480px] pointer-events-none [grid-auto-flow:dense]">
+            {currentWeekEvents.map((ev, i) => {
+              const color = getColorForEvent(ev);
+              const typeName = ev.leaveTypeName || "Leave";
+              const daysCount = ev.numberOfDays ?? 1;
+              const fromDay = dayjs(ev.fromDate || ev.FromDate);
+              const toDay = dayjs(ev.toDate || ev.ToDate);
+              const isMultiDay = daysCount > 1;
+              const employeeName = ev.employeeName;
+
+              return (
+                <div
+                  key={`week-${ev.isPending ? "p" : "a"}-${ev.id || ev.leaveRequestId || i}-${ev.colStart}`}
+                  onClick={() => onEventClick?.(ev, ev.isPending)}
+                  style={{
+                    gridColumn: `${ev.colStart} / span ${ev.colSpan}`,
+                  }}
+                  className={`p-3 rounded-xl border text-xs cursor-pointer transition-all hover:scale-[1.008] hover:shadow-xs pointer-events-auto ${
+                    ev.isPending
+                      ? "bg-amber-50/95 text-amber-900 border-amber-300 shadow-2xs"
+                      : `${color.bg} ${color.text} ${color.border} shadow-2xs`
+                  }`}
+                >
+                  {/* Manager/Admin Mode: show employee name prominently */}
+                  {(mode === "manager" || mode === "admin") && employeeName && (
+                    <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-black/5">
+                      <span className="w-5 h-5 rounded-full bg-white/80 border border-slate-300/80 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
+                        {employeeName.charAt(0).toUpperCase()}
+                      </span>
+                      <span className="font-bold text-xs truncate">
+                        {employeeName}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between mb-1.5 gap-2">
+                    <span className="font-bold truncate text-xs flex items-center gap-1">
+                      {ev.startsBefore && (
+                        <span className="text-[10px] opacity-70 font-bold">◀</span>
+                      )}
+                      <span className="truncate">{typeName}</span>
+                      {ev.endsAfter && (
+                        <span className="text-[10px] opacity-70 font-bold">▶</span>
+                      )}
+                    </span>
+                    <span
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${
+                        ev.isPending
+                          ? "bg-amber-200 text-amber-900 border border-amber-300"
+                          : "bg-white/90 text-slate-700 border border-slate-200/60"
+                      }`}
+                    >
+                      {ev.isPending ? "Pending" : "Approved"}
+                    </span>
+                  </div>
+
+                  <div className="text-[11px] font-medium opacity-85">
+                    {isMultiDay ? (
+                      <span>
+                        {daysCount} days ({fromDay.format("D MMM")} –{" "}
+                        {toDay.format("D MMM")})
+                      </span>
+                    ) : (
+                      <span>1 working day</span>
+                    )}
+                  </div>
+
+                  {ev.reason && (
+                    <div className="mt-2 pt-1.5 border-t border-black/5 text-[11px] opacity-75 truncate italic">
+                      &ldquo;{ev.reason}&rdquo;
+                    </div>
                   )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       ) : (
         /* ============================================================ */

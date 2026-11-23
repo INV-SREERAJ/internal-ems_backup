@@ -44,6 +44,7 @@ export const ROLE_LAYOUT_CONFIG = {
       {
         label: "Leave Management",
         icon: HiOutlineCalendarDays,
+        defaultOpen: false,
         children: [
           {
             to: "/admin/leave-types",
@@ -58,17 +59,13 @@ export const ROLE_LAYOUT_CONFIG = {
             label: "All Leave requests",
           },
           {
-            to: "/admin/employee-leave-balances",
-            label: "Employee Leave balances",
-          },
-          {
             to: "/admin/leave-calendar",
             label: "Leave Calendar",
           },
         ],
       },
     ],
-    profileMenu: (user) => [
+    profileMenu: () => [
       {
         to: `/admin/profile`,
         label: "My Profile",
@@ -100,6 +97,7 @@ export const ROLE_LAYOUT_CONFIG = {
       {
         label: "Team Leaves",
         icon: HiOutlineCalendarDays,
+        defaultOpen: false,
         children: [
           {
             to: "/manager/leaves/pending",
@@ -154,6 +152,7 @@ export const ROLE_LAYOUT_CONFIG = {
       {
         label: "My Leaves",
         icon: HiOutlineCalendarDays,
+        defaultOpen: false,
         children: [
           {
             to: "/employee/leaves/apply",

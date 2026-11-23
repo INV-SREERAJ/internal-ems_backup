@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { HiOutlineArrowRightOnRectangle, HiChevronDown } from "react-icons/hi2";
@@ -11,43 +11,36 @@ export default function AppSidebar({ onNavigate, role }) {
   const location = useLocation();
 
   const effectiveRole = role || user?.role;
-  const config = getLayoutConfig(effectiveRole);
-  const navItems = config.sidebarNav || [];
+  const config = useMemo(() => getLayoutConfig(effectiveRole), [effectiveRole]);
+  const navItems = useMemo(() => config.sidebarNav || [], [config]);
 
   // Track pending leave requests for Manager alert badge
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
-  const fetchPendingCount = useCallback(async () => {
-    if (effectiveRole !== ROLE_LABEL[ROLES.Manager]) {
-      setPendingRequestsCount(0);
-      return;
-    }
-    try {
-      const res = await leaveApi.getTeamRequests({
-        page: 1,
-        pageSize: 1,
-        status: "Pending",
-      });
-      setPendingRequestsCount(res?.totalCount ?? 0);
-    } catch {
-      // Ignore if unauthorized or failed
-    }
+  const refreshPendingCount = useCallback(() => {
+    if (effectiveRole !== ROLE_LABEL[ROLES.Manager]) return;
+    leaveApi
+      .getTeamRequests({ page: 1, pageSize: 1, status: "Pending" })
+      .then((res) => {
+        setPendingRequestsCount(res?.totalCount ?? 0);
+      })
+      .catch(() => {});
   }, [effectiveRole]);
 
   useEffect(() => {
-    fetchPendingCount();
-  }, [fetchPendingCount, location.pathname]);
+    refreshPendingCount();
+  }, [refreshPendingCount, location.pathname]);
 
   // Listen to cross-component updates when leaves are approved/rejected
   useEffect(() => {
     const handleUpdate = () => {
-      fetchPendingCount();
+      refreshPendingCount();
     };
     window.addEventListener("team-requests-updated", handleUpdate);
     return () => {
       window.removeEventListener("team-requests-updated", handleUpdate);
     };
-  }, [fetchPendingCount]);
+  }, [refreshPendingCount]);
 
   // Track expanded state for menu groups
   const [openGroups, setOpenGroups] = useState(() => {
@@ -58,11 +51,28 @@ export default function AppSidebar({ onNavigate, role }) {
         const isActive = item.children.some((child) =>
           location.pathname.startsWith(child.to)
         );
-        initialState[item.label] = isActive || item.defaultOpen !== false;
+        initialState[item.label] = isActive || Boolean(item.defaultOpen);
       }
     });
     return initialState;
   });
+
+  // Automatically expand group when navigating to one of its children
+  useEffect(() => {
+    navItems.forEach((item) => {
+      if (item.children) {
+        const isActive = item.children.some((child) =>
+          location.pathname.startsWith(child.to)
+        );
+        if (isActive) {
+          setOpenGroups((prev) => ({
+            ...prev,
+            [item.label]: true,
+          }));
+        }
+      }
+    });
+  }, [location.pathname, navItems]);
 
   const toggleGroup = (label) => {
     setOpenGroups((prev) => ({
@@ -92,7 +102,7 @@ export default function AppSidebar({ onNavigate, role }) {
           const ItemIcon = item.icon;
 
           if (item.children) {
-            const isOpen = openGroups[item.label] ?? true;
+            const isOpen = Boolean(openGroups[item.label]);
             const isTeamLeavesGroup = item.label === "Team Leaves";
             const showGroupDot = isTeamLeavesGroup && pendingRequestsCount > 0;
 

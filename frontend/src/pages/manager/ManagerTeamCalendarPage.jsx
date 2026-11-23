@@ -190,7 +190,8 @@ export default function ManagerTeamCalendarPage() {
       if (activeRequest?.id === requestId) {
         setActiveRequest(null);
       }
-      refreshCalendar();
+      fetchPendingRequests();
+      fetchEvents();
     } catch (err) {
       console.error("Failed to reject request:", err);
       const msg =
